@@ -1,0 +1,30 @@
+{
+  "name": "cartful",
+  "version": "1.0.0",
+  "description": "Cartful is an online shopping system we build for the backend development module at HAMK.  \r Our main objective in this project is to demonstrate knowledge of how to use backend frameworks and build a web application simulating a real-world case.\r In this project, we are using **Node.js with Express** for the server-side, **MongoDB** as the database, and **Handlebars** for page rendering.  \r Moreover, we follow the **MVC structure** to keep things organized and scalable.\r There are two main parts in this application: the **Customer segment** and the **Admin segment**.\r The **customer part** is public-facing, where users can register, log in, browse products, add items to their cart, place orders, manage wishlists, and leave product reviews.\r The **admin section** is used for internal website management. Admin users can log in securely, add or update products, manage categories, view customer orders, track performance, and generate reports.\r We also make use of **RESTful APIs** for handling different operations like user authentication, cart management, product listing, and order processing. This allows clean separation of frontend and backend logic and helps with testing and future API integrations.\r In addition, we plan to support multiple languages and follow accessibility principles so that the app can be used by everyone. We manage our tasks using Trello and GitHub, and follow Agile method with team collaboration.",
+  "homepage": "https://github.com/mujitha-m3/cartful#readme",
+  "bugs": {
+    "url": "https://github.com/mujitha-m3/cartful/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mujitha-m3/cartful.git"
+  },
+  "license": "ISC",
+  "author": "Mujitha, Asiatha, Kasun",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon cartful"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-handlebars": "^8.0.2",
+    "mongodb": "^6.15.0",
+    "mongoose": "^8.13.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
