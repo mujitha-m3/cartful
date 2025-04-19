@@ -8,3 +8,17 @@ The **customer part** is public-facing, where users can register, log in, browse
 The **admin section** is used for internal website management. Admin users can log in securely, add or update products, manage categories, view customer orders, track performance, and generate reports.
 We also make use of **RESTful APIs** for handling different operations like user authentication, cart management, product listing, and order processing. This allows clean separation of frontend and backend logic and helps with testing and future API integrations.
 In addition, we plan to support multiple languages and follow accessibility principles so that the app can be used by everyone. We manage our tasks using Trello and GitHub, and follow Agile method with team collaboration.
+
+## Carful App Features
+
+- Customer registration and login
+- Secure authentication
+- Browse products by category
+- Search and filter products
+- Add items to cart and update cart
+- Place orders and view order history
+- Save items to wishlist
+- Submit and read product reviews
+- Multilingual support (planned)
+- Accessible design with basic ARIA support
+- Admin panel to manage products, orders, and reports
