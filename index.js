@@ -4,6 +4,3 @@ const app = express();
 const exphbs = require('express-handlebars'); // import handle bars
 const localport = 8000;
 
-
-const PORT = process.env.PORT || localport; 
-app.listen(PORT,()=>console.log(`Server Is Running on ${PORT}`));
