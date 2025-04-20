@@ -22,3 +22,20 @@ In addition, we plan to support multiple languages and follow accessibility prin
 - Multilingual support (planned)
 - Accessible design with basic ARIA support
 - Admin panel to manage products, orders, and reports
+
+## Technologies Used
+
+- Node.js – backend server
+- Express.js – routing and middleware
+- MongoDB – NoSQL database
+- Mongoose – MongoDB ODM
+- Handlebars – server-side page rendering
+- JavaScript, HTML, CSS – core frontend
+- Bootstrap – basic layout and responsiveness
+- Git + GitHub – version control
+- Trello – project management
+
+
+-------------
+
+This project is developed by 3 backend developers as part of HAMK's Web Frameworks course. Each member is responsible for different parts of the backend system and follows the same coding architecture (Node.js + Express + MongoDB + Handlebars with MVC).
