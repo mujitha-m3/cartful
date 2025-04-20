@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const exphbs = require('express-handlebars');
 require('dotenv').config();
 
+
 const app = express();
 
 // With this middleware we can get the data from HTML form
@@ -28,3 +29,11 @@ mongoose.connect(dbURI)
   .catch((err) => {
     console.error('Error connecting to DB:', err);
   });
+  
+  app.use(express.json());
+  const countryRoutes = require('./routes/countryRoute');
+  app.use('/', countryRoutes);
+
+  const userRoute = require('./routes/userRoute');
+  app.use('/',userRoute);
+
