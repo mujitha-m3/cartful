@@ -31,7 +31,6 @@ In addition, we plan to support multiple languages and follow accessibility prin
 - Mongoose – MongoDB ODM
 - Handlebars – server-side page rendering
 - JavaScript, HTML, CSS – core frontend
-- Bootstrap – basic layout and responsiveness
 - Git + GitHub – version control
 - Trello – project management
 
@@ -39,3 +38,19 @@ In addition, we plan to support multiple languages and follow accessibility prin
 -------------
 
 This project is developed by 3 backend developers as part of HAMK's Web Frameworks course. Each member is responsible for different parts of the backend system and follows the same coding architecture (Node.js + Express + MongoDB + Handlebars with MVC).
+
+- **Kasun** – Responsible for **authentication**, user registration, login, OTP verification, and session handling.
+- **Asitha** – Focused on **product listing and browsing**, search and filter features, and category display.
+- **Mujitha** – Works on **cart management**, order placement, and all **admin panel functionalities** including reports and product management.
+
+All members use GitHub branches, submit pull requests, and follow Agile development with daily task tracking on Trello.
+
+
+## 📋 Agile Methodology & Tools
+
+We are following Agile development and daily scrum approach. The tasks are planned and tracked using a Trello Kanban board.
+
+- Trello Board: [Trello Link](https://trello.com/b/ru7MvStT/cartful)
+- Each team member works in their own branch
+- We use pull requests for merging code
+- GitHub is used to manage the source code and version history
