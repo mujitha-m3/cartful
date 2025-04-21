@@ -1,50 +1,66 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/user'); 
+const User = require('../models/User'); 
+const userController = require('../controllers/userController');
 
 // POST: Customer Registration
-router.post('/api/customerRegister', async (req, res) => {
+
+
+router.post('/api/', userController.registerNewUser);
+
+
+router.get('/api/customerRegister/:id', async (req, res) => {
+  const id = req.params.id;
+
   try {
-    const {
-      fullName,
-      email,
-      password,
-      gender,
-      dateOfBirth,
-      language,
-      phone,
-      profileImage,
-      addressLine1,
-      addressLine2,
-      city,
-      postalCode,
-      country
-    } = req.body;
+    const user = await User.findById(id);
 
-    const newUser = new User({
-      fullName,
-      email,
-      password,
-      gender,
-      dateOfBirth,
-      language,
-      phone,
-      profileImage,
-      addressLine1,
-      addressLine2,
-      city,
-      postalCode,
-      country
-    });
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({
+        msg: 'User not found'
+      });
+    }
 
-    await newUser.save();
-
-    res.location(`http://localhost:8000/api/customerRegister/${newUser._id}`);
-    res.status(201).json(newUser);
-    //res.send('Customer Registration is Completed');
   } catch (err) {
-    console.error(' Registration Error:', err);
-    res.status(500).send(' Registration Failed');
+    console.error('Error fetching user:', err.message);
+    res.status(500).json({ msg: 'Server Error' });
+  }
+});
+
+// Update Cusomer or user Record
+router.patch('/api/customerRegister/:id', async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (updatedUser) {
+      res.status(200).json(updatedUser);
+    } else {
+      res.status(404).json({ msg: 'User not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ msg: 'Update failed' });
+  }
+});
+
+// Delete
+
+router.delete('/api/customerRegister/:id', async (req, res) => 
+  {
+  try {
+    const result = await User.deleteUserById(req.params.id);
+    if (result) 
+      {
+      res.status(200).json({ msg: 'User deleted successfully' });
+    } else {
+      res.status(404).json({ msg: 'User not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ msg: 'Delete failed' });
   }
 });
 
