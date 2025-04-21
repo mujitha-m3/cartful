@@ -14,7 +14,9 @@ app.engine('handlebars', exphbs.engine({
 }));
 
 app.set('view engine', 'handlebars'); 
-
+app.use(express.json());
+const userRoute = require('./routes/userRoute');
+app.use('/', userRoute);
 
 const dbURI ='mongodb+srv://'+process.env.DBUSERNAME+':'+process.env.DBPASSWORD+'@'+process.env.CLUSTER+'.mongodb.net/'+process.env.DB+'?retryWrites=true&w=majority&appName=Cluster0';
 //console.log(dbURI);
@@ -30,10 +32,4 @@ mongoose.connect(dbURI)
     console.error('Error connecting to DB:', err);
   });
   
-  app.use(express.json());
-  const countryRoutes = require('./routes/countryRoute');
-  app.use('/', countryRoutes);
-
-  const userRoute = require('./routes/userRoute');
-  app.use('/',userRoute);
-
+  
