@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-<<<<<<< HEAD
 const User = require('../models/User'); // import user collection
 
 // Create User Function
@@ -34,7 +33,8 @@ const registerNewUser = async (req,res) => {
 }
 
 module.exports = {registerNewUser};
-=======
+const express = require('express');
+const router = express.Router();
 const User = require('../models/User');
 
 // POST: Register Customer
@@ -92,4 +92,3 @@ module.exports = {
     registerCustomer
    // loginCustomer
 };
->>>>>>> 86cfcc35f6715699f77d14f121ebe4494a059842
