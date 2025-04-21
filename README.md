@@ -46,7 +46,7 @@ This project is developed by 3 backend developers as part of HAMK's Web Framewor
 All members use GitHub branches, submit pull requests, and follow Agile development with daily task tracking on Trello.
 
 
-## 📋 Agile Methodology & Tools
+## Agile Methodology & Tools
 
 We are following Agile development and daily scrum approach. The tasks are planned and tracked using a Trello Kanban board.
 
