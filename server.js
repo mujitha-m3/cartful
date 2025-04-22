@@ -1,8 +1,6 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const exphbs = require('express-handlebars');
 require('dotenv').config();
-
 
 const app = express();
 
@@ -12,11 +10,7 @@ app.use(express.urlencoded({extended: false}));
 app.engine('handlebars', exphbs.engine({
     defaultLayout: 'main'
 }));
-
 app.set('view engine', 'handlebars'); 
-app.use(express.json());
-const userRoute = require('./routes/userRoute');
-app.use('/', userRoute);
 
 const dbURI ='mongodb+srv://'+process.env.DBUSERNAME+':'+process.env.DBPASSWORD+'@'+process.env.CLUSTER+'.mongodb.net/'+process.env.DB+'?retryWrites=true&w=majority&appName=Cluster0';
 //console.log(dbURI);
@@ -31,5 +25,3 @@ mongoose.connect(dbURI)
   .catch((err) => {
     console.error('Error connecting to DB:', err);
   });
-  
-  
