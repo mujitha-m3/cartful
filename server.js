@@ -1,11 +1,14 @@
 const express = require('express');
-const bodyParser = require('body-parser'); 
 const mongoose = require('mongoose');
 const exphbs = require('express-handlebars');
-require('dotenv').config();
+const Handlebars = require('handlebars');
+const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
+const dotenv = require('dotenv');
 const Product = require('./models/Product');
 const Category = require('./models/Category');
-const categoryRoutes = require('./routes/categoryRoutes'); // Import category routes
+const categoryRoutes = require('./routes/categoryRoutes');
+
+dotenv.config();
 
 const app = express();
 
@@ -14,21 +17,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
 
-// Handlebars setup with helpers
+// Handlebars setup with prototype access
 app.engine('handlebars', exphbs.engine({
+  handlebars: allowInsecurePrototypeAccess(Handlebars),
   defaultLayout: 'main',
   helpers: {
     formatDate: (date) => new Date(date).toLocaleDateString(),
-    ifEquals: (arg1, arg2, options) => {
-      return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
-    },
-    formatPrice: (price) => {
-      return price ? `$${price.toFixed(2)}` : '$0.00';
-    },
-    // Add helper for checking if category has children
-    hasChildren: function(category) {
-      return category.children && category.children.length > 0;
-    }
+    ifEquals: (arg1, arg2, options) => (arg1 == arg2 ? options.fn(this) : options.inverse(this)),
+    formatPrice: (price) => (price ? `$${price.toFixed(2)}` : '$0.00'),
+    hasChildren: (category) => category.children && category.children.length > 0
   }
 }));
 app.set('view engine', 'handlebars');
@@ -45,7 +42,7 @@ mongoose.connect(dbURI)
   .catch(err => console.log(err));
 
 // ======================
-// Main Routes
+// Home Route
 // ======================
 app.get('/', (req, res) => {
   res.render('index', { title: 'Product Management System' });
@@ -56,7 +53,6 @@ app.get('/', (req, res) => {
 // ======================
 app.get('/products', async (req, res) => {
   const searchQuery = req.query.search;
-
   try {
     let products;
     if (searchQuery) {
@@ -143,11 +139,8 @@ app.post('/products', async (req, res) => {
 // ======================
 // Category Routes
 // ======================
-
-// Use the category API routes
 app.use('/api/categories', categoryRoutes);
 
-// View routes for categories (keep your existing view routes)
 app.get('/categories', async (req, res) => {
   try {
     const categories = await Category.find({ parent_category_id: null })
@@ -159,12 +152,7 @@ app.get('/categories', async (req, res) => {
 
     res.render('categories', {
       title: 'Category Management',
-      categories,
-      helpers: {
-        hasChildren: function(category) {
-          return category.children && category.children.length > 0;
-        }
-      }
+      categories
     });
   } catch (err) {
     console.error(err);
@@ -174,10 +162,7 @@ app.get('/categories', async (req, res) => {
 
 app.get('/categories/add', async (req, res) => {
   try {
-    const parentCategories = await Category.find({ 
-      is_active: true 
-    }).sort({ name: 1 });
-
+    const parentCategories = await Category.find({ is_active: true }).sort({ name: 1 });
     res.render('addCategory', {
       title: 'Add New Category',
       parentCategories
@@ -191,13 +176,11 @@ app.get('/categories/add', async (req, res) => {
 app.post('/categories', async (req, res) => {
   try {
     const { name, description, parent_category_id } = req.body;
-    
+
     if (parent_category_id) {
       const parentExists = await Category.exists({ _id: parent_category_id });
       if (!parentExists) {
-        return res.status(400).render('error', { 
-          error: 'Selected parent category does not exist' 
-        });
+        return res.status(400).render('error', { error: 'Selected parent category does not exist' });
       }
     }
 
@@ -212,86 +195,16 @@ app.post('/categories', async (req, res) => {
   } catch (err) {
     console.error(err);
     if (err.code === 11000) {
-      res.status(400).render('error', { 
-        error: 'Category name already exists' 
-      });
+      res.status(400).render('error', { error: 'Category name already exists' });
     } else {
-      res.status(500).render('error', { 
-        error: 'Error creating category' 
-      });
+      res.status(500).render('error', { error: 'Error creating category' });
     }
   }
 });
 
-app.get('/categories/edit/:id', async (req, res) => {
-  try {
-    const category = await Category.findById(req.params.id);
-    const categories = await Category.find({ _id: { $ne: req.params.id } });
-    res.render('editCategory', { 
-      title: 'Edit Category',
-      category,
-      categories
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).render('error', { error: 'Error loading edit form' });
-  }
-});
-
-app.post('/categories/update/:id', async (req, res) => {
-  try {
-    const { 
-      name, 
-      description, 
-      icon_url, 
-      parent_category_id, 
-      restricted_countries,
-      is_active 
-    } = req.body;
-
-    const countriesArray = restricted_countries 
-      ? restricted_countries.split(',').map(country => country.trim())
-      : [];
-
-    await Category.findByIdAndUpdate(req.params.id, {
-      name,
-      description,
-      icon_url,
-      parent_category_id: parent_category_id || null,
-      restricted_countries: countriesArray,
-      is_active: is_active === 'on'
-    });
-
-    res.redirect('/categories');
-  } catch (err) {
-    console.error(err);
-    res.status(500).render('error', { error: 'Error updating category' });
-  }
-});
-
-app.post('/categories/delete/:id', async (req, res) => {
-  try {
-    const productsCount = await Product.countDocuments({ category_id: req.params.id });
-    
-    if (productsCount > 0) {
-      return res.status(400).render('error', { 
-        error: 'Cannot delete category - it has associated products' 
-      });
-    }
-
-    const deleted = await Category.findByIdAndDelete(req.params.id);
-    if (!deleted) {
-      return res.status(404).render('error', { error: 'Category not found' });
-    }
-    
-    res.redirect('/categories');
-  } catch (err) {
-    console.error(err);
-    res.status(500).render('error', { error: 'Error deleting category' });
-  }
-});
-
-// Error handling middleware
+// ======================
+// Error Handling
+// ======================
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).render('error', { error: 'Something went wrong!' });

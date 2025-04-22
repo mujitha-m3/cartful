@@ -1,25 +1,46 @@
-<h1>Add New Category</h1>
+<div class="container">
+  <h1>{{title}}</h1>
 
-<form method="POST" action="/categories">
-  <div class="form-group">
-    <label for="name">Category Name</label>
-    <input type="text" class="form-control" id="name" name="name" required>
-  </div>
-  
-  <div class="form-group">
-    <label for="description">Description</label>
-    <textarea class="form-control" id="description" name="description"></textarea>
-  </div>
-  
-  <div class="form-group">
-    <label for="parent_category_id">Parent Category</label>
-    <select class="form-control" id="parent_category_id" name="parent_category_id">
-      <option value="">-- Top Level Category --</option>
-      {{#each parentCategories}}
-        <option value="{{this._id}}">{{this.name}}</option>
-      {{/each}}
-    </select>
-  </div>
-  
-  <button type="submit" class="btn btn-primary">Create Category</button>
-</form>
+  {{#if error}}
+    <div class="error-message">
+      <h4>Error</h4>
+      <p>{{error}}</p>
+    </div>
+  {{/if}}
+
+  {{#if success}}
+    <div class="success-message">
+      <h4>Success</h4>
+      <p>{{success}}</p>
+    </div>
+  {{/if}}
+
+  <form action="/categories" method="POST">
+    <div class="input-group">
+      <label for="name">Category Name *</label>
+      <input type="text" id="name" name="name" required>
+    </div>
+
+    <div class="input-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description"></textarea>
+    </div>
+
+    <div class="input-group">
+      <label for="icon_url">Icon URL</label>
+      <input type="url" id="icon_url" name="icon_url">
+    </div>
+
+    <div class="input-group">
+      <label for="parent_category_id">Parent Category</label>
+      <select id="parent_category_id" name="parent_category_id">
+        <option value="">-- None --</option>
+        {{#each parentCategories}}
+          <option value="{{this._id}}">{{this.name}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Category</button>
+  </form>
+</div>
