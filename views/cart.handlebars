@@ -1,0 +1,13 @@
+<h2>Your Cart</h2>
+{{#each cartItems}}
+  <div>
+    <p>{{this.product_id.name}} - Qty: {{this.quantity}} - Price: €{{this.total_price}}</p>
+    <form method="POST" action="/cart/update/{{this._id}}">
+      <input type="number" name="quantity" value="{{this.quantity}}" min="1">
+      <button type="submit">Update</button>
+    </form>
+    <a href="/cart/remove/{{this._id}}">Remove</a>
+  </div>
+{{else}}
+  <p>No items in cart.</p>
+{{/each}}
