@@ -1,35 +1,298 @@
 const express = require('express');
+const bodyParser = require('body-parser'); 
 const mongoose = require('mongoose');
 const exphbs = require('express-handlebars');
 require('dotenv').config();
-
+const Product = require('./models/Product');
+const Category = require('./models/Category');
+const categoryRoutes = require('./routes/categoryRoutes'); // Import category routes
 
 const app = express();
 
-// With this middleware we can get the data from HTML form
-app.use(express.urlencoded({extended: false}));
-
-app.engine('handlebars', exphbs.engine({
-    defaultLayout: 'main'
-}));
-
-app.set('view engine', 'handlebars'); 
+// Middleware
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-const userRoute = require('./routes/userRoute');
-app.use('/', userRoute);
+app.use(express.static('public'));
 
-const dbURI ='mongodb+srv://'+process.env.DBUSERNAME+':'+process.env.DBPASSWORD+'@'+process.env.CLUSTER+'.mongodb.net/'+process.env.DB+'?retryWrites=true&w=majority&appName=Cluster0';
-//console.log(dbURI);
+// Handlebars setup with helpers
+app.engine('handlebars', exphbs.engine({
+  defaultLayout: 'main',
+  helpers: {
+    formatDate: (date) => new Date(date).toLocaleDateString(),
+    ifEquals: (arg1, arg2, options) => {
+      return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+    },
+    formatPrice: (price) => {
+      return price ? `$${price.toFixed(2)}` : '$0.00';
+    },
+    // Add helper for checking if category has children
+    hasChildren: function(category) {
+      return category.children && category.children.length > 0;
+    }
+  }
+}));
+app.set('view engine', 'handlebars');
 
+// MongoDB connection
+const dbURI = `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.CLUSTER}.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
 
 mongoose.connect(dbURI)
   .then(() => {
     const PORT = process.env.PORT || 8000;
-    app.listen(PORT, () => console.log('Server is running on port ' + PORT));
+    app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
     console.log('Connected to DB');
   })
-  .catch((err) => {
-    console.error('Error connecting to DB:', err);
-  });
-  
-  
+  .catch(err => console.log(err));
+
+// ======================
+// Main Routes
+// ======================
+app.get('/', (req, res) => {
+  res.render('index', { title: 'Product Management System' });
+});
+
+// ======================
+// Product Routes
+// ======================
+app.get('/products', async (req, res) => {
+  const searchQuery = req.query.search;
+
+  try {
+    let products;
+    if (searchQuery) {
+      products = await Product.find({
+        $or: [
+          { name: { $regex: searchQuery, $options: 'i' } },
+          { description: { $regex: searchQuery, $options: 'i' } },
+          { category_id: { $regex: searchQuery, $options: 'i' } }
+        ]
+      });
+    } else {
+      products = await Product.find().sort({ createdAt: -1 });
+    }
+
+    res.render('products', {
+      title: '',
+      products: products.map(product => product.toJSON()),
+      searchQuery: searchQuery || ''
+    });
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { error: 'Error retrieving products' });
+  }
+});
+
+app.get('/products/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).populate('category_id');
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json(product);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error fetching product' });
+  }
+});
+
+app.get('/add-product', async (req, res) => {
+  const categories = await Category.find();
+  res.render('addProduct', { title: 'Add a New Product', categories });
+});
+
+app.post('/products', async (req, res) => {
+  const { name, slug, description, price, original_price, discount, stock, image_url, thumbnail_url, alt_text, category_id, allowed_countries, is_featured, status } = req.body;
+
+  if (!name || !price) {
+    return res.status(400).send('Product name and price are required.');
+  }
+
+  const discountObj = discount ? JSON.parse(discount) : {};
+
+  try {
+    const newProduct = new Product({
+      name,
+      slug,
+      description,
+      price,
+      original_price,
+      discount: discountObj,
+      stock,
+      image_url,
+      thumbnail_url,
+      alt_text,
+      category_id,
+      allowed_countries,
+      is_featured: is_featured === 'on',
+      status: status || 'active',
+      created_by: req.user ? req.user.id : null
+    });
+
+    await newProduct.save();
+
+    if (req.headers['content-type'] === 'application/json') {
+      res.status(201).json(newProduct);
+    } else {
+      res.redirect('/products');
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { error: 'Error adding product' });
+  }
+});
+
+// ======================
+// Category Routes
+// ======================
+
+// Use the category API routes
+app.use('/api/categories', categoryRoutes);
+
+// View routes for categories (keep your existing view routes)
+app.get('/categories', async (req, res) => {
+  try {
+    const categories = await Category.find({ parent_category_id: null })
+      .populate({
+        path: 'children',
+        options: { sort: { name: 1 } }
+      })
+      .sort({ name: 1 });
+
+    res.render('categories', {
+      title: 'Category Management',
+      categories,
+      helpers: {
+        hasChildren: function(category) {
+          return category.children && category.children.length > 0;
+        }
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { error: 'Error loading categories' });
+  }
+});
+
+app.get('/categories/add', async (req, res) => {
+  try {
+    const parentCategories = await Category.find({ 
+      is_active: true 
+    }).sort({ name: 1 });
+
+    res.render('addCategory', {
+      title: 'Add New Category',
+      parentCategories
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { error: 'Error loading form' });
+  }
+});
+
+app.post('/categories', async (req, res) => {
+  try {
+    const { name, description, parent_category_id } = req.body;
+    
+    if (parent_category_id) {
+      const parentExists = await Category.exists({ _id: parent_category_id });
+      if (!parentExists) {
+        return res.status(400).render('error', { 
+          error: 'Selected parent category does not exist' 
+        });
+      }
+    }
+
+    const newCategory = new Category({
+      name,
+      description,
+      parent_category_id: parent_category_id || null
+    });
+
+    await newCategory.save();
+    res.redirect('/categories');
+  } catch (err) {
+    console.error(err);
+    if (err.code === 11000) {
+      res.status(400).render('error', { 
+        error: 'Category name already exists' 
+      });
+    } else {
+      res.status(500).render('error', { 
+        error: 'Error creating category' 
+      });
+    }
+  }
+});
+
+app.get('/categories/edit/:id', async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+    const categories = await Category.find({ _id: { $ne: req.params.id } });
+    res.render('editCategory', { 
+      title: 'Edit Category',
+      category,
+      categories
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { error: 'Error loading edit form' });
+  }
+});
+
+app.post('/categories/update/:id', async (req, res) => {
+  try {
+    const { 
+      name, 
+      description, 
+      icon_url, 
+      parent_category_id, 
+      restricted_countries,
+      is_active 
+    } = req.body;
+
+    const countriesArray = restricted_countries 
+      ? restricted_countries.split(',').map(country => country.trim())
+      : [];
+
+    await Category.findByIdAndUpdate(req.params.id, {
+      name,
+      description,
+      icon_url,
+      parent_category_id: parent_category_id || null,
+      restricted_countries: countriesArray,
+      is_active: is_active === 'on'
+    });
+
+    res.redirect('/categories');
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { error: 'Error updating category' });
+  }
+});
+
+app.post('/categories/delete/:id', async (req, res) => {
+  try {
+    const productsCount = await Product.countDocuments({ category_id: req.params.id });
+    
+    if (productsCount > 0) {
+      return res.status(400).render('error', { 
+        error: 'Cannot delete category - it has associated products' 
+      });
+    }
+
+    const deleted = await Category.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).render('error', { error: 'Category not found' });
+    }
+    
+    res.redirect('/categories');
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { error: 'Error deleting category' });
+  }
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).render('error', { error: 'Something went wrong!' });
+});

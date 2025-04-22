@@ -1,0 +1,310 @@
+/* -------------------------- Base Styles -------------------------- */
+html,
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+}
+
+/* -------------------------- Navigation -------------------------- */
+nav {
+  background: linear-gradient(135deg, #2c3e50, #4ca1af);
+  padding: 1.5rem 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+
+nav li {
+  margin: 0 1.5rem;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+}
+
+nav a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #fff;
+  transition: width 0.3s ease;
+}
+
+nav a:hover::after {
+  width: 100%;
+}
+
+/* -------------------------- Product Table Section -------------------------- */
+.products-container {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.products-container h2 {
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+/* Search bar */
+.search-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-bar input[type='text'] {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.search-bar button {
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.search-bar button:hover {
+  background-color: #2980b9;
+}
+
+/* Product table */
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+.product-table thead {
+  background-color: #f1f1f1;
+}
+
+.product-table th,
+.product-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.product-table th {
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.product-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Action buttons */
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === Normalise Edit (a) and Delete (button) ==================== */
+.table-actions .btn {          /* targets BOTH .btn-update & .btn-danger */
+  display: inline-block;       /* makes <a> behave like a button          */
+  padding: 0.5rem 1.25rem;     /* identical padding                       */
+  min-width: 115px;            /* identical overall width                 */
+  box-sizing: border-box;      /* ignores browser‑native button padding   */
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;       /* removes underline from <a>              */
+  transition: background-color .3s ease, transform .2s ease;
+}
+
+/* Colour overrides stay as they were ----------------------------- */
+.btn-update {
+  background-color: #3498db;
+  color: #fff;
+}
+.btn-update:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background-color: #e74c3c !important;   /* vivid red all the time */
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background-color: #c0392b;   /* darker red only on hover */
+  transform: translateY(-2px);
+}
+
+
+
+
+.inline-form {
+  display: inline;
+}
+
+/* -------------------------- Add Product Form Section -------------------------- */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+h1 {
+  color: #2c3e50;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+/* Form elements */
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+
+/* Primary button */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-block;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  min-width: 100px;
+  background-color: #3498db;
+  color: #fff;
+  text-align: center;
+}
+.btn-primary:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+/* Checkbox label inline */
+.input-group input[type='checkbox'] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+.input-group label[for='is_featured'] {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 1rem;
+}
+
+/* Status dropdown */
+.input-group select:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+/* -------------------------- Responsive -------------------------- */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+}
+
+/* -------------------------- Messages -------------------------- */
+.error-message {
+  color: #e74c3c;
+  background-color: #f9d6d5;
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 1.5rem;
+}
+
+.error-message h4 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.success-message {
+  color: #2ecc71;
+  background-color: #d4edda;
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 1.5rem;
+}
+
+.success-message h4 {
+  margin: 0;
+  font-size: 1.2rem;
+}

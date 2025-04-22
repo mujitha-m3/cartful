@@ -1,0 +1,115 @@
+<h2>Update Product</h2>
+
+<form action="/update-product/{{product._id}}" method="post">
+  
+  <!-- Product Name -->
+  <div class="input-group">
+    <label for="name">Product Name:</label>
+    <input type="text" id="name" name="name" value="{{product.name}}" required>
+  </div>
+  
+  <!-- Slug -->
+  <div class="input-group">
+    <label for="slug">Slug:</label>
+    <input type="text" id="slug" name="slug" value="{{product.slug}}">
+  </div>
+  
+  <!-- Description -->
+  <div class="input-group">
+    <label for="description">Description:</label>
+    <textarea id="description" name="description">{{product.description}}</textarea>
+  </div>
+
+  <!-- Price -->
+  <div class="input-group">
+    <label for="price">Price:</label>
+    <input type="number" id="price" name="price" value="{{product.price}}" required step="0.01">
+  </div>
+
+  <!-- Original Price -->
+  <div class="input-group">
+    <label for="original_price">Original Price:</label>
+    <input type="number" id="original_price" name="original_price" value="{{product.original_price}}" step="0.01">
+  </div>
+
+  <!-- Discount -->
+  <div class="input-group">
+    <label for="discount">Discount:</label>
+    <input type="number" id="discount" name="discount" value="{{product.discount}}" step="0.01">
+  </div>
+
+  <!-- Stock -->
+  <div class="input-group">
+    <label for="stock">Stock:</label>
+    <input type="number" id="stock" name="stock" value="{{product.stock}}">
+  </div>
+
+  <!-- Image URL -->
+  <div class="input-group">
+    <label for="image_url">Image URL:</label>
+    <input type="text" id="image_url" name="image_url" value="{{product.image_url}}">
+  </div>
+
+  <!-- Thumbnail URL -->
+  <div class="input-group">
+    <label for="thumbnail_url">Thumbnail URL:</label>
+    <input type="text" id="thumbnail_url" name="thumbnail_url" value="{{product.thumbnail_url}}">
+  </div>
+
+  <!-- Alt Text -->
+  <div class="input-group">
+    <label for="alt_text">Alt Text:</label>
+    <input type="text" id="alt_text" name="alt_text" value="{{product.alt_text}}">
+  </div>
+
+  <!-- Category -->
+  <div class="input-group">
+    <label for="category_id">Category:</label>
+    <input type="text" id="category_name" name="category_name" value="{{product.category_id.name}}" list="categoriesList">
+    <datalist id="categoriesList">
+      {{#each categories}}
+        <option value="{{name}}" data-id="{{_id}}">
+      {{/each}}
+    </datalist>
+    <!-- Hidden input to store category ID -->
+    <input type="hidden" id="category_id_value" name="category_id" value="{{product.category_id._id}}">
+  </div>
+
+  <!-- Allowed Countries -->
+  <div class="input-group">
+    <label for="allowed_countries">Allowed Countries (comma-separated):</label>
+    <input type="text" id="allowed_countries" name="allowed_countries" value="{{product.allowed_countries}}">
+  </div>
+
+  <!-- Featured Checkbox -->
+  <div class="input-group">
+    <label for="is_featured">Featured Product:</label>
+    <input type="checkbox" id="is_featured" name="is_featured" {{#if product.is_featured}}checked{{/if}}>
+  </div>
+
+  <!-- Status Dropdown -->
+  <div class="input-group">
+    <label for="status">Status:</label>
+    <select name="status" id="status">
+      <option value="active" {{#ifEquals product.status 'active'}}selected{{/ifEquals}}>Active</option>
+      <option value="inactive" {{#ifEquals product.status 'inactive'}}selected{{/ifEquals}}>Inactive</option>
+    </select>
+  </div>
+
+  <!-- Submit Button -->
+  <div class="input-group">
+    <button type="submit" class="btn btn-primary">Update Product</button>
+  </div>
+  
+</form>
+
+<script>
+  // Ensure the hidden category_id input is updated based on selected category name
+  document.getElementById('category_name').addEventListener('input', function() {
+    const selectedOption = Array.from(document.getElementById('categoriesList').options).find(option => option.value === this.value);
+    if (selectedOption) {
+      // Set the category_id hidden field to the corresponding category _id
+      document.getElementById('category_id_value').value = selectedOption.getAttribute('data-id');
+    }
+  });
+</script>

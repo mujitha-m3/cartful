@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}} | Product Management</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  
+  <!-- Main Form Container -->
+  <div class="container">
+    <h1>{{title}}</h1>
+    
+    <!-- Product Form -->
+    <form action="/products" method="POST">
+      <!-- Basic Information -->
+      <div class="input-group">
+        <label for="name">Product Name*</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="slug">Slug (URL-friendly name)*</label>
+        <input type="text" id="slug" name="slug" required>
+      </div>
+
+      <div class="input-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="5"></textarea>
+      </div>
+
+      <!-- Pricing Section -->
+      <div class="input-group">
+        <label for="price">Price*</label>
+        <input type="number" id="price" name="price" step="0.01" min="0" required>
+      </div>
+
+      <div class="input-group">
+        <label for="original_price">Original Price</label>
+        <input type="number" id="original_price" name="original_price" step="0.01" min="0">
+      </div>
+
+      <div class="input-group">
+        <label for="discount_amount">Discount Amount</label>
+        <input type="number" id="discount_amount" name="discount_amount" step="0.01" min="0" placeholder="44.99">
+      </div>
+
+      <!-- Inventory -->
+      <div class="input-group">
+        <label for="stock">Stock Quantity*</label>
+        <input type="number" id="stock" name="stock" min="0" required>
+      </div>
+
+      <!-- Media -->
+      <div class="input-group">
+        <label for="image_url">Main Image URL</label>
+        <input type="url" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
+      </div>
+
+      <div class="input-group">
+        <label for="thumbnail_url">Thumbnail URL</label>
+        <input type="url" id="thumbnail_url" name="thumbnail_url" placeholder="https://example.com/thumbnail.jpg">
+      </div>
+
+      <div class="input-group">
+        <label for="alt_text">Image Alt Text</label>
+        <input type="text" id="alt_text" name="alt_text" placeholder="Product description for accessibility">
+      </div>
+
+      <!-- Categorization -->
+      <div class="input-group">
+        <label for="category_id">Category ID*</label>
+        <input type="text" id="category_id" name="category_id" required>
+      </div>
+
+      <div class="input-group">
+        <label for="allowed_countries">Allowed Countries (comma separated)</label>
+        <input type="text" id="allowed_countries" name="allowed_countries" placeholder="US,CA,UK">
+      </div>
+
+      <!-- Settings -->
+      <div class="input-group">
+        <label for="is_featured">
+          <input type="checkbox" id="is_featured" name="is_featured">
+          Mark as Featured Product
+        </label>
+      </div>
+
+      <div class="input-group">
+        <label for="status">Status*</label>
+        <select id="status" name="status" required>
+          <option value="active" selected>Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="draft">Draft</option>
+        </select>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="input-group">
+        <button type="submit" class="btn btn-primary">Add Product</button>
+        <a href="/products" class="btn" style="margin-left: 1rem; background-color: #6c757d;">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+</body>
+</html>

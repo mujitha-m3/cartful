@@ -1,0 +1,51 @@
+<div class="products-container">
+  <h2>Search Products</h2>
+
+  <form class="search-bar" method="GET" action="/products">
+    <input type="text" name="search" placeholder="Search products..." value="{{searchQuery}}">
+    <button type="submit">Search</button>
+  </form>
+
+  {{#if products.length}}
+  <table class="product-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Category</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each products}}
+      <tr>
+        <td>{{this.name}}</td>
+        <td>{{formatPrice this.price}}</td>
+        <td>{{this.stock}}</td>
+        <td>{{this.category_id}}</td>
+        <td class="status-{{this.status}}">{{this.status}}</td>
+        <td>
+          <div class="table-actions">
+            <!-- Edit link (unchanged) -->
+            <a href="/update-product/{{this._id}}" class="btn btn-update">Edit</a>
+
+            <!-- Delete link -->
+            <a href="#" class="btn btn-danger"
+            onclick="event.preventDefault(); document.getElementById('del-{{this._id}}').submit();">
+            Delete
+            </a>
+
+            <!-- Hidden form that actually performs the POST delete -->
+            <form id="del-{{this._id}}" action="/delete-product/{{this._id}}" method="POST" style="display:none;"></form>
+            </div>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{else}}
+    <p class="no-books">No products found.</p>
+  {{/if}}
+</div>

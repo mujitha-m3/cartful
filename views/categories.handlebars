@@ -1,0 +1,27 @@
+<h1>Category Management</h1>
+<a href="/categories/add" class="btn btn-primary">Add Category</a>
+
+{{#each categories}}
+  <div class="category-card">
+    <h3>{{this.name}}</h3>
+    <p>{{this.description}}</p>
+    
+    {{#if (hasChildren this)}}
+      <div class="subcategories">
+        <strong>Subcategories:</strong>
+        <ul>
+          {{#each this.children}}
+            <li>
+              {{this.name}}
+              <a href="/categories/edit/{{this._id}}">Edit</a>
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+    {{/if}}
+    
+    <div class="category-actions">
+      <a href="/categories/edit/{{this._id}}" class="btn btn-sm btn-outline-secondary">Edit</a>
+    </div>
+  </div>
+{{/each}}
