@@ -40,7 +40,8 @@ exports.addToCart = async (req, res) => {
     item = new CartItem({ cart_id: cart._id, product_id, quantity, unit_price, total_price });
   }
   await item.save();
-  res.redirect('/cart');
+    req.flash('success_msg', '✅ Item added to cart!');
+    res.redirect('/');
 };
 
 exports.removeFromCart = async (req, res) => {

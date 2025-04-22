@@ -1,3 +1,23 @@
 <h2>Welcome to the Cartful E-Commerce Platform</h2>
 <p>Manage your products efficiently.</p>
-<a href="/products">View All Products</a>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    {{#if success_msg}}
+    <div style="padding: 10px; background-color: #d4edda; color: #155724; border-radius: 5px;">
+        {{success_msg}}
+    </div>
+    {{/if}}
+
+    {{#each products}}
+    <div style="border: 1px solid #ccc; border-radius: 8px; padding: 16px; width: 200px;">
+        <h3>{{this.name}}</h3>
+        <p>€{{this.price}}</p>
+        <p>{{this.description}}</p>
+        <form method="POST" action="/cart/add">
+            <input type="hidden" name="product_id" value="{{this._id}}" />
+            <input type="number" name="quantity" value="1" min="1" />
+            <button type="submit">Add to Cart</button>
+        </form>
+    </div>
+    {{/each}}
+</div>
