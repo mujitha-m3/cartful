@@ -1,0 +1,16 @@
+<!-- views/browseProducts.handlebars -->
+<h2 class="text-center mb-4">Browse Products</h2>
+<div class="row">
+  {{#each products}}
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <img src="{{this.image_url}}" class="card-img-top" alt="{{this.alt_text}}">
+        <div class="card-body">
+          <h5 class="card-title">{{this.name}}</h5>
+          <p class="card-text">{{this.description}}</p>
+          <p class="card-text"><strong>Price:</strong> ${{this.price}}</p>
+        </div>
+      </div>
+    </div>
+  {{/each}}
+</div>
