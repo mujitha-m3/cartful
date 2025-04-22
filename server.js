@@ -41,6 +41,12 @@ mongoose.connect(dbURI)
   })
   .catch(err => console.log(err));
 
+// TEMPORARY: Simulate a logged-in user (replace with a real ID from your DB)
+app.use((req, res, next) => {
+  req.user = { _id: '6804ab38d40c821fa6b71237' };
+  next();
+});
+
 // ======================
 // Home Route
 // ======================
@@ -201,6 +207,9 @@ app.post('/categories', async (req, res) => {
     }
   }
 });
+
+const cartRoutes = require('./routes/cartRoutes');
+app.use('/cart', cartRoutes);
 
 // ======================
 // Error Handling
