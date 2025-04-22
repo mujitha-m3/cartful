@@ -25,7 +25,6 @@ app.engine('handlebars', exphbs.engine({
     formatPrice: (price) => {
       return price ? `$${price.toFixed(2)}` : '$0.00';
     },
-    // Add helper for checking if category has children
     hasChildren: function(category) {
       return category.children && category.children.length > 0;
     }
@@ -220,74 +219,6 @@ app.post('/categories', async (req, res) => {
         error: 'Error creating category' 
       });
     }
-  }
-});
-
-app.get('/categories/edit/:id', async (req, res) => {
-  try {
-    const category = await Category.findById(req.params.id);
-    const categories = await Category.find({ _id: { $ne: req.params.id } });
-    res.render('editCategory', { 
-      title: 'Edit Category',
-      category,
-      categories
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).render('error', { error: 'Error loading edit form' });
-  }
-});
-
-app.post('/categories/update/:id', async (req, res) => {
-  try {
-    const { 
-      name, 
-      description, 
-      icon_url, 
-      parent_category_id, 
-      restricted_countries,
-      is_active 
-    } = req.body;
-
-    const countriesArray = restricted_countries 
-      ? restricted_countries.split(',').map(country => country.trim())
-      : [];
-
-    await Category.findByIdAndUpdate(req.params.id, {
-      name,
-      description,
-      icon_url,
-      parent_category_id: parent_category_id || null,
-      restricted_countries: countriesArray,
-      is_active: is_active === 'on'
-    });
-
-    res.redirect('/categories');
-  } catch (err) {
-    console.error(err);
-    res.status(500).render('error', { error: 'Error updating category' });
-  }
-});
-
-app.post('/categories/delete/:id', async (req, res) => {
-  try {
-    const productsCount = await Product.countDocuments({ category_id: req.params.id });
-    
-    if (productsCount > 0) {
-      return res.status(400).render('error', { 
-        error: 'Cannot delete category - it has associated products' 
-      });
-    }
-
-    const deleted = await Category.findByIdAndDelete(req.params.id);
-    if (!deleted) {
-      return res.status(404).render('error', { error: 'Category not found' });
-    }
-    
-    res.redirect('/categories');
-  } catch (err) {
-    console.error(err);
-    res.status(500).render('error', { error: 'Error deleting category' });
   }
 });
 
