@@ -7,6 +7,13 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 
+const app = express();
+
+// Models & Controllers
+const Category = require('./models/Category');
+const categoryController = require('./controllers/categoryController');
+
+// Routes
 const userRoute = require('./routes/userRoute');
 const countryRoutes = require('./routes/countryRoute');
 const productRoutes = require('./routes/productRoute');
@@ -15,11 +22,12 @@ const checkoutRoutes = require('./routes/checkoutRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 
-const app = express();
+// Middleware setup
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Session and flash
 app.use(session({
   secret: 'cartful-secret-key',
   resave: false,
@@ -59,14 +67,42 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+// ===== View Routes for Category Management =====
+app.get('/categories', async (req, res) => {
+  try {
+    const categories = await Category.find({ is_active: true }).populate('parent_category_id');
+    res.render('categories', { title: 'Categories', categories });
+  } catch (error) {
+    res.status(500).render('error', { error: 'Failed to load categories' });
+  }
+});
+
+app.get('/categories/add', categoryController.renderAddCategoryForm);
+app.post('/categories', categoryController.createCategory);
+
+// ===== Other Application Routes =====
+app.use('/', userRoute);
+app.use('/', countryRoutes);
 app.use('/', viewRoutes);
 app.use('/checkout', checkoutRoutes);
 app.use('/cart', cartRoutes);
 app.use('/products', productRoutes);
+
+// ===== API Routes for Categories =====
 app.use('/api/categories', categoryRoutes);
 
-// Error handling
+// MongoDB Connection
+const dbURI = `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.CLUSTER}.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
+
+mongoose.connect(dbURI)
+  .then(() => {
+    const PORT = process.env.PORT || 8000;
+    app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+    console.log('Connected to DB');
+  })
+  .catch(err => console.log(err));
+
+// Error Handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).render('error', { error: 'Something went wrong!' });

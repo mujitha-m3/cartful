@@ -1,27 +1,41 @@
-<h1>Category Management</h1>
-<a href="/categories/add" class="btn btn-primary">Add Category</a>
+<div class="products-container">
+  <h2>Category Management</h2>
 
-{{#each categories}}
-  <div class="category-card">
-    <h3>{{this.name}}</h3>
-    <p>{{this.description}}</p>
-    
-    {{#if (hasChildren this)}}
-      <div class="subcategories">
-        <strong>Subcategories:</strong>
-        <ul>
-          {{#each this.children}}
-            <li>
-              {{this.name}}
-              <a href="/categories/edit/{{this._id}}">Edit</a>
-            </li>
-          {{/each}}
-        </ul>
-      </div>
-    {{/if}}
-    
-    <div class="category-actions">
-      <a href="/categories/edit/{{this._id}}" class="btn btn-sm btn-outline-secondary">Edit</a>
-    </div>
-  </div>
-{{/each}}
+  <a href="/categories/add" class="btn btn-primary">Add Category</a>
+
+  {{#if categories.length}}
+  <table class="product-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Parent Category</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each categories}}
+      <tr>
+        <td>{{this.name}}</td>
+        <td>{{this.description}}</td>
+        <td>{{#if this.parent_category_id}}{{this.parent_category_id.name}}{{else}}—{{/if}}</td>
+        <td>{{#if this.is_active}}Yes{{else}}No{{/if}}</td>
+        <td>
+          <div class="table-actions">
+            <a href="/categories/edit/{{this._id}}" class="btn btn-update">Edit</a>
+            <a href="#" class="btn btn-danger"
+               onclick="event.preventDefault(); document.getElementById('del-{{this._id}}').submit();">
+              Delete
+            </a>
+            <form id="del-{{this._id}}" action="/categories/delete/{{this._id}}" method="POST" style="display:none;"></form>
+          </div>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{else}}
+    <p class="no-products">No categories found.</p>
+  {{/if}}
+</div>
