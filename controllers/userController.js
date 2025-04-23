@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Country = require('../models/Country');
 
 const registerNewUser = async (req, res) => {
     const {
@@ -44,10 +45,27 @@ const registerNewUser = async (req, res) => {
       
 };
 
+const renderRegisterPage = async (req, res) => {
+  try {
+    const countries = await Country.find({ isActive: true }).sort({ name: 1 });
+    res.render('userRegister', { countries });
+  } catch (error) {
+    console.error('Error loading registration page:', error);
+    res.status(500).send('Failed to load registration form');
+  }
+};
 
+exports.renderRegisterPage = async (req, res) => {
+  try {
+    const countries = await Country.find({ isActive: true }).sort({ name: 1 });
+    res.render('userRegister', { countries });
+  } catch (error) {
+    console.error('Error loading registration page:', error);
+    res.status(500).send('Failed to load registration form');
+  }
+};
 
-
-module.exports = {registerNewUser};
+module.exports = {registerNewUser,renderRegisterPage};
 
     
     
