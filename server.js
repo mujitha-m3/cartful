@@ -9,9 +9,6 @@ const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-ac
 
 const userRoute = require('./routes/userRoute');
 const countryRoutes = require('./routes/countryRoute');
-
-
-const Category = require('./models/Category');
 const productRoutes = require('./routes/productRoute');
 const viewRoutes = require('./routes/viewRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
@@ -20,13 +17,9 @@ const categoryRoutes = require('./routes/categoryRoutes');
 
 const app = express();
 app.use(express.static('public'));
-
-// Middleware setup
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static('public'));
 
-// Session and flash setup
 app.use(session({
   secret: 'cartful-secret-key',
   resave: false,
@@ -39,12 +32,6 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash('error_msg');
   next();
 });
-app.set('view engine', 'handlebars'); 
-app.use(express.json());
-
-app.use('/', userRoute);
-app.use('/', countryRoutes);
-
 
 // Handlebars setup
 app.engine('handlebars', exphbs.engine({
@@ -65,17 +52,6 @@ app.engine('handlebars', exphbs.engine({
   }
 }));
 app.set('view engine', 'handlebars');
-
-// MongoDB connection
-const dbURI = `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.CLUSTER}.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
-
-mongoose.connect(dbURI)
-  .then(() => {
-    const PORT = process.env.PORT || 8000;
-    app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
-    console.log('Connected to DB');
-  })
-  .catch(err => console.log(err));
 
 // Simulate logged-in user for testing
 app.use((req, res, next) => {

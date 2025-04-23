@@ -1,7 +1,5 @@
-// Import the Category model
 const Category = require('../models/Category');
 
-// Render the Add Category page
 exports.renderAddCategoryForm = async (req, res) => {
   try {
     const parentCategories = await Category.find({ is_active: true });
@@ -17,7 +15,6 @@ exports.renderAddCategoryForm = async (req, res) => {
   }
 };
 
-// Create a new category
 exports.createCategory = async (req, res) => {
   try {
     const { name, description, icon_url, parent_category_id, restricted_countries, localized_names } = req.body;
@@ -25,12 +22,10 @@ exports.createCategory = async (req, res) => {
     const category = new Category({
       name,
       description,
-      icon_url,
       parent_category_id: parent_category_id || null,
       restricted_countries: restricted_countries || [],
       localized_names: localized_names || {}
     });
-
     await category.save();
     res.status(201).json(category);
   } catch (error) {
