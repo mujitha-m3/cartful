@@ -1,0 +1,35 @@
+<h2>Checkout</h2>
+
+{{#if cartItems.length}}
+  <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each cartItems}}
+        <tr>
+          <td>{{this.product_id.name}}</td>
+          <td>€{{this.unit_price}}</td>
+          <td>{{this.quantity}}</td>
+          <td>€{{this.total_price}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <h3 style="text-align: right;">Total: €{{total}}</h3>
+
+  <form method="POST" action="/checkout" style="margin-top: 20px;">
+    <label>Select Payment Method:</label><br>
+    <input type="radio" name="payment_method" value="cod" checked> Cash on Delivery<br>
+    <input type="radio" name="payment_method" value="stripe"> Stripe (Card)<br><br>
+    <button type="submit">Place Order</button>
+  </form>
+{{else}}
+  <p>No items in cart to checkout.</p>
+{{/if}}
