@@ -3,10 +3,29 @@
 
 <div style="display: flex; flex-wrap: wrap; gap: 20px;">
     {{#if success_msg}}
-    <div style="padding: 10px; background-color: #d4edda; color: #155724; border-radius: 5px;">
-        {{success_msg}}
-    </div>
+    <script>
+        window.onload = function () {
+            const toast = document.createElement("div");
+            toast.innerText = "{{success_msg}}";
+            toast.style.position = "fixed";
+            toast.style.top = "20px";
+            toast.style.right = "20px";
+            toast.style.backgroundColor = "#28a745";
+            toast.style.color = "#fff";
+            toast.style.padding = "12px 20px";
+            toast.style.borderRadius = "8px";
+            toast.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+            toast.style.zIndex = 1000;
+            toast.style.fontSize = "14px";
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove(); 
+            }, 3000); // disappears in 3s
+        };
+    </script>
     {{/if}}
+
 
     {{#each products}}
     <div style="border: 1px solid #ccc; border-radius: 8px; padding: 16px; width: 200px;">

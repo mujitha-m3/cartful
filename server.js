@@ -43,7 +43,14 @@ app.engine('handlebars', exphbs.engine({
     formatDate: (date) => new Date(date).toLocaleDateString(),
     ifEquals: (arg1, arg2, options) => (arg1 == arg2 ? options.fn(this) : options.inverse(this)),
     formatPrice: (price) => (price ? `$${price.toFixed(2)}` : '$0.00'),
-    hasChildren: (category) => category.children && category.children.length > 0
+    hasChildren: (category) => category.children && category.children.length > 0,
+    calculateTotal: (items) => {
+      let total = 0;
+      for (let item of items) {
+        total += item.total_price;
+      }
+      return total.toFixed(2);
+    }
   }
 }));
 app.set('view engine', 'handlebars');
@@ -70,6 +77,9 @@ app.use((req, res, next) => {
 const viewRoutes = require('./routes/viewRoutes');
 app.use('/', viewRoutes);
 
+
+const checkoutRoutes = require('./routes/checkoutRoutes');
+app.use('/checkout', checkoutRoutes);
 
 // ======================
 // Home Route

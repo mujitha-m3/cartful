@@ -1,13 +1,47 @@
 <h2>Your Cart</h2>
-{{#each cartItems}}
-  <div>
-    <p>{{this.product_id.name}} - Qty: {{this.quantity}} - Price: €{{this.total_price}}</p>
-    <form method="POST" action="/cart/update/{{this._id}}">
-      <input type="number" name="quantity" value="{{this.quantity}}" min="1">
-      <button type="submit">Update</button>
-    </form>
-    <a href="/cart/remove/{{this._id}}">Remove</a>
+
+{{#if cartItems.length}}
+  <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+    <thead style="background-color: #f2f2f2;">
+      <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Total</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each cartItems}}
+        <tr>
+          <td>{{this.product_id.name}}</td>
+          <td>€{{this.unit_price}}</td>
+          <td>
+            <form method="POST" action="/cart/update/{{this._id}}" style="display: inline-block;">
+              <input type="number" name="quantity" value="{{this.quantity}}" min="1" style="width: 60px;" />
+              <button type="submit">Update</button>
+            </form>
+          </td>
+          <td>€{{this.total_price}}</td>
+          <td><a href="/cart/remove/{{this._id}}">Remove</a></td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <h3 style="text-align: right; margin-top: 20px;">
+    Total Amount: €{{calculateTotal cartItems}}
+  </h3>
+
+  <div style="text-align: right; margin-top: 10px;">
+    <a href="/checkout">
+      <button style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px;">Proceed to Checkout</button>
+    </a>
   </div>
+
 {{else}}
-  <p>No items in cart.</p>
-{{/each}}
+  <p>Your cart is empty. 🛒</p>
+  <a href="/">
+    <button>Go to Shop</button>
+  </a>
+{{/if}}
