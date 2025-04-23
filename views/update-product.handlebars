@@ -1,26 +1,25 @@
 <h2>Update Product</h2>
 
-<form action="/update-product/{{product._id}}" method="post">
-  
+<form action="/products/update/{{product._id}}" method="post">
   <!-- Product Name -->
   <div class="input-group">
     <label for="name">Product Name:</label>
     <input type="text" id="name" name="name" value="{{product.name}}" required>
   </div>
-  
+
   <!-- Slug -->
   <div class="input-group">
     <label for="slug">Slug:</label>
-    <input type="text" id="slug" name="slug" value="{{product.slug}}">
+    <input type="text" id="slug" name="slug" value="{{product.slug}}" required>
   </div>
-  
+
   <!-- Description -->
   <div class="input-group">
     <label for="description">Description:</label>
     <textarea id="description" name="description">{{product.description}}</textarea>
   </div>
 
-  <!-- Price -->
+  <!-- Pricing -->
   <div class="input-group">
     <label for="price">Price:</label>
     <input type="number" id="price" name="price" value="{{product.price}}" required step="0.01">
@@ -33,16 +32,16 @@
 
   <div class="input-group">
     <label for="discount">Discount:</label>
-    <input type="number" id="discount" name="discount" value="{{product.discount}}" step="0.01">
+    <input type="number" id="discount" name="discount" value="{{product.discount.amount}}" step="0.01">
   </div>
 
-  <!-- Stock -->
+  <!-- Inventory -->
   <div class="input-group">
     <label for="stock">Stock:</label>
     <input type="number" id="stock" name="stock" value="{{product.stock}}">
   </div>
 
-  <!-- Image URL -->
+  <!-- Images -->
   <div class="input-group">
     <label for="image_url">Image URL:</label>
     <input type="text" id="image_url" name="image_url" value="{{product.image_url}}">
@@ -61,26 +60,25 @@
   <!-- Category -->
   <div class="input-group">
     <label for="category_id">Category:</label>
-    <input type="text" id="category_name" name="category_name" value="{{product.category_id.name}}" list="categoriesList">
-    <datalist id="categoriesList">
+    <select id="category_id" name="category_id">
       {{#each categories}}
-        <option value="{{name}}" data-id="{{_id}}">
+        <option value="{{_id}}" {{#ifEquals _id product.category_id._id}}selected{{/ifEquals}}>{{name}}</option>
       {{/each}}
-    </datalist>
-    <!-- Hidden input to store category ID -->
-    <input type="hidden" id="category_id_value" name="category_id" value="{{product.category_id._id}}">
+    </select>
   </div>
 
   <!-- Allowed Countries -->
   <div class="input-group">
-    <label for="allowed_countries">Allowed Countries (comma-separated):</label>
+    <label for="allowed_countries">Allowed Countries:</label>
     <input type="text" id="allowed_countries" name="allowed_countries" value="{{product.allowed_countries}}">
   </div>
 
-  <!-- Featured Checkbox -->
+  <!-- Settings -->
   <div class="input-group">
-    <label for="is_featured">Featured Product:</label>
-    <input type="checkbox" id="is_featured" name="is_featured" {{#if product.is_featured}}checked{{/if}}>
+    <label>
+      <input type="checkbox" id="is_featured" name="is_featured" {{#if product.is_featured}}checked{{/if}}>
+      Featured Product
+    </label>
   </div>
 
   <div class="input-group">
@@ -88,11 +86,13 @@
     <select name="status" id="status">
       <option value="active" {{#ifEquals product.status 'active'}}selected{{/ifEquals}}>Active</option>
       <option value="inactive" {{#ifEquals product.status 'inactive'}}selected{{/ifEquals}}>Inactive</option>
+      <option value="draft" {{#ifEquals product.status 'draft'}}selected{{/ifEquals}}>Draft</option>
     </select>
   </div>
 
-  <!-- Submit Button -->
+  <!-- Submit -->
   <div class="input-group">
     <button type="submit" class="btn btn-primary">Update Product</button>
+    <a href="/products" class="btn">Cancel</a>
   </div>
 </form>

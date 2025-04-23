@@ -28,24 +28,24 @@
         <td class="status-{{this.status}}">{{this.status}}</td>
         <td>
           <div class="table-actions">
-            <!-- Edit link (unchanged) -->
-            <a href="/update-product/{{this._id}}" class="btn btn-update">Edit</a>
+            <!-- Edit link -->
+            <a href="/products/edit/{{this._id}}" class="btn btn-update">Edit</a>
 
-            <!-- Delete link -->
+            <!-- Delete link with hidden form submission -->
             <a href="#" class="btn btn-danger"
-            onclick="event.preventDefault(); document.getElementById('del-{{this._id}}').submit();">
-            Delete
+               onclick="event.preventDefault(); document.getElementById('del-{{this._id}}').submit();">
+              Delete
             </a>
 
             <!-- Hidden form that actually performs the POST delete -->
-            <form id="del-{{this._id}}" action="/delete-product/{{this._id}}" method="POST" style="display:none;"></form>
-            </div>
+            <form id="del-{{this._id}}" action="/products/delete/{{this._id}}" method="POST" style="display:none;"></form>
+          </div>
         </td>
       </tr>
       {{/each}}
     </tbody>
   </table>
   {{else}}
-    <p class="no-books">No products found.</p>
+    <p class="no-products">No products found.</p>
   {{/if}}
 </div>

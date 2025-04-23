@@ -1,4 +1,21 @@
+// Import the Category model
 const Category = require('../models/Category');
+
+// Render the Add Category page
+exports.renderAddCategoryForm = async (req, res) => {
+  try {
+    const parentCategories = await Category.find({ is_active: true });
+    res.render('addCategory', {
+      title: 'Add New Category',
+      parentCategories
+    });
+  } catch (error) {
+    res.render('addCategory', {
+      title: 'Add New Category',
+      error: 'Failed to load parent categories'
+    });
+  }
+};
 
 // Create a new category
 exports.createCategory = async (req, res) => {
@@ -88,5 +105,32 @@ exports.deleteCategory = async (req, res) => {
     if (!category) {
       return res.status(404).json({ error: 'Category not found' });
     }
+    res.json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get categories hierarchy
+exports.getCategoryHierarchy = async (req, res) => {
+  try {
+    const categories = await Category.find({ is_active: true });
+    
+    const buildHierarchy = (parentId = null) => {
+      return categories
+        .filter(category => 
+          (category.parent_category_id && category.parent_category_id.toString() === parentId) || 
+          (!category.parent_category_id && !parentId)
+        )
+        .map(category => ({
+          ...category.toObject(),
+          children: buildHierarchy(category._id.toString())
+        }));
+    };
+    
+    const hierarchy = buildHierarchy();
+    res.json(hierarchy);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

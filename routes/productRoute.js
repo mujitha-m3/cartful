@@ -1,9 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const { renderAddProductForm, createProduct } = require('../controllers/productController');
+const productController = require('../controllers/productController');
 
-// Route to render the add product form
-router.get('/products/add', renderAddProductForm);
+// Display all products
+router.get('/', productController.listProducts);
 
-// Route to handle product form submission
-router.post('/products/add', createProduct);
+// Show add product form
+router.get('/add-product', productController.renderAddProductForm);
+
+// Show single product
+router.get('/:id', productController.getProductById);
+
+// Show edit product form
+router.get('/edit/:id', productController.renderUpdateProductForm);
+
+// Create new product
+router.post('/', productController.createProduct);
+
+// Update product
+router.post('/update/:id', productController.updateProduct);
+
+// Delete product
+router.post('/delete/:id', productController.deleteProduct);
+
+module.exports = router;
