@@ -7,6 +7,10 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 
+const userRoute = require('./routes/userRoute');
+const countryRoutes = require('./routes/countryRoute');
+
+
 const Category = require('./models/Category');
 const productRoutes = require('./routes/productRoute');
 const viewRoutes = require('./routes/viewRoutes');
@@ -15,6 +19,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 
 const app = express();
+app.use(express.static('public'));
 
 // Middleware setup
 app.use(express.urlencoded({ extended: true }));
@@ -34,6 +39,12 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash('error_msg');
   next();
 });
+app.set('view engine', 'handlebars'); 
+app.use(express.json());
+
+app.use('/', userRoute);
+app.use('/', countryRoutes);
+
 
 // Handlebars setup
 app.engine('handlebars', exphbs.engine({
