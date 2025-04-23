@@ -88,32 +88,5 @@ exports.deleteCategory = async (req, res) => {
     if (!category) {
       return res.status(404).json({ error: 'Category not found' });
     }
-    res.json({ message: 'Category deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get categories hierarchy
-exports.getCategoryHierarchy = async (req, res) => {
-  try {
-    const categories = await Category.find({ is_active: true });
-    
-    const buildHierarchy = (parentId = null) => {
-      return categories
-        .filter(category => 
-          (category.parent_category_id && category.parent_category_id.toString() === parentId) || 
-          (!category.parent_category_id && !parentId)
-        )
-        .map(category => ({
-          ...category.toObject(),
-          children: buildHierarchy(category._id.toString())
-        }));
-    };
-    
-    const hierarchy = buildHierarchy();
-    res.json(hierarchy);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
 };

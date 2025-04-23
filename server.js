@@ -6,11 +6,8 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 const dotenv = require('dotenv');
-const Product = require('./models/Product');
 const Category = require('./models/Category');
 const categoryRoutes = require('./routes/categoryRoutes');
-
-dotenv.config();
 
 const app = express();
 
@@ -26,10 +23,7 @@ app.use(session({
   saveUninitialized: true
 }));
 
-// Setup flash middleware
 app.use(flash());
-
-// Make flash message available in all views
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
   next();
@@ -76,14 +70,9 @@ app.use((req, res, next) => {
 // View routes
 const viewRoutes = require('./routes/viewRoutes');
 app.use('/', viewRoutes);
-
-
-const checkoutRoutes = require('./routes/checkoutRoutes');
 app.use('/checkout', checkoutRoutes);
 
-// ======================
 // Home Route
-// ======================
 app.get('/', (req, res) => {
   res.render('index', { title: 'Product Management System' });
 });

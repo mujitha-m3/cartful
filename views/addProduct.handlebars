@@ -7,12 +7,9 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  
-  <!-- Main Form Container -->
   <div class="container">
     <h1>{{title}}</h1>
     
-    <!-- Product Form -->
     <form action="/products" method="POST">
       <!-- Basic Information -->
       <div class="input-group">
@@ -73,10 +70,6 @@
         <label for="category_id">Category ID*</label>
         <input type="text" id="category_id" name="category_id" required>
       </div>
-
-      <div class="input-group">
-        <label for="allowed_countries">Allowed Countries (comma separated)</label>
-        <input type="text" id="allowed_countries" name="allowed_countries" placeholder="US,CA,UK">
       </div>
 
       <!-- Settings -->
@@ -103,6 +96,5 @@
       </div>
     </form>
   </div>
-
 </body>
 </html>
