@@ -1,4 +1,21 @@
+// Import the Category model
 const Category = require('../models/Category');
+
+// Render the Add Category page
+exports.renderAddCategoryForm = async (req, res) => {
+  try {
+    const parentCategories = await Category.find({ is_active: true });
+    res.render('addCategory', {
+      title: 'Add New Category',
+      parentCategories
+    });
+  } catch (error) {
+    res.render('addCategory', {
+      title: 'Add New Category',
+      error: 'Failed to load parent categories'
+    });
+  }
+};
 
 // Create a new category
 exports.createCategory = async (req, res) => {
