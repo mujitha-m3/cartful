@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const exphbs = require('express-handlebars');
 const Handlebars = require('handlebars');
+const session = require('express-session');
+const flash = require('connect-flash');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 const dotenv = require('dotenv');
 const Product = require('./models/Product');
@@ -17,6 +19,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
 
+// Setup express-session
+app.use(session({
+  secret: 'cartful-secret-key',
+  resave: false,
+  saveUninitialized: true
+}));
+
+// Setup flash middleware
+app.use(flash());
+
+// Make flash message available in all views
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg');
+  next();
+});
+
 // Handlebars setup with prototype access
 app.engine('handlebars', exphbs.engine({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
@@ -25,7 +43,14 @@ app.engine('handlebars', exphbs.engine({
     formatDate: (date) => new Date(date).toLocaleDateString(),
     ifEquals: (arg1, arg2, options) => (arg1 == arg2 ? options.fn(this) : options.inverse(this)),
     formatPrice: (price) => (price ? `$${price.toFixed(2)}` : '$0.00'),
-    hasChildren: (category) => category.children && category.children.length > 0
+    hasChildren: (category) => category.children && category.children.length > 0,
+    calculateTotal: (items) => {
+      let total = 0;
+      for (let item of items) {
+        total += item.total_price;
+      }
+      return total.toFixed(2);
+    }
   }
 }));
 app.set('view engine', 'handlebars');
@@ -40,6 +65,21 @@ mongoose.connect(dbURI)
     console.log('Connected to DB');
   })
   .catch(err => console.log(err));
+
+// TEMPORARY: Simulate a logged-in user for testing
+app.use((req, res, next) => {
+  req.user = { _id: '6804ab38d40c821fa6b71237' };
+  next();
+});
+
+
+// View routes
+const viewRoutes = require('./routes/viewRoutes');
+app.use('/', viewRoutes);
+
+
+const checkoutRoutes = require('./routes/checkoutRoutes');
+app.use('/checkout', checkoutRoutes);
 
 // ======================
 // Home Route
@@ -201,6 +241,9 @@ app.post('/categories', async (req, res) => {
     }
   }
 });
+
+const cartRoutes = require('./routes/cartRoutes');
+app.use('/cart', cartRoutes);
 
 // ======================
 // Error Handling
