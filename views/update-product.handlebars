@@ -30,10 +30,29 @@
     <input type="number" id="original_price" name="original_price" value="{{product.original_price}}" step="0.01">
   </div>
 
-  <div class="input-group">
-    <label for="discount">Discount:</label>
-    <input type="number" id="discount" name="discount" value="{{product.discount.amount}}" step="0.01">
-  </div>
+  <!-- Discount Value -->
+<div class="input-group">
+  <label for="discount_value">Discount:</label>
+  <input
+    type="number"
+    id="discount_value"
+    name="discount_value"
+    value="{{#if product.discount}}{{product.discount.value}}{{/if}}"
+    step="0.01"
+  >
+</div>
+
+<!-- Discount Type -->
+<div class="input-group">
+  <label for="discount_type">Discount Type:</label>
+  <select id="discount_type" name="discount_type">
+    <option value="">-- Select Type --</option>
+    <option value="percentage" {{#ifEquals product.discount.type "percentage"}}selected{{/ifEquals}}>Percentage</option>
+    <option value="fixed" {{#ifEquals product.discount.type "fixed"}}selected{{/ifEquals}}>Fixed</option>
+  </select>
+</div>
+
+
 
   <!-- Inventory -->
   <div class="input-group">
@@ -62,7 +81,7 @@
     <label for="category_id">Category:</label>
     <select id="category_id" name="category_id">
       {{#each categories}}
-        <option value="{{_id}}" {{#ifEquals _id product.category_id._id}}selected{{/ifEquals}}>{{name}}</option>
+        <option value="{{_id}}" {{#ifEquals _id ../product.category_id._id}}selected{{/ifEquals}}>{{name}}</option>
       {{/each}}
     </select>
   </div>
@@ -84,9 +103,9 @@
   <div class="input-group">
     <label for="status">Status:</label>
     <select name="status" id="status">
-      <option value="active" {{#ifEquals product.status 'active'}}selected{{/ifEquals}}>Active</option>
-      <option value="inactive" {{#ifEquals product.status 'inactive'}}selected{{/ifEquals}}>Inactive</option>
-      <option value="draft" {{#ifEquals product.status 'draft'}}selected{{/ifEquals}}>Draft</option>
+      <option value="active" {{#ifEquals product.status "active"}}selected{{/ifEquals}}>Active</option>
+      <option value="inactive" {{#ifEquals product.status "inactive"}}selected{{/ifEquals}}>Inactive</option>
+      <option value="draft" {{#ifEquals product.status "draft"}}selected{{/ifEquals}}>Draft</option>
     </select>
   </div>
 
