@@ -13,8 +13,6 @@ const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-ac
 // Import routes
 const userRoute = require('./routes/userRoute');
 const countryRoutes = require('./routes/countryRoute');
-
-
 const Category = require('./models/Category');
 const productRoutes = require('./routes/productRoute');
 const viewRoutes = require('./routes/viewRoutes');
@@ -22,7 +20,7 @@ const checkoutRoutes = require('./routes/checkoutRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 
-// Initialize Express 
+// Initialize Express
 const app = express();
 
 // Serve static files from "public" folder
@@ -48,7 +46,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // Config for Handlebars
 app.engine('handlebars', exphbs.engine({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
@@ -71,19 +68,18 @@ app.set('view engine', 'handlebars');
 
 // Simulated logged-in user middleware (for testing purposes)
 app.use((req, res, next) => {
-  req.user = { _id: '6804ab38d40c821fa6b71237' };
+  req.user = { _id: '6804ab38d40c821fa6b71237' }; // Simulated user
   next();
 });
 
-// Routes setup
+// Routes setup - Important: `categoryRoutes` should come before other routes like `userRoute`
+app.use('/categories', categoryRoutes); // Ensure this is correct
 app.use('/', viewRoutes);
 app.use('/checkout', checkoutRoutes);
 app.use('/cart', cartRoutes);
 app.use('/products', productRoutes);
-app.use('/api/categories', categoryRoutes);
 app.use('/', userRoute);
 app.use('/', countryRoutes);
-
 
 // Error handling
 app.use((err, req, res, next) => {

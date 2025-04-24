@@ -1,4 +1,3 @@
-// Import the Category model
 const Category = require('../models/Category');
 
 // Render the Add Category page
@@ -21,7 +20,7 @@ exports.renderAddCategoryForm = async (req, res) => {
 exports.createCategory = async (req, res) => {
   try {
     const { name, description, icon_url, parent_category_id, restricted_countries, localized_names } = req.body;
-    
+
     const category = new Category({
       name,
       description,
@@ -46,15 +45,25 @@ exports.getAllCategories = async (req, res) => {
   try {
     const { include_inactive } = req.query;
     const filter = {};
-    
+
     if (include_inactive !== 'true') {
       filter.is_active = true;
     }
-    
+
     const categories = await Category.find(filter).populate('parent_category_id', 'name');
-    res.json(categories);
+
+    // Render the view instead of returning JSON
+    res.render('categories', {
+      title: 'Category Management',
+      categories
+    });
+
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).render('categories', {
+      title: 'Category Management',
+      categories: [],
+      error: error.message
+    });
   }
 };
 
@@ -105,7 +114,12 @@ exports.deleteCategory = async (req, res) => {
     if (!category) {
       return res.status(404).json({ error: 'Category not found' });
     }
-    res.json({ message: 'Category deleted successfully' });
+    // Redirect if it's from browser
+    if (req.accepts(['html', 'json']) === 'html') {
+      return res.redirect('/categories');
+    } else {
+      return res.json({ message: 'Category deleted successfully' });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -115,11 +129,11 @@ exports.deleteCategory = async (req, res) => {
 exports.getCategoryHierarchy = async (req, res) => {
   try {
     const categories = await Category.find({ is_active: true });
-    
+
     const buildHierarchy = (parentId = null) => {
       return categories
-        .filter(category => 
-          (category.parent_category_id && category.parent_category_id.toString() === parentId) || 
+        .filter(category =>
+          (category.parent_category_id && category.parent_category_id.toString() === parentId) ||
           (!category.parent_category_id && !parentId)
         )
         .map(category => ({
@@ -127,7 +141,7 @@ exports.getCategoryHierarchy = async (req, res) => {
           children: buildHierarchy(category._id.toString())
         }));
     };
-    
+
     const hierarchy = buildHierarchy();
     res.json(hierarchy);
   } catch (error) {

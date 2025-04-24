@@ -2,16 +2,25 @@ const express = require('express');
 const router = express.Router();
 const categoryController = require('../controllers/categoryController');
 
-// Define the routes and associate them with controller functions
-router.get('/categories/add', categoryController.renderAddCategoryForm);
-router.post('/categories', categoryController.createCategory); // ← Add this route before any /:id route
-router.post('/', categoryController.createCategory);
-router.get('/', categoryController.getAllCategories);          // Fetch all categories
-router.post('/', categoryController.createCategory);          // Create a new category
-router.get('/:id', categoryController.getCategoryById);       // Get a category by ID
-router.put('/:id', categoryController.updateCategory);        // Update a category by ID
-router.delete('/:id', categoryController.deleteCategory);    // Delete a category by ID
-router.get('/hierarchy', categoryController.getCategoryHierarchy); // Fetch category hierarchy
+// Add category form
+router.get('/add', categoryController.renderAddCategoryForm);
 
+// Create category
+router.post('/', categoryController.createCategory);
+
+// Get all categories (renders HTML or returns JSON based on request)
+router.get('/', categoryController.getAllCategories);
+
+// Get category hierarchy
+router.get('/hierarchy', categoryController.getCategoryHierarchy);
+
+// Get single category by ID (API use)
+router.get('/:id', categoryController.getCategoryById);
+
+// Update category by ID
+router.put('/:id', categoryController.updateCategory);
+
+// Delete category by ID
+router.post('/delete/:id', categoryController.deleteCategory); // POST for form submission
 
 module.exports = router;
