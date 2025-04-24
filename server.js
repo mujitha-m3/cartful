@@ -9,9 +9,6 @@ const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-ac
 
 const userRoute = require('./routes/userRoute');
 const countryRoutes = require('./routes/countryRoute');
-
-
-const Category = require('./models/Category');
 const productRoutes = require('./routes/productRoute');
 const viewRoutes = require('./routes/viewRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
