@@ -32,7 +32,7 @@ exports.createCategory = async (req, res) => {
     });
 
     await category.save();
-    res.status(201).json(category);
+    res.redirect('/categories');
   } catch (error) {
     if (error.code === 11000) {
       return res.status(400).json({ error: 'Category name must be unique' });

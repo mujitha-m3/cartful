@@ -3,7 +3,8 @@ const router = express.Router();
 const categoryController = require('../controllers/categoryController');
 
 // Define the routes and associate them with controller functions
-router.get('/add', categoryController.renderAddCategoryForm); // ← Add this route before any /:id route
+router.get('/categories/add', categoryController.renderAddCategoryForm);
+router.post('/categories', categoryController.createCategory); // ← Add this route before any /:id route
 router.post('/', categoryController.createCategory);
 router.get('/', categoryController.getAllCategories);          // Fetch all categories
 router.post('/', categoryController.createCategory);          // Create a new category

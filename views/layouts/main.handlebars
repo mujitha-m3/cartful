@@ -2,44 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{title}}</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-  <nav>
-    <a href="/">Home</a> |
-    <a href="/products">Products</a> |
-    <a href="/products/add-product">Add Product</a>
-    <a href="/cart">Cart</a>
-  </nav>
-
-  <div class="container">
-    {{{body}}}
-  </div>
-</body>
-</html>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{title}}</title>
-  <link rel="stylesheet" href="/styles.css" />
-</head>
 
 <body>
+  <!-- Skip to main content link -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
+  <!-- Header with navigation -->
   <header role="banner">
     <nav role="navigation" aria-label="Main navigation">
       <ul>
         <li><a href="/">Home</a></li>
         <li><a href="/register">Customer Register</a></li>
+        <li><a href="/products">Products</a></li>
+        <li><a href="/products/add-product">Add Product</a></li>  <!-- Add Product link -->
+        <li><a href="/cart">Cart</a></li>
+        <li><a href="/categories">Categories</a></li>
       </ul>
     </nav>
   </header>
 
+  <!-- Main content area -->
   <main id="main-content" role="main">
-    {{{body}}} 
+    <div class="container">
+      {{{body}}}  <!-- This is where the page-specific content will be rendered -->
+    </div>
   </main>
 
+  <!-- Footer -->
   <footer role="contentinfo">
     <p>&copy; 2025 Catful Inc. All rights reserved.</p>
   </footer>
