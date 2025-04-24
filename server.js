@@ -1,7 +1,4 @@
-// Load environment variables from .env
 require('dotenv').config();
-
-// Import the dependencies
 const express = require('express');
 const mongoose = require('mongoose');
 const exphbs = require('express-handlebars');
@@ -10,7 +7,6 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 
-// Import routes
 const userRoute = require('./routes/userRoute');
 const countryRoutes = require('./routes/countryRoute');
 const productRoutes = require('./routes/productRoute');
@@ -19,17 +15,15 @@ const checkoutRoutes = require('./routes/checkoutRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 
-// Initialize Express 
 const app = express();
-
-// Serve static files from "public" folder
 app.use(express.static('public'));
 
-// Middleware setup for parsing JSON and URL-encoded data
+// Middleware setup
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.static('public'));
 
-// Session and flash message setup
+// Session and flash setup
 app.use(session({
   secret: 'cartful-secret-key',
   resave: false,
@@ -37,16 +31,19 @@ app.use(session({
 }));
 
 app.use(flash());
-
-// Make flash messages available to views
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   next();
 });
+app.set('view engine', 'handlebars'); 
+app.use(express.json());
+
+app.use('/', userRoute);
+app.use('/', countryRoutes);
 
 
-// Config for Handlebars
+// Handlebars setup
 app.engine('handlebars', exphbs.engine({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
   defaultLayout: 'main',
@@ -66,43 +63,32 @@ app.engine('handlebars', exphbs.engine({
 }));
 app.set('view engine', 'handlebars');
 
-// Simulated logged-in user middleware (for testing purposes)
+// MongoDB connection
+const dbURI = `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.CLUSTER}.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
+
+mongoose.connect(dbURI)
+  .then(() => {
+    const PORT = process.env.PORT || 8000;
+    app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+    console.log('Connected to DB');
+  })
+  .catch(err => console.log(err));
+
+// Simulate logged-in user for testing
 app.use((req, res, next) => {
   req.user = { _id: '6804ab38d40c821fa6b71237' };
   next();
 });
 
-// Routes setup
+// Routes
 app.use('/', viewRoutes);
 app.use('/checkout', checkoutRoutes);
 app.use('/cart', cartRoutes);
 app.use('/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/', userRoute);
-app.use('/', countryRoutes);
-
 
 // Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).render('error', { error: 'Something went wrong!' });
 });
-
-// MongoDB connection and server start
-const dbURI = `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.CLUSTER}.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
-
-mongoose.connect(dbURI)
-  .then(() => {
-    const PORT = process.env.PORT || 8000;
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log('Connected to MongoDB');
-    });
-  })
-  .catch(err => console.log('DB Connection Error:', err));
-
-
-
-
-
-
