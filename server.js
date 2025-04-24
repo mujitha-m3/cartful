@@ -7,26 +7,27 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 
+const app = express();
+
+// Models & Controllers
+const Category = require('./models/Category');
+const categoryController = require('./controllers/categoryController');
+
+// Routes
 const userRoute = require('./routes/userRoute');
 const countryRoutes = require('./routes/countryRoute');
-
-
-const Category = require('./models/Category');
 const productRoutes = require('./routes/productRoute');
 const viewRoutes = require('./routes/viewRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 
-const app = express();
-app.use(express.static('public'));
-
 // Middleware setup
+app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static('public'));
 
-// Session and flash setup
+// Session and flash
 app.use(session({
   secret: 'cartful-secret-key',
   resave: false,
@@ -39,12 +40,6 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash('error_msg');
   next();
 });
-app.set('view engine', 'handlebars'); 
-app.use(express.json());
-
-app.use('/', userRoute);
-app.use('/', countryRoutes);
-
 
 // Handlebars setup
 app.engine('handlebars', exphbs.engine({
@@ -66,7 +61,37 @@ app.engine('handlebars', exphbs.engine({
 }));
 app.set('view engine', 'handlebars');
 
-// MongoDB connection
+// Simulate logged-in user for testing
+app.use((req, res, next) => {
+  req.user = { _id: '6804ab38d40c821fa6b71237' };
+  next();
+});
+
+// ===== View Routes for Category Management =====
+app.get('/categories', async (req, res) => {
+  try {
+    const categories = await Category.find({ is_active: true }).populate('parent_category_id');
+    res.render('categories', { title: 'Categories', categories });
+  } catch (error) {
+    res.status(500).render('error', { error: 'Failed to load categories' });
+  }
+});
+
+app.get('/categories/add', categoryController.renderAddCategoryForm);
+app.post('/categories', categoryController.createCategory);
+
+// ===== Other Application Routes =====
+app.use('/', userRoute);
+app.use('/', countryRoutes);
+app.use('/', viewRoutes);
+app.use('/checkout', checkoutRoutes);
+app.use('/cart', cartRoutes);
+app.use('/products', productRoutes);
+
+// ===== API Routes for Categories =====
+app.use('/api/categories', categoryRoutes);
+
+// MongoDB Connection
 const dbURI = `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.CLUSTER}.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
 
 mongoose.connect(dbURI)
@@ -77,20 +102,7 @@ mongoose.connect(dbURI)
   })
   .catch(err => console.log(err));
 
-// Simulate logged-in user for testing
-app.use((req, res, next) => {
-  req.user = { _id: '6804ab38d40c821fa6b71237' };
-  next();
-});
-
-// Routes
-app.use('/', viewRoutes);
-app.use('/checkout', checkoutRoutes);
-app.use('/cart', cartRoutes);
-app.use('/products', productRoutes);
-app.use('/api/categories', categoryRoutes);
-
-// Error handling
+// Error Handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).render('error', { error: 'Something went wrong!' });
