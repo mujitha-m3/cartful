@@ -33,8 +33,9 @@ app.use(express.json());
 // Session and flash message setup
 app.use(session({
   secret: 'cartful-secret-key',
-  resave: false,
-  saveUninitialized: true
+  resave: true,
+  saveUninitialized: false,
+  cookie: { secure: false }
 }));
 
 app.use(flash());
@@ -61,9 +62,11 @@ app.engine('handlebars', exphbs.engine({
         total += item.total_price;
       }
       return total.toFixed(2);
-    }
+    },
+    eq: (a, b) => a === b  
   }
 }));
+
 app.set('view engine', 'handlebars');
 
 // Simulated logged-in user middleware (for testing purposes)
