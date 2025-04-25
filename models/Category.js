@@ -8,11 +8,10 @@ const categorySchema = new mongoose.Schema({
   icon_url: String,
   parent_category_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', default: null },
   restricted_countries: [String],
-  localized_names: mongoose.Schema.Types.Mixed,
   is_active: { type: Boolean, default: true }
 });
 
-// Auto-generate slug from name
+// Auto-generate slug
 categorySchema.pre('save', function (next) {
   if (!this.slug && this.name) {
     this.slug = slugify(this.name, { lower: true, strict: true });
@@ -20,14 +19,13 @@ categorySchema.pre('save', function (next) {
   next();
 });
 
-// ✅ Define a virtual for children
+// Virtual for child categories
 categorySchema.virtual('children', {
   ref: 'Category',
   localField: '_id',
   foreignField: 'parent_category_id'
 });
 
-// ✅ Ensure virtuals are included in output
 categorySchema.set('toObject', { virtuals: true });
 categorySchema.set('toJSON', { virtuals: true });
 
