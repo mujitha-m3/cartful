@@ -15,20 +15,20 @@
     </div>
   {{/if}}
 
-  <form action="/categories" method="POST">
+  <form action="/categories/edit/{{category._id}}" method="POST">
     <div class="input-group">
       <label for="name">Category Name *</label>
-      <input type="text" id="name" name="name" required>
+      <input type="text" id="name" name="name" value="{{category.name}}" required>
     </div>
 
     <div class="input-group">
       <label for="description">Description</label>
-      <textarea id="description" name="description"></textarea>
+      <textarea id="description" name="description">{{category.description}}</textarea>
     </div>
 
     <div class="input-group">
       <label for="icon_url">Icon URL</label>
-      <input type="url" id="icon_url" name="icon_url">
+      <input type="url" id="icon_url" name="icon_url" value="{{category.icon_url}}">
     </div>
 
     <div class="input-group">
@@ -36,23 +36,25 @@
       <select id="parent_category_id" name="parent_category_id">
         <option value="">-- None --</option>
         {{#each parentCategories}}
-          <option value="{{this._id}}">{{this.name}}</option>
+          <option value="{{this._id}}" {{#if (eq this._id ../category.parent_category_id)}}selected{{/if}}>
+            {{this.name}}
+          </option>
         {{/each}}
       </select>
     </div>
 
     <div class="input-group">
       <label for="restricted_countries">Restricted Countries (comma-separated)</label>
-      <input type="text" id="restricted_countries" name="restricted_countries">
+      <input type="text" id="restricted_countries" name="restricted_countries" value="{{category.restricted_countries}}">
     </div>
 
     <div class="input-group">
       <label>
-        <input type="checkbox" name="is_active" checked>
+        <input type="checkbox" name="is_active" {{#if category.is_active}}checked{{/if}}>
         Active
       </label>
     </div>
 
-    <button type="submit" class="btn btn-primary">Add Category</button>
+    <button type="submit" class="btn btn-primary">Update Category</button>
   </form>
 </div>

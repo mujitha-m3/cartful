@@ -8,19 +8,16 @@ router.get('/add', categoryController.renderAddCategoryForm);
 // Create category
 router.post('/', categoryController.createCategory);
 
-// Get all categories (renders HTML or returns JSON based on request)
+// Get all categories
 router.get('/', categoryController.getAllCategories);
 
-// Get category hierarchy
-router.get('/hierarchy', categoryController.getCategoryHierarchy);
+// Delete category
+router.post('/delete/:id', categoryController.deleteCategory);
 
-// Get single category by ID (API use)
-router.get('/:id', categoryController.getCategoryById);
+// Edit category form
+router.get('/edit/:id', categoryController.renderEditCategoryForm);
 
-// Update category by ID
-router.put('/:id', categoryController.updateCategory);
-
-// Delete category by ID
-router.post('/delete/:id', categoryController.deleteCategory); // POST for form submission
+// Update category
+router.post('/edit/:id', categoryController.updateCategory);
 
 module.exports = router;

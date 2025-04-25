@@ -1,150 +1,132 @@
 const Category = require('../models/Category');
+const mongoose = require('mongoose');
 
-// Render the Add Category page
-exports.renderAddCategoryForm = async (req, res) => {
+// Render edit form
+exports.renderEditCategoryForm = async (req, res) => {
   try {
-    const parentCategories = await Category.find({ is_active: true });
-    res.render('addCategory', {
-      title: 'Add New Category',
-      parentCategories
-    });
-  } catch (error) {
-    res.render('addCategory', {
-      title: 'Add New Category',
-      error: 'Failed to load parent categories'
-    });
-  }
-};
-
-// Create a new category
-exports.createCategory = async (req, res) => {
-  try {
-    const { name, description, icon_url, parent_category_id, restricted_countries, localized_names } = req.body;
-
-    const category = new Category({
-      name,
-      description,
-      icon_url,
-      parent_category_id: parent_category_id || null,
-      restricted_countries: restricted_countries || [],
-      localized_names: localized_names || {}
+    const category = await Category.findById(req.params.id);
+    const parentCategories = await Category.find({
+      _id: { $ne: category._id }, // exclude self
+      parent_category_id: null
     });
 
-    await category.save();
-    res.redirect('/categories');
-  } catch (error) {
-    if (error.code === 11000) {
-      return res.status(400).json({ error: 'Category name must be unique' });
-    }
-    res.status(400).json({ error: error.message });
-  }
-};
-
-// Get all categories
-exports.getAllCategories = async (req, res) => {
-  try {
-    const { include_inactive } = req.query;
-    const filter = {};
-
-    if (include_inactive !== 'true') {
-      filter.is_active = true;
-    }
-
-    const categories = await Category.find(filter).populate('parent_category_id', 'name');
-
-    // Render the view instead of returning JSON
-    res.render('categories', {
-      title: 'Category Management',
-      categories
-    });
-
-  } catch (error) {
-    res.status(500).render('categories', {
-      title: 'Category Management',
-      categories: [],
-      error: error.message
-    });
-  }
-};
-
-// Get category by ID
-exports.getCategoryById = async (req, res) => {
-  try {
-    const category = await Category.findById(req.params.id).populate('parent_category_id', 'name');
     if (!category) {
-      return res.status(404).json({ error: 'Category not found' });
+      req.flash('error_msg', 'Category not found.');
+      return res.redirect('/categories');
     }
-    res.json(category);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+
+    res.render('editCategory', {
+      title: 'Edit Category',
+      category,
+      parentCategories,
+      success_msg: req.flash('success_msg'),
+      error_msg: req.flash('error_msg')
+    });
+  } catch (err) {
+    console.error('Error loading edit form:', err);
+    req.flash('error_msg', 'Error loading edit form.');
+    res.redirect('/categories');
   }
 };
 
 // Update category
 exports.updateCategory = async (req, res) => {
   try {
-    const updates = Object.keys(req.body);
-    const allowedUpdates = ['name', 'description', 'icon_url', 'parent_category_id', 'restricted_countries', 'localized_names', 'is_active'];
-    const isValidOperation = updates.every(update => allowedUpdates.includes(update));
+    const { name, description, icon_url, parent_category_id, restricted_countries, is_active } = req.body;
 
-    if (!isValidOperation) {
-      return res.status(400).json({ error: 'Invalid updates!' });
+    const updateData = {
+      name,
+      description,
+      icon_url,
+      parent_category_id: parent_category_id || null,
+      restricted_countries: restricted_countries
+        ? restricted_countries.split(',').map(c => c.trim())
+        : [],
+      is_active: is_active === 'on'
+    };
+
+    const updated = await Category.findByIdAndUpdate(req.params.id, updateData, { new: true });
+
+    if (!updated) {
+      req.flash('error_msg', 'Category not found.');
+      return res.redirect('/categories');
     }
 
-    const category = await Category.findById(req.params.id);
-    if (!category) {
-      return res.status(404).json({ error: 'Category not found' });
-    }
-
-    updates.forEach(update => category[update] = req.body[update]);
-    await category.save();
-    res.json(category);
-  } catch (error) {
-    if (error.code === 11000) {
-      return res.status(400).json({ error: 'Category name must be unique' });
-    }
-    res.status(400).json({ error: error.message });
+    req.flash('success_msg', 'Category updated successfully.');
+    res.redirect('/categories');
+  } catch (err) {
+    console.error('Error updating category:', err);
+    req.flash('error_msg', 'Failed to update category.');
+    res.redirect(`/categories/edit/${req.params.id}`);
   }
+};
+
+// Add category form
+exports.renderAddCategoryForm = (req, res) => {
+  Category.find({ parent_category_id: null })
+    .then(parentCategories => {
+      res.render('addCategory', {
+        title: 'Add Category',
+        parentCategories
+      });
+    })
+    .catch(err => {
+      console.log(err);
+      req.flash('error_msg', 'Error loading categories.');
+      res.redirect('/categories');
+    });
+};
+
+// Create category
+exports.createCategory = (req, res) => {
+  const { name, description, icon_url, parent_category_id, restricted_countries, is_active } = req.body;
+
+  const category = new Category({
+    name,
+    description,
+    icon_url,
+    parent_category_id: parent_category_id || null,
+    restricted_countries: restricted_countries ? restricted_countries.split(',').map(c => c.trim()) : [],
+    is_active: is_active === 'on'
+  });
+
+  category
+    .save()
+    .then(() => {
+      req.flash('success_msg', 'Category created successfully.');
+      res.redirect('/categories');
+    })
+    .catch(err => {
+      console.log(err);
+      req.flash('error_msg', 'Failed to create category.');
+      res.redirect('/categories/add');
+    });
+};
+
+// Get all categories
+exports.getAllCategories = (req, res) => {
+  Category.find()
+    .populate('parent_category_id')
+    .then(categories => {
+      res.render('categories', { categories });
+    })
+    .catch(err => {
+      console.log(err);
+      req.flash('error_msg', 'Failed to load categories.');
+      res.redirect('/');
+    });
 };
 
 // Delete category
-exports.deleteCategory = async (req, res) => {
-  try {
-    const category = await Category.findByIdAndDelete(req.params.id);
-    if (!category) {
-      return res.status(404).json({ error: 'Category not found' });
-    }
-    // Redirect if it's from browser
-    if (req.accepts(['html', 'json']) === 'html') {
-      return res.redirect('/categories');
-    } else {
-      return res.json({ message: 'Category deleted successfully' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get categories hierarchy
-exports.getCategoryHierarchy = async (req, res) => {
-  try {
-    const categories = await Category.find({ is_active: true });
-
-    const buildHierarchy = (parentId = null) => {
-      return categories
-        .filter(category =>
-          (category.parent_category_id && category.parent_category_id.toString() === parentId) ||
-          (!category.parent_category_id && !parentId)
-        )
-        .map(category => ({
-          ...category.toObject(),
-          children: buildHierarchy(category._id.toString())
-        }));
-    };
-
-    const hierarchy = buildHierarchy();
-    res.json(hierarchy);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+exports.deleteCategory = (req, res) => {
+  Category.findByIdAndDelete(req.params.id)
+    .then(() => {
+      req.flash('success_msg', 'Category deleted successfully.');
+      res.redirect('/categories');
+    })
+    .catch(err => {
+      console.log(err);
+      req.flash('error_msg', 'Failed to delete category.');
+      res.redirect('/categories');
+    });
 };
