@@ -11,8 +11,16 @@ const flash = require('connect-flash');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 
 // Import routes
+// User Related and Authroiation related delarations
+const googleAuthRoutes = require('./routes/authClientGoogleRoute');  
 const userRoute = require('./routes/userRoute');
 const countryRoutes = require('./routes/countryRoute');
+const passport = require('passport'); 
+require('./passport');
+const userController = require('./controllers/userController');
+
+
+
 const Category = require('./models/Category');
 const productRoutes = require('./routes/productRoute');
 const viewRoutes = require('./routes/viewRoutes');
@@ -20,33 +28,9 @@ const checkoutRoutes = require('./routes/checkoutRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 
+
 // Initialize Express
 const app = express();
-
-// Serve static files from "public" folder
-app.use(express.static('public'));
-
-// Middleware setup for parsing JSON and URL-encoded data
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-// Session and flash message setup
-app.use(session({
-  secret: 'cartful-secret-key',
-  resave: true,
-  saveUninitialized: false,
-  cookie: { secure: false }
-}));
-
-app.use(flash());
-
-// Make flash messages available to views
-app.use((req, res, next) => {
-  res.locals.success_msg = req.flash('success_msg');
-  res.locals.error_msg = req.flash('error_msg');
-  next();
-});
-
 // Config for Handlebars
 app.engine('handlebars', exphbs.engine({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
@@ -66,14 +50,62 @@ app.engine('handlebars', exphbs.engine({
     eq: (a, b) => a === b  
   }
 }));
+// Serve static files from "public" folder
+app.use(express.static('public'));
 
-app.set('view engine', 'handlebars');
+// Middleware setup for parsing JSON and URL-encoded data
+// Middleware setup
 
-// Simulated logged-in user middleware (for testing purposes)
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Session and flash message setup
+app.use(session({
+  secret: 'cartful-secret-key',
+  resave: true,
+  saveUninitialized: false,
+  cookie: { secure: false }
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(flash());
+
+// Make flash messages available to views
 app.use((req, res, next) => {
-  req.user = { _id: '6804ab38d40c821fa6b71237' }; // Simulated user
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
   next();
 });
+app.set('view engine', 'handlebars'); 
+app.use(express.json());
+
+app.use('/', googleAuthRoutes);
+app.use('/', userRoute);
+app.use('/', countryRoutes);
+
+
+
+
+//app.set('view engine', 'handlebars');  commmented by Kasun for duplicate record 
+
+// MongoDB connection
+//const dbURI = `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.CLUSTER}.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
+
+/*mongoose.connect(dbURI)
+  .then(() => {
+    const PORT = process.env.PORT || 8000;
+    app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+    console.log('Connected to DB');
+  })
+  .catch(err => console.log(err));*/
+
+// Simulate logged-in user for testing
+/*app.use((req, res, next) => {
+  req.user = { _id: '6804ab38d40c821fa6b71237' };
+  next();
+});*/
 
 // Routes setup - Important: `categoryRoutes` should come before other routes like `userRoute`
 app.use('/categories', categoryRoutes); // Ensure this is correct

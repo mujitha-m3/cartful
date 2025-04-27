@@ -308,3 +308,61 @@ textarea {
   margin: 0;
   font-size: 1.2rem;
 }
+
+/* Kasun */
+main.container, section.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+fieldset.input-group {
+  margin-bottom: 1.5rem;
+  border: none;
+  padding: 0;
+}
+
+fieldset.input-group label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+fieldset.input-group input,
+fieldset.input-group select,
+fieldset.input-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+fieldset.input-group input:focus,
+fieldset.input-group select:focus,
+fieldset.input-group textarea:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+aside.error-message,
+aside.success-message {
+  padding: 1rem;
+  border-radius: 5px;
+  margin-bottom: 1.5rem;
+}
+
+aside.error-message {
+  color: #e74c3c;
+  background-color: #f9d6d5;
+}
+
+aside.success-message {
+  color: #2ecc71;
+  background-color: #d4edda;
+}
