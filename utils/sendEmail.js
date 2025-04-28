@@ -94,7 +94,7 @@ const sendEmail = async ({
           <p><strong>Email:</strong> ${order.email}</p>
           <p><strong>Phone:</strong> ${order.phone || 'N/A'}</p>
           <p><strong>Shipping Address:</strong> 
-            ${order.shipping_address.line1}, 
+            ${order.shipping_address.line1}, ${order.shipping_address.line2 ? order.shipping_address.line2 + ', ' : ''}
             ${order.shipping_address.city}, 
             ${order.shipping_address.postal}, 
             ${order.shipping_address.country}
@@ -161,6 +161,7 @@ const sendEmail = async ({
     const info = await transporter.sendMail(mailOptions);
     console.log('Email sent:', info.messageId);
 
+    // Clean up the generated PDF
     if (fs.existsSync(pdfPath)) {
       fs.unlinkSync(pdfPath);
     }

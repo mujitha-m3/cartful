@@ -5,6 +5,8 @@ const OrderProduct = require('../models/OrderProduct');
 const Payment = require('../models/Payment');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { sendEmail } = require('../utils/sendEmail');
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
 
 // Show checkout page
 exports.checkoutPage = async (req, res) => {
@@ -54,15 +56,15 @@ exports.saveCheckoutDetails = (req, res) => {
     // Save checkout details to session
     req.session.checkoutDetails = {
       email,
-      first_name,  // Make sure these are included
-      last_name,    // from the form submission
+      first_name,  
+      last_name,    
       phone,
       shipping_address,
       billing_address,
       shipping_method,
     };
 
-    req.flash('success_msg', '✅ Order details saved successfully!');
+    req.flash('success_msg', 'Order details saved successfully!');
     res.redirect('/checkout?tab=shipping');
   } catch (err) {
     console.error('Save checkout details error:', err);
@@ -98,8 +100,8 @@ exports.createOrder = async (req, res) => {
       placed_by: req.user._id,
       email: checkoutDetails.email,
       phone: checkoutDetails.phone || 'Not provided',
-      first_name: checkoutDetails.first_name,  // Make sure these are included
-      last_name: checkoutDetails.last_name,    // from checkoutDetails
+      first_name: checkoutDetails.first_name,
+      last_name: checkoutDetails.last_name,
     };
 
     // Stripe flow
@@ -185,21 +187,55 @@ exports.createOrder = async (req, res) => {
       recipient: order.email,
       subject: 'Order Confirmation - Cartful',
       htmlContent: `
-      <h2>Hi ${order.first_name} ${order.last_name}!</h2>
-      <p>Thank you for your order <b>#${order._id}</b>!</p>
-      <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
-      <p><strong>Phone:</strong> ${order.phone || 'Not provided'}</p>
-      <p><strong>Payment Method:</strong> Cash On Delivery</p>
-      <p><strong>Total Amount:</strong> €${order.total.toFixed(2)}</p>
-      <p>We are preparing your items and will ship them soon!</p>
-      <p>Please find your receipt attached.</p>
-      <br><p>🛒 Cartful Team</p>
+        <h2>Hi ${order.first_name} ${order.last_name}!</h2>
+        <p>Thank you for your order <b>#${order._id}</b>!</p>
+        <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+        <p><strong>Phone:</strong> ${order.phone || 'Not provided'}</p>
+        <p><strong>Payment Method:</strong> Cash On Delivery</p>
+        <p><strong>Total Amount:</strong> €${order.total.toFixed(2)}</p>
+
+        <h4>Shipping Address:</h4>
+        <p>
+          ${checkoutDetails.shipping_address.line1}<br>
+          ${checkoutDetails.shipping_address.line2 ? checkoutDetails.shipping_address.line2 + '<br>' : ''}
+          ${checkoutDetails.shipping_address.city}<br>
+          ${checkoutDetails.shipping_address.postal}<br>
+          ${checkoutDetails.shipping_address.country}
+        </p>
+        
+        <p>We are preparing your items and will ship them soon!</p>
+        <p>Please find your receipt attached.</p>
+        <br><p>Cartful Team</p>
       `,
       order,
       items,
       user: req.user,
       paymentMethod: 'cod',
     });
+
+    // Generate PDF Receipt
+    const doc = new PDFDocument();
+    const filePath = `./receipts/order_${order._id}.pdf`;
+
+    doc.pipe(fs.createWriteStream(filePath));
+
+    doc.fontSize(16).text(`Order Receipt #${order._id}`);
+    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`);
+    doc.text(`Phone: ${order.phone || 'Not provided'}`);
+    doc.text(`Payment Method: Cash On Delivery`);
+    doc.text(`Total Amount: €${order.total.toFixed(2)}`);
+
+    // Shipping Address
+    doc.text(`Shipping Address:`);
+    doc.text(`${checkoutDetails.shipping_address.line1}`);
+    if (checkoutDetails.shipping_address.line2) {
+      doc.text(`${checkoutDetails.shipping_address.line2}`);
+    }
+    doc.text(`${checkoutDetails.shipping_address.city}`);
+    doc.text(`${checkoutDetails.shipping_address.postal}`);
+    doc.text(`${checkoutDetails.shipping_address.country}`);
+
+    doc.end();
 
     res.redirect('/checkout/success');
   } catch (error) {
@@ -246,14 +282,14 @@ exports.checkoutSuccess = async (req, res) => {
       recipient: order.email,
       subject: 'Payment Receipt - Cartful',
       htmlContent: `
-      <h2>Hi ${order.first_name} ${order.last_name}!</h2>
-      <p>We received your payment for order <b>#${order._id}</b>.</p>
-      <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
-      <p><strong>Phone:</strong> ${order.phone || 'Not provided'}</p>
-      <p><strong>Total Paid:</strong> €${order.total.toFixed(2)}</p>
-      <p>We are now preparing your shipment. 🚚</p>
-      <p>Please find your payment receipt attached.</p>
-      <br><p>🛒 Cartful Team</p>
+        <h2>Hi ${order.first_name} ${order.last_name}!</h2>
+        <p>We received your payment for order <b>#${order._id}</b>.</p>
+        <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+        <p><strong>Phone:</strong> ${order.phone || 'Not provided'}</p>
+        <p><strong>Total Paid:</strong> €${order.total.toFixed(2)}</p>
+        <p>We are now preparing your shipment. </p>
+        <p>Please find your payment receipt attached.</p>
+        <br><p> Cartful Team</p>
       `,
       order,
       items,
@@ -264,7 +300,7 @@ exports.checkoutSuccess = async (req, res) => {
     res.render('checkout-success', {
       orderId: order._id,
       total: order.total.toFixed(2),
-      success_msg: '🎉 Payment successful!',
+      success_msg: 'Payment successful!',
     });
   } catch (err) {
     console.error('Payment success error:', err);

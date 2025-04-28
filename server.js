@@ -12,32 +12,22 @@ const path = require('path');
 const fs = require('fs');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 const nodemailer = require('nodemailer');  // Nodemailer for email functionality
+const passport = require('passport'); 
+require('./passport'); // Passport configuration
 
 // Import routes
-// User Related and Authroiation related delarations
 const googleAuthRoutes = require('./routes/authClientGoogleRoute');  
 const userRoute = require('./routes/userRoute');
 const countryRoutes = require('./routes/countryRoute');
-<<<<<<< HEAD
-=======
-const passport = require('passport'); 
-require('./passport');
-const userController = require('./controllers/userController');
-
-
-
-const Category = require('./models/Category');
->>>>>>> Master
 const productRoutes = require('./routes/productRoute');
 const viewRoutes = require('./routes/viewRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
-
+const userController = require('./controllers/userController');
 
 // Initialize Express
 const app = express();
-<<<<<<< HEAD
 
 // Create temp directory for PDFs if it doesn't exist
 const tempDir = path.join(__dirname, 'temp');
@@ -74,8 +64,6 @@ app.use((req, res, next) => {
   next();
 });
 
-=======
->>>>>>> Master
 // Config for Handlebars
 app.engine('handlebars', exphbs.engine({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
@@ -97,97 +85,61 @@ app.engine('handlebars', exphbs.engine({
     json: (context) => JSON.stringify(context)
   }
 }));
-<<<<<<< HEAD
+
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT),
+  secure: process.env.SMTP_SECURE === 'true',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
 });
-=======
-// Serve static files from "public" folder
-app.use(express.static('public'));
 
-// Middleware setup for parsing JSON and URL-encoded data
-// Middleware setup
->>>>>>> Master
+app.locals.transporter = transporter;
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-// Session and flash message setup
-app.use(session({
-  secret: 'cartful-secret-key',
-  resave: true,
-  saveUninitialized: false,
-  cookie: { secure: false }
-}));
-
+// Passport setup
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(flash());
-
-// Make flash messages available to views
+// Middleware to handle user authentication state
 app.use((req, res, next) => {
-<<<<<<< HEAD
-  if (!req.user) {
-    // Try to get email from checkout session if the user isn't logged in
-    const emailFromCheckout = req.session.checkoutDetails ? req.session.checkoutDetails.email : null;
-    // If no user and no email from checkout, set a fake user (for testing)
-    req.user = { 
-      _id: '6804ab38d40c821fa6b71237',  // Fake user ID for testing
-      email: emailFromCheckout || 'dynamic-email-from-database@example.com'  // Use email from checkout or fallback
+  // If user is already authenticated (via Passport), continue
+  if (req.user) return next();
+  
+  // For checkout process without authentication
+  if (req.session.checkoutDetails?.email) {
+    req.user = {
+      isGuest: true,
+      email: req.session.checkoutDetails.email,
+      ...(req.session.checkoutDetails.first_name && { 
+        first_name: req.session.checkoutDetails.first_name 
+      }),
+      ...(req.session.checkoutDetails.last_name && { 
+        last_name: req.session.checkoutDetails.last_name 
+      })
     };
+    return next();
   }
-=======
-  res.locals.success_msg = req.flash('success_msg');
-  res.locals.error_msg = req.flash('error_msg');
->>>>>>> Master
+
+  // No user and no checkout session - treat as guest
+  req.user = { isGuest: true };
   next();
 });
-app.set('view engine', 'handlebars'); 
-app.use(express.json());
-
-app.use('/', googleAuthRoutes);
-app.use('/', userRoute);
-app.use('/', countryRoutes);
-
-
-
-
-//app.set('view engine', 'handlebars');  commmented by Kasun for duplicate record 
-
-// MongoDB connection
-//const dbURI = `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.CLUSTER}.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
-
-/*mongoose.connect(dbURI)
-  .then(() => {
-    const PORT = process.env.PORT || 8000;
-    app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
-    console.log('Connected to DB');
-  })
-  .catch(err => console.log(err));*/
-
-// Simulate logged-in user for testing
-/*app.use((req, res, next) => {
-  req.user = { _id: '6804ab38d40c821fa6b71237' };
-  next();
-});*/
 
 // Routes setup
-app.use('/categories', categoryRoutes);
-app.use('/', viewRoutes);
-app.use('/checkout', checkoutRoutes);
-app.use('/cart', cartRoutes);
-app.use('/products', productRoutes);
-app.use('/', userRoute);
-app.use('/', countryRoutes);
+app.use('/', googleAuthRoutes);  // Google Auth Routes
+app.use('/', userRoute);         // User Routes
+app.use('/', countryRoutes);     // Country Routes
+app.use('/products', productRoutes);  // Product Routes
+app.use('/categories', categoryRoutes); // Category Routes
+app.use('/', viewRoutes);        // View Routes
+app.use('/checkout', checkoutRoutes); // Checkout Routes
+app.use('/cart', cartRoutes);    // Cart Routes
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -197,7 +149,7 @@ app.get('/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('❌ Server error:', err.stack);
-  
+
   // Clean up any temporary files
   if (err.tempFile) {
     try {
@@ -230,8 +182,6 @@ app.use((req, res) => {
 const dbURI = `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.CLUSTER}.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
 
 mongoose.connect(dbURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
   serverSelectionTimeoutMS: 5000
 })
 .then(() => {
@@ -240,6 +190,7 @@ mongoose.connect(dbURI, {
     console.log(`Server is running on port ${PORT}`);
     console.log('Connected to MongoDB');
   });
+
 
   // Handle server shutdown gracefully
   process.on('SIGTERM', () => {
@@ -254,13 +205,13 @@ mongoose.connect(dbURI, {
   });
 })
 .catch(err => {
-  console.error('❌ DB Connection Error:', err);
+  console.error('DB Connection Error:', err);
   process.exit(1);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-  console.error('❌ Unhandled Rejection:', err);
+  console.error('Unhandled Rejection:', err);
   // Close server and exit process
   process.exit(1);
 });
