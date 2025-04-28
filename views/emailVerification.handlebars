@@ -1,0 +1,10 @@
+<h2>Email Verification</h2>
+<form action="/verifyEmail" method="POST">
+  <label for="email">Your Email:</label>
+  <input type="email" id="email" name="email" required>
+  <label for="code">Verification Code:</label>
+  <input type="text" id="code" name="code" required>
+  <button type="submit">Verify Email</button>
+  <!--<button type="submit">Resend Verification Code</button>-->
+  <button type="submit" formaction="/resendCode" name="action" value="resend">Resend Verification Code</button>
+</form> 
