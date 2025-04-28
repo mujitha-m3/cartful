@@ -8,12 +8,14 @@ const exphbs = require('express-handlebars');
 const Handlebars = require('handlebars');
 const session = require('express-session');
 const flash = require('connect-flash');
+const path = require('path');
+const fs = require('fs');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
+const nodemailer = require('nodemailer');  // Nodemailer for email functionality
 
 // Import routes
 const userRoute = require('./routes/userRoute');
 const countryRoutes = require('./routes/countryRoute');
-const Category = require('./models/Category');
 const productRoutes = require('./routes/productRoute');
 const viewRoutes = require('./routes/viewRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
@@ -22,6 +24,12 @@ const categoryRoutes = require('./routes/categoryRoutes');
 
 // Initialize Express
 const app = express();
+
+// Create temp directory for PDFs if it doesn't exist
+const tempDir = path.join(__dirname, 'temp');
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+}
 
 // Serve static files from "public" folder
 app.use(express.static('public'));
@@ -32,18 +40,23 @@ app.use(express.json());
 
 // Session and flash message setup
 app.use(session({
-  secret: 'cartful-secret-key',
-  resave: true,
+  secret: process.env.SESSION_SECRET || 'cartful-secret-key',
+  resave: false,
   saveUninitialized: false,
-  cookie: { secure: false }
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 app.use(flash());
 
-// Make flash messages available to views
+// Make variables available to views
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
+  res.locals.currentUser = req.user || null;
+  res.locals.session = req.session;
   next();
 });
 
@@ -52,31 +65,50 @@ app.engine('handlebars', exphbs.engine({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
   defaultLayout: 'main',
   helpers: {
-    formatDate: (date) => new Date(date).toLocaleDateString(),
+    formatDate: (date) => date ? new Date(date).toLocaleDateString() : 'N/A',
     ifEquals: (arg1, arg2, options) => (arg1 == arg2 ? options.fn(this) : options.inverse(this)),
-    formatPrice: (price) => (price ? `$${price.toFixed(2)}` : '$0.00'),
-    hasChildren: (category) => category.children && category.children.length > 0,
+    formatPrice: (price) => (price ? `€${price.toFixed(2)}` : '€0.00'),
+    hasChildren: (category) => category && category.children && category.children.length > 0,
     calculateTotal: (items) => {
+      if (!items) return '0.00';
       let total = 0;
       for (let item of items) {
-        total += item.total_price;
+        total += item.total_price || 0;
       }
       return total.toFixed(2);
     },
-    eq: (a, b) => a === b  
+    eq: (a, b) => a === b,
+    json: (context) => JSON.stringify(context)
   }
 }));
-
 app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
+
+// Nodemailer setup
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 // Simulated logged-in user middleware (for testing purposes)
 app.use((req, res, next) => {
-  req.user = { _id: '6804ab38d40c821fa6b71237' }; // Simulated user
+  if (!req.user) {
+    // Try to get email from checkout session if the user isn't logged in
+    const emailFromCheckout = req.session.checkoutDetails ? req.session.checkoutDetails.email : null;
+    // If no user and no email from checkout, set a fake user (for testing)
+    req.user = { 
+      _id: '6804ab38d40c821fa6b71237',  // Fake user ID for testing
+      email: emailFromCheckout || 'dynamic-email-from-database@example.com'  // Use email from checkout or fallback
+    };
+  }
   next();
 });
 
-// Routes setup - Important: `categoryRoutes` should come before other routes like `userRoute`
-app.use('/categories', categoryRoutes); // Ensure this is correct
+// Routes setup
+app.use('/categories', categoryRoutes);
 app.use('/', viewRoutes);
 app.use('/checkout', checkoutRoutes);
 app.use('/cart', cartRoutes);
@@ -84,21 +116,78 @@ app.use('/products', productRoutes);
 app.use('/', userRoute);
 app.use('/', countryRoutes);
 
-// Error handling
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date() });
+});
+
+// Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).render('error', { error: 'Something went wrong!' });
+  console.error('❌ Server error:', err.stack);
+  
+  // Clean up any temporary files
+  if (err.tempFile) {
+    try {
+      fs.unlinkSync(err.tempFile);
+    } catch (unlinkErr) {
+      console.error('Error cleaning up temp file:', unlinkErr);
+    }
+  }
+
+  res.status(500).render('error', { 
+    error: {
+      message: 'Something went wrong!',
+      status: 500,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    } 
+  });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).render('error', {
+    error: {
+      message: 'Page not found',
+      status: 404
+    }
+  });
 });
 
 // MongoDB connection and server start
 const dbURI = `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.CLUSTER}.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
 
-mongoose.connect(dbURI)
-  .then(() => {
-    const PORT = process.env.PORT || 8000;
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log('Connected to MongoDB');
+mongoose.connect(dbURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000
+})
+.then(() => {
+  const PORT = process.env.PORT || 8000;
+  const server = app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log('Connected to MongoDB');
+  });
+
+  // Handle server shutdown gracefully
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received. Shutting down gracefully...');
+    server.close(() => {
+      console.log('Server closed');
+      mongoose.connection.close(false, () => {
+        console.log('MongoDB connection closed');
+        process.exit(0);
+      });
     });
-  })
-  .catch(err => console.log('DB Connection Error:', err));
+  });
+})
+.catch(err => {
+  console.error('❌ DB Connection Error:', err);
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error('❌ Unhandled Rejection:', err);
+  // Close server and exit process
+  process.exit(1);
+});
