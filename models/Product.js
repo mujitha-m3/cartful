@@ -22,8 +22,7 @@ const productSchema = new mongoose.Schema({
   alt_text: String,
   is_featured: Boolean,
   status: { type: String, default: 'active' },
-  // Changed from ObjectId to String type
-  category_id: { type: String, required: true },
+   category_id: { type: String, required: true },
   allowed_countries: [String],
   created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
