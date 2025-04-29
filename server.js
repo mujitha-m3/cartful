@@ -148,7 +148,7 @@ app.get('/health', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('❌ Server error:', err.stack);
+  console.error('Server error:', err.stack);
 
   // Clean up any temporary files
   if (err.tempFile) {

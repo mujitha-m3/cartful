@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
   payment_reference: { type: String },
   tracking_number: { type: String },
 
-  email: { type: String, required: true }, // 🚀 ADDED: Customer email (required)
+  email: { type: String, required: true }, // requried 
 
   shipping_address: {
     line1: { type: String },
