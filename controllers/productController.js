@@ -1,7 +1,7 @@
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 
-// Helper: Calculate final discounted price
+// Calculate final discounted price
 const calculateDiscountPrice = (price, discount) => {
   if (!discount || !discount.type || !discount.value) return price;
 
