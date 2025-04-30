@@ -1,65 +1,104 @@
-<div class="hero">
-    <!-- Navigation inside hero -->
-    <nav class="hero-nav">
-        <div class="nav-container">
-            <a class="nav-brand" href="/">Cartful</a>
-            <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/products">Products</a></li>
-                <li><a href="/products/add-product">Add Product</a></li>
-                <li><a href="/categories">Categories</a></li>
-                <li><a href="/cart">Cart</a></li>
-                <li><a href="/register">Member Registration</a></li>
-                <li><a href="/profile">User Profile</a></li>
-            </ul>
-        </div>
-    </nav>
-    <h1>Welcome to Our Store</h1>
-    <p>Discover amazing products at great prices</p>
-    <a href="/products" class="cta-button">SHOP NOW</a>
-</div>
-
-<section class="categories">
-    <h2>Browse Categories</h2>
-    <div class="category-grid">
-        {{#each categories}}
-        <div class="category-card">
-            <h3>{{this.name}}</h3>
-            <a href="/categories/{{this._id}}" class="view-button">View Products</a>
-        </div>
-        {{/each}}
-    </div>
+<!-- Hero Section -->
+<section class="hero-section text-center py-5">
+  <div class="container">
+    <h1 class="display-4">Welcome to Our Store</h1>
+    <p class="lead mb-4">Discover amazing products at great prices</p>
+    <a href="/products" class="btn btn-primary btn-lg">SHOP NOW</a>
+  </div>
 </section>
 
-<section class="products-section">
-    <h2>Featured Products</h2>
-    <div class="product-grid">
-        {{#each products}}
-        <div class="product-card">
-            <h3>{{this.name}}</h3>
-            <p>€{{this.price}}</p>
-            <p>{{this.description}}</p>
-            <a href="/products/{{this._id}}" class="view-button">View Details</a>
-            <form method="POST" action="/cart/add" class="add-to-cart-form">
+<!-- Categories Section -->
+<section class="categories-section py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Browse Categories</h2>
+    <div class="row">
+      {{#each categories}}
+      <div class="col-md-4 mb-4">
+        <div class="card category-card h-100">
+          <div class="card-body text-center">
+            <h3 class="card-title">{{this.name}}</h3>
+            <p class="card-text">Explore top items in {{this.name}} category</p>
+            <a href="/categories/{{this._id}}" class="btn btn-outline-primary">View Products</a>
+          </div>
+        </div>
+      </div>
+      {{/each}}
+
+      <!-- Example Cards (to be removed once real data is available) -->
+      {{^categories}} <!-- Handlebars inverse block helper -->
+      <div class="col-md-4 mb-4">
+        <div class="card category-card h-100">
+          <div class="card-body text-center">
+            <h3 class="card-title">Electronics</h3>
+            <p class="card-text">Explore top items in Electronics category</p>
+            <a href="/categories/sample-id" class="btn btn-outline-primary">View Products</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card category-card h-100">
+          <div class="card-body text-center">
+            <h3 class="card-title">Fashion</h3>
+            <p class="card-text">Explore top items in Fashion category</p>
+            <a href="/categories/sample-id" class="btn btn-outline-primary">View Products</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card category-card h-100">
+          <div class="card-body text-center">
+            <h3 class="card-title">Home & Kitchen</h3>
+            <p class="card-text">Explore top items in Home & Kitchen category</p>
+            <a href="/categories/sample-id" class="btn btn-outline-primary">View Products</a>
+          </div>
+        </div>
+      </div>
+      {{/categories}}
+    </div>
+  </div>
+</section>
+
+
+<!-- Featured Products Section -->
+<section class="products-section py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-4">Featured Products</h2>
+    <div class="row">
+      {{#each products}}
+      <div class="col-md-4 mb-4">
+        <div class="card product-card h-100">
+          <div class="card-body text-center">
+            <h3 class="card-title">{{this.name}}</h3>
+            <p class="card-text">€{{this.price}}</p>
+            <p class="card-text">{{this.description}}</p>
+            <div class="d-flex justify-content-center gap-2 mt-3">
+              <a href="/products/{{this._id}}" class="btn btn-outline-primary">View Details</a>
+              <form method="POST" action="/cart/add" class="d-inline">
                 <input type="hidden" name="product_id" value="{{this._id}}" />
-                <div class="quantity-control">
-                    <label for="quantity-{{this._id}}">Qty:</label>
-                    <input type="number" id="quantity-{{this._id}}" name="quantity" value="1" min="1" />
-                </div>
-                <button type="submit" class="add-to-cart-btn">Add to Cart</button>
-            </form>
+                <button type="submit" class="btn btn-primary">Add to Cart</button>
+              </form>
+            </div>
+          </div>
         </div>
-        {{/each}}
+      </div>
+      {{/each}}
     </div>
+  </div>
 </section>
 
-<section class="newsletter">
-    <h2>Subscribe to Our Newsletter</h2>
-    <p>Stay updated with our latest products and offers</p>
-    <form class="newsletter-form" action="/newsletter/subscribe" method="POST">
-        <input type="email" name="email" placeholder="Your email address" required>
-        <button type="submit">Subscribe</button>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section py-5">
+  <div class="container text-center">
+    <h2 class="mb-3">Subscribe to Our Newsletter</h2>
+    <p class="mb-4">Stay updated with our latest products and offers</p>
+    <form class="newsletter-form d-flex justify-content-center" action="/newsletter/subscribe" method="POST">
+      <div class="input-group" style="max-width: 400px;">
+        <input type="email" name="email" class="form-control" placeholder="Your email address" required>
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </div>
     </form>
+  </div>
 </section>
 
 {{#if success_msg}}

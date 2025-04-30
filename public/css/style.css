@@ -1,527 +1,355 @@
 /* -------------------------- Base Styles -------------------------- */
+:root {
+  --primary-color: #2c3e50;
+  --secondary-color: #3498db;
+  --accent-color: #e74c3c;
+  --light-color: #ecf0f1;
+  --dark-color: #2c3e50;
+  --text-color: #333;
+  --text-light: #7f8c8d;
+  --success-color: #2ecc71;
+  --warning-color: #f39c12;
+  --danger-color: #e74c3c;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
+  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: #f9f9f9;
 }
 
+* {
+  box-sizing: border-box;
+}
 
-/* -------------------------- Hero Navigation -------------------------- */
-.hero-nav {
-  width: 100%;
-  padding: 1.5rem 0;
-  position: absolute;
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* -------------------------- Header & Navigation -------------------------- */
+header {
+  background-color: var(--primary-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
   top: 0;
-  left: 5;
-  z-index: 10;
+  z-index: 1000;
 }
 
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
+.navbar {
+  padding: 1rem 2rem;
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  min-height: 70px;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: white;
+  display: flex;
   align-items: center;
 }
 
-.nav-brand {
-  color: #fff;
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  position: absolute; /* Position it absolutely within the nav */
-  top: 0; /* Align to the top */
-  left: 0; /* Align to the left */
-  margin-top: 1.27rem; /* Adjust space from the top */
-  margin-left: -2rem; /* Adjust space from the left */
+.navbar-brand img {
+  height: 32px;
+  margin-right: 10px;
 }
 
-
-
-
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 0.5rem; /* increased from 1.5rem */
-  margin: 0;
-  padding: 0;
-}
-
-
-.nav-links a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1.1rem;
+.nav-link {
+  font-weight: 500;
   padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--secondary-color);
+}
+
+.navbar-nav .nav-link {
   position: relative;
 }
 
-.nav-links a:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.nav-links a::after {
+.navbar-nav .nav-link::after {
   content: '';
   position: absolute;
   width: 0;
   height: 2px;
   bottom: 0;
   left: 0;
-  background-color: #fff;
+  background-color: var(--secondary-color);
   transition: width 0.3s ease;
 }
 
-.nav-links a:hover::after {
+.navbar-nav .nav-link:hover::after {
   width: 100%;
 }
 
-/* -------------------------- Hero Section -------------------------- */
-.hero {
-  background: linear-gradient(135deg, #00467c, #4ca1af);
-  padding: 180px 5% 80px;
-  text-align: center;
-  margin-bottom: 2rem;
-  position: relative;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 5;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.hero h1 {
-  font-size: 3rem;
-  margin-bottom: 1.5rem;
-  color: #fff;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.hero p {
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.6;
-}
-
-.cta-button {
-  background-color: #fff;
-  color: #2c3e50;
-  padding: 0.75rem 2rem;
+.navbar-toggler {
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  background-color: transparent;
+  color: white;
 }
 
-.cta-button:hover {
-  background-color: rgba(255, 255, 255, 0.9);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* -------------------------- Product Table Section -------------------------- */
-.products-container {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2rem;
-}
-
-.products-container h2 {
-  margin-bottom: 1.5rem;
-  color: #2c3e50;
-  font-size: 1.75rem;
-  font-weight: 600;
-}
-
-/* Search bar */
-.search-bar {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.search-bar input[type='text'] {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
-
-.search-bar button {
-  background-color: #3498db;
-  color: #fff;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-.search-bar button:hover {
-  background-color: #2980b9;
-}
-
-/* Product table */
-.product-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 1rem;
-}
-
-.product-table thead {
-  background-color: #f1f1f1;
-}
-
-.product-table th,
-.product-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
-}
-
-.product-table th {
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  color: #555;
-}
-
-.product-table tr:hover {
-  background-color: #f9f9f9;
-}
-
-/* Action buttons */
-.table-actions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  justify-content: center;
-}
-
-/* === Normalise Edit (a) and Delete (button) ==================== */
-.table-actions .btn {
-  display: inline-block;
-  padding: 0.5rem 1.25rem;
-  min-width: 115px;
-  box-sizing: border-box;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background-color .3s ease, transform .2s ease;
-}
-
-/* Colour overrides */
-.btn-update {
-  background-color: #3498db;
-  color: #fff;
-}
-.btn-update:hover {
-  background-color: #2980b9;
-  transform: translateY(-2px);
-}
-
-.btn-danger {
-  background-color: #e74c3c !important;
-  color: #fff;
-}
-
-.btn-danger:hover {
-  background-color: #c0392b;
-  transform: translateY(-2px);
-}
-
-.inline-form {
-  display: inline;
-}
-
-/* -------------------------- Add Product Form Section -------------------------- */
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  background-color: #fff;
-  border-radius: 0;
+.navbar-toggler:focus {
   box-shadow: none;
 }
 
-h1 {
-  color: #2c3e50;
-  font-size: 1.75rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
+/* -------------------------- Hero Section -------------------------- */
+.hero-section {
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+              url('https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  text-align: center;
+  margin-bottom: 3rem;
+  height: 48vh; /* <-- Set height relative to viewport */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Form elements */
-.input-group {
+
+.hero-section h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
   margin-bottom: 1.5rem;
+  line-height: 1.2;
 }
 
-.input-group label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #333;
-}
-
-.input-group input,
-.input-group select,
-.input-group textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 1rem;
-  box-sizing: border-box;
-}
-
-.input-group input:focus,
-.input-group select:focus,
-.input-group textarea:focus {
-  border-color: #3498db;
-  outline: none;
-}
-
-textarea {
-  resize: vertical;
-  min-height: 150px;
-}
-
-/* Primary button */
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  display: inline-block;
-  transition: all 0.3s ease;
-  font-size: 1rem;
-  min-width: 100px;
-  background-color: #3498db;
-  color: #fff;
-  text-align: center;
-}
-
-.btn-primary:hover {
-  background-color: #2980b9;
-  transform: translateY(-2px);
-}
-
-/* Checkbox label inline */
-.input-group input[type='checkbox'] {
-  width: auto;
-  margin-right: 0.5rem;
-}
-
-.input-group label[for='is_featured'] {
-  display: inline-block;
-  vertical-align: middle;
-  font-size: 1rem;
-}
-
-/* Status dropdown */
-.input-group select:focus {
-  border-color: #3498db;
-  outline: none;
-}
-
-/* -------------------------- Home Page Content Sections -------------------------- */
-.categories {
-  padding: 50px 5%;
-  text-align: center;
+.hero-section p {
+  font-size: 1.25rem;
   margin-bottom: 2rem;
+  opacity: 0.9;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.categories h2 {
-  margin-bottom: 40px;
-  font-size: 2rem;
-  color: #2c3e50;
+.cta-button {
+  display: inline-block;
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  border: 2px solid var(--secondary-color);
+}
+
+.cta-button:hover {
+  background-color: transparent;
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* -------------------------- Categories Section -------------------------- */
+.categories-section {
+  padding: 2rem 0 4rem;
+  background-color: white;
+  margin-top: -2rem; /* pulls the section up slightly */
+}
+
+
+.section-title {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.section-title h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  display: inline-block;
+  padding-bottom: 1rem;
+}
+
+.section-title h2::after {
+  content: '';
+  position: absolute;
+  width: 80px;
+  height: 3px;
+  background-color: var(--secondary-color);
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .category-grid {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  padding: 0 2rem;
 }
 
 .category-card {
   background-color: white;
-  padding: 30px;
   border-radius: 8px;
-  width: 200px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
   text-align: center;
-  transition: transform 0.3s ease;
+  padding: 2rem;
+  border: 1px solid #eee;
 }
 
 .category-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
 .category-card h3 {
+  font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #2c3e50;
+  color: var(--primary-color);
 }
 
 .view-button {
-  background-color: transparent;
-  color: #3498db;
-  border: 1px solid #3498db;
-  padding: 8px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
   display: inline-block;
+  padding: 0.5rem 1.5rem;
+  background-color: var(--secondary-color);
+  color: white;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  border: 2px solid var(--secondary-color);
 }
 
 .view-button:hover {
-  background-color: #3498db;
-  color: white;
+  background-color: transparent;
+  color: var(--secondary-color);
 }
 
+/* -------------------------- Products Section -------------------------- */
 .products-section {
-  padding: 50px 5%;
-  background-color: #f1f3f5;
-  margin-bottom: 2rem;
-}
-
-.products-section h2 {
-  text-align: center;
-  margin-bottom: 40px;
-  font-size: 2rem;
-  color: #2c3e50;
+  padding: 4rem 0;
+  background-color: #f8f9fa;
 }
 
 .product-grid {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 0 2rem;
 }
 
 .product-card {
   background-color: white;
-  padding: 20px;
   border-radius: 8px;
-  width: 250px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  padding: 1.5rem;
   text-align: center;
-  transition: transform 0.3s ease;
 }
 
 .product-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
 .product-card h3 {
-  margin-bottom: 10px;
-  color: #2c3e50;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
 }
 
-.product-card p {
-  margin-bottom: 15px;
-  color: #666;
+.product-card .price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+  margin-bottom: 1rem;
+}
+
+.product-card .description {
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+}
+
+.product-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.btn-details {
+  flex: 1;
+  padding: 0.5rem;
+  background-color: var(--light-color);
+  color: var(--dark-color);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  border: 1px solid #ddd;
+}
+
+.btn-details:hover {
+  background-color: #ddd;
 }
 
 .add-to-cart-form {
-  margin-top: 1rem;
-}
-
-.quantity-control {
-  margin-bottom: 0.5rem;
-}
-
-.quantity-control label {
-  margin-right: 0.5rem;
+  flex: 2;
 }
 
 .add-to-cart-btn {
-  background-color: #2ecc71;
+  width: 100%;
+  padding: 0.5rem;
+  background-color: var(--success-color);
   color: white;
   border: none;
-  padding: 8px 15px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%;
+  transition: all 0.3s ease;
 }
 
 .add-to-cart-btn:hover {
   background-color: #27ae60;
 }
 
-.newsletter {
-  padding: 50px 5%;
-  text-align: center;
+/* -------------------------- Newsletter Section -------------------------- */
+.newsletter-section {
+  padding: 4rem 0;
   background-color: white;
-  margin-bottom: 2rem;
+  text-align: center;
 }
 
-.newsletter h2 {
-  margin-bottom: 20px;
-  font-size: 2rem;
-  color: #2c3e50;
-}
-
-.newsletter p {
-  margin-bottom: 30px;
-  color: #666;
-  font-size: 1.1rem;
+.newsletter-section p {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  color: var(--text-light);
 }
 
 .newsletter-form {
-  display: flex;
-  justify-content: center;
   max-width: 500px;
   margin: 0 auto;
+  display: flex;
 }
 
 .newsletter-form input {
-  padding: 12px;
+  flex: 1;
+  padding: 0.75rem 1rem;
   border: 1px solid #ddd;
   border-radius: 4px 0 0 4px;
-  width: 70%;
-  font-size: 16px;
+  font-size: 1rem;
 }
 
 .newsletter-form button {
-  background-color: #3498db;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--secondary-color);
   color: white;
   border: none;
-  padding: 12px 25px;
   border-radius: 0 4px 4px 0;
   cursor: pointer;
-  font-size: 16px;
   transition: background-color 0.3s ease;
 }
 
@@ -529,102 +357,121 @@ textarea {
   background-color: #2980b9;
 }
 
-/* -------------------------- Messages -------------------------- */
-.error-message {
-  color: #e74c3c;
-  background-color: #f9d6d5;
-  padding: 1rem;
-  border-radius: 5px;
-  margin-bottom: 1.5rem;
+.custom-navbar {
+  background-color: var(--primary-color) !important;
+  color: white;
 }
 
-.error-message h4 {
+.custom-navbar .navbar-brand,
+.custom-navbar .nav-link,
+.custom-navbar .navbar-toggler {
+  color: white !important;
+}
+
+.custom-navbar .nav-link:hover {
+  color: var(--secondary-color) !important;
+}
+
+
+/* -------------------------- Footer -------------------------- */
+footer {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 2rem 0;
+  text-align: center;
+  margin-top: 3rem;
+}
+
+footer p {
   margin: 0;
-  font-size: 1.2rem;
 }
 
-.success-message {
-  color: #2ecc71;
-  background-color: #d4edda;
-  padding: 1rem;
-  border-radius: 5px;
-  margin-bottom: 1.5rem;
-}
-
-.success-message h4 {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-/* Toast notification */
+/* -------------------------- Messages & Notifications -------------------------- */
 .toast-notification {
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: #28a745;
-  color: #fff;
-  padding: 12px 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  z-index: 1000;
-  font-size: 14px;
+  padding: 1rem 1.5rem;
+  background-color: var(--success-color);
+  color: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1100;
+  animation: slideIn 0.3s, fadeOut 0.5s 2.5s forwards;
 }
 
-/* -------------------------- Responsive -------------------------- */
-@media (max-width: 768px) {
-  .container {
-    padding: 1rem;
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; }
+}
+
+/* -------------------------- Responsive Design -------------------------- */
+@media (max-width: 992px) {
+  .hero-section h1 {
+    font-size: 2.5rem;
   }
-  
-  .hero {
-    padding: 120px 5% 60px;
-  }
-  
-  .hero h1 {
-    font-size: 2rem;
-  }
-  
-  .hero p {
-    font-size: 1rem;
-  }
-  
-  .nav-container {
-    flex-direction: column;
-    padding: 0 1rem;
-  }
-  
-  .nav-brand {
-    margin-bottom: 1rem;
-  }
-  
-  .nav-links {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-  
+
   .category-grid,
   .product-grid {
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
-  
-  .category-card,
-  .product-card {
-    width: 100%;
-    max-width: 300px;
+}
+
+@media (max-width: 768px) {
+  .navbar-brand {
+    font-size: 1.25rem;
   }
-  
+
+  .hero-section {
+    padding: 6rem 0;
+  }
+
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+
+  .section-title h2 {
+    font-size: 2rem;
+  }
+
   .newsletter-form {
     flex-direction: column;
   }
-  
+
   .newsletter-form input,
   .newsletter-form button {
     width: 100%;
     border-radius: 4px;
   }
-  
+
   .newsletter-form button {
     margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .hero-section {
+    padding: 4rem 0;
+  }
+
+  .category-grid,
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-actions {
+    flex-direction: column;
   }
 }
