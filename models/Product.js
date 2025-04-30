@@ -8,8 +8,8 @@ const productSchema = new mongoose.Schema({
   original_price: Number,
   discount: {
     type: {
-      type: String,
-      value: Number,
+      type: String, // e.g., percentage, flat
+      value: Number, // e.g., 10 (10% off)
       start_date: Date,
       end_date: Date
     },
@@ -20,12 +20,23 @@ const productSchema = new mongoose.Schema({
   image_url: String,
   thumbnail_url: String,
   alt_text: String,
-  is_featured: Boolean,
-  status: { type: String, default: 'active' },
-  // Changed from ObjectId to String type
-  category_id: { type: String, required: true },
+  is_featured: { type: Boolean, default: false },
+  status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+  category_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }, // Assuming Category is another collection
   allowed_countries: [String],
   created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
+
+productSchema.statics.findProductById = async function (id) {
+  return await this.findById(id).populate('category_id').exec();
+};
+
+productSchema.statics.findFeaturedProducts = async function () {
+  return await this.find({ is_featured: true, status: 'active' }).limit(10);
+};
+
+productSchema.statics.findProductsByCategory = async function (categoryId) {
+  return await this.find({ category_id: categoryId, status: 'active' }).exec();
+};
 
 module.exports = mongoose.model('Product', productSchema);

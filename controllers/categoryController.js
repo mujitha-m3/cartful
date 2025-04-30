@@ -6,7 +6,7 @@ exports.renderEditCategoryForm = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
     const parentCategories = await Category.find({
-      _id: { $ne: category._id }, // exclude self
+      _id: { $ne: category._id },
       parent_category_id: null
     });
 
