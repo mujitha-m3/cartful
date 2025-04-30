@@ -22,8 +22,25 @@
           <li class="nav-item"><a class="nav-link" href="/products/add-product">Add Product</a></li>
           <li class="nav-item"><a class="nav-link" href="/categories">Categories</a></li>
           <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
-          <li class="nav-item"><a class="nav-link" href="/register">Member Regsiteration</a></li>
-          <li class="nav-item"><a class="nav-link"href="/profile">Usesr Profile</a></li>
+          {{#if user}}
+          <!-- Logged in: Show profile + logout -->
+          <li class="nav-item">
+            <a class="nav-link" href="/profile" aria-label="View your profile">👤 {{user.fullName}}</a>
+          </li>
+          <li class="nav-item">
+            <form method="POST" action="/logout" class="d-inline">
+              <button type="submit" class="nav-link btn btn-link p-0 text-white" aria-label="Logout">Logout</button>
+            </form>
+          </li>
+        {{else}}
+          <!-- Not logged in: Show login/register -->
+          <li class="nav-item">
+            <a class="nav-link" href="/login" aria-label="Login to your account">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/register" aria-label="Register as a member"> Member Register</a>
+          </li>
+        {{/if}}
         </ul>
       </div>
     </nav>

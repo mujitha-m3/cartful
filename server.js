@@ -70,6 +70,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use((req, res, next) => {
+  res.locals.user = req.user || null;
+  next();
+});
+
+
 app.use(flash());
 
 // Make flash messages available to views
@@ -82,8 +88,8 @@ app.set('view engine', 'handlebars');
 app.use(express.json());
 
 app.use('/', googleAuthRoutes);
-app.use('/', userRoute);
-app.use('/', countryRoutes);
+//app.use('/', userRoute);
+//app.use('/', countryRoutes);
 
 
 

@@ -18,7 +18,7 @@ async function sendTestEmail() {
       from: `"Cartful App" <${process.env.EMAIL_USER}>`,
       to: 'mujitha.m3@gmail.com',  // 🔁 Replace with your email to receive test
       subject: 'Cartful Email Test',
-      text: '✅ This is a test email sent using Node.js and Nodemailer!'
+      text: '✅ This is a test from Cartfull Online Shop!'
     };
 
     // 5. Send the email
