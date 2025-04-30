@@ -24,8 +24,7 @@
       </div>
       {{/each}}
 
-      <!-- Example Cards (to be removed once real data is available) -->
-      {{^categories}} <!-- Handlebars inverse block helper -->
+      {{^categories}}
       <div class="col-md-4 mb-4">
         <div class="card category-card h-100">
           <div class="card-body text-center">
@@ -58,7 +57,6 @@
   </div>
 </section>
 
-
 <!-- Featured Products Section -->
 <section class="products-section py-5 bg-light">
   <div class="container">
@@ -72,11 +70,16 @@
             <p class="card-text">€{{this.price}}</p>
             <p class="card-text">{{this.description}}</p>
             <div class="d-flex justify-content-center gap-2 mt-3">
-              <a href="/products/{{this._id}}" class="btn btn-outline-primary">View Details</a>
-              <form method="POST" action="/cart/add" class="d-inline">
-                <input type="hidden" name="product_id" value="{{this._id}}" />
-                <button type="submit" class="btn btn-primary">Add to Cart</button>
-              </form>
+              <form method="POST" action="/cart/add">
+    <input type="hidden" name="product_id" value="{{this._id}}" />
+    <input type="number" name="quantity" value="1" min="1" required />
+    <div class="product-actions">
+  <button type="submit" class="add-to-cart-btn" fdprocessedid="7o44go">Add to Cart</button>
+  <a href="/products/680f6848e1edf82065ca0392" class="btn btn-outline-primary view-button">View Details</a>
+</div>
+
+</form>
+
             </div>
           </div>
         </div>
@@ -85,7 +88,6 @@
     </div>
   </div>
 </section>
-
 
 <!-- Newsletter Section -->
 <section class="newsletter-section py-5">
@@ -101,17 +103,79 @@
   </div>
 </section>
 
+<!-- Toast on Server Render (for classic redirect + flash) -->
 {{#if success_msg}}
 <script>
-    window.onload = function () {
-        const toast = document.createElement("div");
-        toast.className = "toast-notification";
-        toast.innerText = "{{success_msg}}";
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.remove(); 
-        }, 3000);
-    };
+  window.onload = function () {
+    const toast = document.createElement("div");
+    toast.className = "toast-notification";
+    toast.innerText = "{{success_msg}}";
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.right = "20px";
+    toast.style.backgroundColor = "#28a745";
+    toast.style.color = "#fff";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "8px";
+    toast.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+    toast.style.zIndex = 1000;
+    toast.style.fontSize = "14px";
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  };
 </script>
 {{/if}}
+
+<!-- AJAX Add to Cart Script -->
+<script>
+document.querySelectorAll('.add-to-cart-form').forEach(form => {
+  form.addEventListener('submit', function (e) {
+    e.preventDefault(); // Prevent default form submission
+
+    const formData = new FormData(form);
+
+    // 1. Show immediate toast notification
+    const toast = document.createElement("div");
+    toast.className = "toast-notification";
+    toast.innerText = "Adding item to cart...";
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.right = "20px";
+    toast.style.backgroundColor = "#007bff";
+    toast.style.color = "#fff";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "8px";
+    toast.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+    toast.style.zIndex = 1000;
+    toast.style.fontSize = "14px";
+    document.body.appendChild(toast);
+
+    // 2. Send AJAX request
+    fetch('/cart/add', {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        toast.innerText = "Item successfully added to cart!";
+        toast.style.backgroundColor = "#28a745";
+      } else {
+        toast.innerText = data.message || "Failed to add item.";
+        toast.style.backgroundColor = "#dc3545";
+      }
+    })
+    .catch(err => {
+      console.error("Fetch error:", err);
+      toast.innerText = "Something went wrong.";
+      toast.style.backgroundColor = "#dc3545";
+    });
+
+    // 3. Auto-remove toast after 3 seconds
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  });
+});
+</script>
+
