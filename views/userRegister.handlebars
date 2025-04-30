@@ -1,111 +1,35 @@
-<h1>User Registration</h1>
+<section class="register-section">
+  <h1>User Registration</h1>
 
-<!-- Show error or success messages -->
-{{#if errorMessage}}
-  <aside class="error-message">
-    <h4>{{errorMessage}}</h4>
-  </aside>
-{{/if}}
+  <!-- Show error or success messages -->
+  {{#if errorMessage}}
+    <aside class="error-message">
+      <h4>{{errorMessage}}</h4>
+    </aside>
+  {{/if}}
 
-{{#if successMessage}}
-  <aside class="success-message">
-    <h4>{{successMessage}}</h4>
-  </aside>
-{{/if}}
+  {{#if successMessage}}
+    <aside class="success-message">
+      <h4>{{successMessage}}</h4>
+    </aside>
+  {{/if}}
 
-<!-- Registration Form -->
-<form method="POST" action="/api/customerRegister">
+  <!-- Registration Form -->
+  <form method="POST" action="/api/customerRegister">
 
-  <!-- Full Name -->
-  <fieldset class="input-group">
-    <label for="fullName">Full Name*</label>
-    <input type="text" id="fullName" name="fullName" required>
-  </fieldset>
+    <!-- Full Name -->
+    <fieldset>
+      <label for="fullName">Full Name*</label>
+      <input type="text" id="fullName" name="fullName" required>
+    </fieldset>
 
-  <!-- Email -->
-  <fieldset class="input-group">
-    <label for="email">Email*</label>
-    <input type="email" id="email" name="email" required>
-  </fieldset>
+    <!-- Email -->
+    <fieldset>
+      <label for="email">Email*</label>
+      <input type="email" id="email" name="email" required>
+    </fieldset>
 
- {{!-- <!-- Password -->
-  <fieldset class="input-group">
-    <label for="password">Password*</label>
-    <input type="password" id="password" name="password" required>
-  </fieldset>
-
-  <!-- Gender -->
-  <fieldset class="input-group">
-    <label for="gender">Gender</label>
-    <select id="gender" name="gender">
-      <option value="">Select</option>
-      <option value="male">Male</option>
-      <option value="female">Female</option>
-      <option value="other">Other</option>
-    </select>
-  </fieldset>
-
-  <!-- Date of Birth -->
-  <fieldset class="input-group">
-    <label for="dateOfBirth">Date of Birth</label>
-    <input type="date" id="dateOfBirth" name="dateOfBirth">
-  </fieldset>
-
-  <!-- Language -->
-  <fieldset class="input-group">
-    <label for="language">Preferred Language</label>
-    <input type="text" id="language" name="language">
-  </fieldset>
-
-  <!-- Phone -->
-  <fieldset class="input-group">
-    <label for="phone">Phone Number</label>
-    <input type="tel" id="phone" name="phone">
-  </fieldset>
-
-  <!-- Profile Image -->
-  <fieldset class="input-group">
-    <label for="profileImage">Profile Image URL</label>
-    <input type="url" id="profileImage" name="profileImage">
-  </fieldset>
-
-  <!-- Address Line 1 -->
-  <fieldset class="input-group">
-    <label for="addressLine1">Address Line 1</label>
-    <input type="text" id="addressLine1" name="addressLine1">
-  </fieldset>
-
-  <!-- Address Line 2 -->
-  <fieldset class="input-group">
-    <label for="addressLine2">Address Line 2</label>
-    <input type="text" id="addressLine2" name="addressLine2">
-  </fieldset>
-
-  <!-- City -->
-  <fieldset class="input-group">
-    <label for="city">City</label>
-    <input type="text" id="city" name="city">
-  </fieldset>
-
-  <!-- Postal Code -->
-  <fieldset class="input-group">
-    <label for="postalCode">Postal Code</label>
-    <input type="text" id="postalCode" name="postalCode">
-  </fieldset>
-
-  <!-- Country (dropdown from server data) -->
-  <fieldset class="input-group">
-    <label for="country">Country*</label>
-    <select id="country" name="country" required>
-      <option value="">Select your country</option>
-      {{#each countries}}
-        <option value="{{this._id}}">{{this.name}}</option>
-      {{/each}}
-    </select>
-  </fieldset>
-  --}}
-
-  <!-- Submit Button -->
-  <button type="submit" class="btn btn-update">Register</button>
-</form>
-  
+    <!-- Submit Button -->
+    <button type="submit" class="login-btn">Register</button>
+  </form>
+</section>
