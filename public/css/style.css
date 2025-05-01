@@ -269,10 +269,19 @@ header {
 
 .product-actions {
   display: flex;
-  flex-direction: column; /* Stack buttons vertically */
-  gap: 0.5rem; /* Space between buttons */
+  flex-direction: column;
+  align-items: center;
   width: 100%;
+  gap: 0.5rem; /* Space between buttons */
 }
+
+.product-actions .d-flex {
+  flex-direction: row; /* Change to row for side-by-side buttons */
+  justify-content: center;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
 
 .btn-details {
   width: 100%;
@@ -296,10 +305,10 @@ header {
 }
 
 .add-to-cart-form {
-  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
 }
 
 input[name="quantity"] {
@@ -312,16 +321,40 @@ input[name="quantity"] {
 }
 
 
-.add-to-cart-btn {
+.add-to-cart-button {
+  width: 200px; /* Wider button */
+  padding: 0.75rem 1.5rem; /* Larger padding */
+  font-size: 1rem; /* Slightly larger text */
+  font-weight: 600;
+}
+
+.view-button {
+  width: 200px; /* Same width as Add to Cart */
+  padding: 0.75rem 1.5rem; /* Same padding */
+  font-size: 1rem;
+}
+
+.add-to-cart-form .d-flex {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  padding: 0.75rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Add this to your CSS */
+.quantity-input {
+  width: 60px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+/* Hide number input arrows in Chrome/Safari */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .add-to-cart-btn:hover {
@@ -444,16 +477,17 @@ footer p {
 }
 
 .quantity {
-  min-width: 150px;
+  width: 10px;
 }
 
-.quantity-input {
-  width: 60px;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  text-align: center;
-  margin-right: 10px;
+
+
+.d-flex {
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically */
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* Space between buttons */
 }
 
 .update-btn, .remove-item-btn {
