@@ -612,10 +612,6 @@ footer p {
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 
 /* -------------------------- Toast Notifications -------------------------- */
 #toast-container {
@@ -675,15 +671,6 @@ footer p {
   animation: fadeOut 0.3s ease-in forwards;
 }
 
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(100%); opacity: 0; }
-}
 
 .toast {
   position: fixed;
@@ -701,14 +688,6 @@ footer p {
   100% { transform: rotate(360deg); }
 }
 
-@keyframes slideIn {
-  0% {
-    right: -300px;
-  }
-  100% {
-    right: 20px;
-  }
-}
 
 /* -------------------------- Pulse Animation -------------------------- */
 .pulse-animation {
@@ -765,10 +744,6 @@ footer p {
   animation: fadeOut 0.3s ease-in forwards;
 }
 
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
 
 @keyframes fadeOut {
   from { transform: translateX(0); opacity: 1; }
