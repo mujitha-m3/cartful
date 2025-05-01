@@ -10,19 +10,19 @@ passport.use(new GoogleStrategy({
   callbackURL: 'http://localhost:8000/cartfulAuthClient/response',
 }, 
 async (accessToken, refreshToken, profile, done) => {
-  console.log('[GoogleStrategy] Profile received:', profile.emails[0].value);
+  console.log('GoogleStrategy Profile received:', profile.emails[0].value);
 
   try {
     let user = await userController.findUserByEmailforPassportHelp(profile.emails[0].value); 
 
     if (!user) {
-      console.log('[GoogleStrategy] User not found. Creating...');
+      console.log('GoogleStrategy User not found. Creating...');
       user = await userController.createGoogleUser(profile); // This is correct
     }
 
     return done(null, user);
   } catch (err) {
-    console.error('[GoogleStrategy] Error:', err);
+    console.error('GoogleStrategy Error:', err);
     return done(err);
   }
 }));
@@ -30,19 +30,19 @@ async (accessToken, refreshToken, profile, done) => {
 passport.use(new LocalStrategy(
   { usernameField: 'email' },  // Tell passport we use email instead of username
   async (email, password, done) => {
-    console.log('[LocalStrategy] Incoming login for:', email);
+    console.log('LocalStrategy Incoming login for:', email);
     try {
       const user = await User.findOne({ email });
       if (!user) {
-        console.log('[LocalStrategy] No user found');
+        console.log('inside LocalStrategy method No user found');
         return done(null, false, { message: 'Incorrect email or password.' });
       }
       if (user.password !== password) {
-        console.log('[LocalStrategy] Incorrect password');
+        console.log('inside LocalStrategy method Incorrect password');
         return done(null, false, { message: 'Incorrect email or password.' });
       }
       if (!user.emailVerified) {
-        console.log('[LocalStrategy] Email not verified');
+        console.log('LocalStrategy Email not verified');
         return done(null, false, { message: 'Please verify your email before logging in.' });
       }
       return done(null, user);

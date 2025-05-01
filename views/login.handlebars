@@ -1,0 +1,56 @@
+<main aria-labelledby="login-title">
+  <section class="login-section">
+    {{#if success_msg}}
+      <aside class="alert alert-success" role="alert">
+        {{success_msg}}
+      </aside>
+    {{/if}}
+
+    <h1 id="login-title">Login</h1>
+
+    <form method="POST" action="/api/loginUser" aria-describedby="login-instructions">
+      <p id="login-instructions" class="visually-hidden">
+        Please enter your email and password to log in.
+      </p>
+
+      <label for="email">Email address</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        aria-required="true"
+        autocomplete="email"
+      />
+
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+        aria-required="true"
+        autocomplete="current-password"
+      />
+
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+
+    <div class="login-options">
+      <a href="/forgot-password" class="link-small">Forgot password?</a>
+      <div class="divider">or</div>
+
+      <button class="social-btn google">
+        <span class="icon">G</span> Log in with Google
+      </button>
+      <button class="social-btn facebook">
+        <span class="icon">f</span> Log in with Facebook
+      </button>
+      <button class="social-btn apple">
+        <span class="icon"></span> Log in with Apple
+      </button>
+    </div>
+
+    <p class="register-link">Don’t have an account? <a href="/register">Register</a></p>
+  </section>
+</main>

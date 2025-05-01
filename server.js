@@ -106,6 +106,18 @@ app.locals.transporter = transporter;
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use((req, res, next) => {
+  res.locals.user = req.user || null;
+  next();
+});
+
+
+app.use((req, res, next) => {
+  res.locals.user = req.user || null;
+  next();
+});
+
+
 // Middleware to handle user authentication state
 app.use((req, res, next) => {
   // If user is already authenticated (via Passport), continue

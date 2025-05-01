@@ -7,14 +7,14 @@ const transporter = nodemailer.createTransport({
         pass:process.env.EMAIL_PASS}
 });
 
-const sendVerificationEmail = (toEmail, userName, code) => {
+const sendVerificationEmail = (toEmail, userName, code, newuserID) => {
     const mailOptions = {
       from: `"Cartful App" <${process.env.EMAIL_USER}>`,
       to: toEmail,
       subject: 'Cartful - Email Verification',
       text: `Hi ${userName},\n\nThank you for registering with Cartful!\n\nYour verification code is:\n\n${code}\n\nBest regards,\nCartful Team\n
 Please click the link below or visit the page to verify your email:
-http://localhost:8000/verifyEmail`
+${process.env.EMAIL_VEFIY_URL}`
     };
   
      transporter.sendMail(mailOptions).then(() => {
