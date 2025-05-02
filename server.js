@@ -15,6 +15,7 @@ const nodemailer = require('nodemailer');  // Nodemailer for email functionality
 const passport = require('passport'); 
 require('./passport'); // Passport configuration
 
+
 // Import routes
 const googleAuthRoutes = require('./routes/authClientGoogleRoute');  
 const userRoute = require('./routes/userRoute');
@@ -25,6 +26,7 @@ const checkoutRoutes = require('./routes/checkoutRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const userController = require('./controllers/userController');
+const wishlistRoutes = require('./routes/wishlistRoutes');
 
 // Initialize Express
 const app = express();
@@ -151,6 +153,7 @@ app.use('/categories', categoryRoutes); // Category Routes
 app.use('/', viewRoutes);        // View Routes
 app.use('/checkout', checkoutRoutes); // Checkout Routes
 app.use('/cart', cartRoutes);    // Cart Routes
+app.use('/wishlist', wishlistRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

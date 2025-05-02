@@ -19,17 +19,20 @@
 {{/if}}
             <br />
 
-            {{#if isInWishlist}}
-            <form action="/wishlist/remove/{{product._id}}" method="POST" class="d-inline">
-                <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Remove from wishlist">💖 In
-                    Wishlist</button>
-            </form>
-            {{else}}
-            <form action="/wishlist/add/{{product._id}}" method="POST" class="d-inline">
-                <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Add to wishlist">🤍 Add to
-                    Wishlist</button>
-            </form>
-            {{/if}}
+            <!-- In your ProductDetails.handlebars, modify the wishlist section: -->
+{{#if isInWishlist}}
+  <form action="/wishlist/remove/{{product._id}}" method="POST" class="d-inline">
+    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Remove from wishlist">
+      ❤️ In Wishlist
+    </button>
+  </form>
+{{else}}
+  <form action="/wishlist/add/{{product._id}}" method="POST" class="d-inline">
+    <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Add to wishlist">
+      🤍 Add to Wishlist
+    </button>
+  </form>
+{{/if}}
 
         </div>
     </div>
