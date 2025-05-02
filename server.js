@@ -69,6 +69,7 @@ app.engine('handlebars', exphbs.engine({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
   defaultLayout: 'main',
   helpers: {
+    // Existing helpers...
     formatDate: (date) => date ? new Date(date).toLocaleDateString() : 'N/A',
     ifEquals: (arg1, arg2, options) => (arg1 == arg2 ? options.fn(this) : options.inverse(this)),
     formatPrice: (price) => (price ? `€${price.toFixed(2)}` : '€0.00'),
@@ -82,7 +83,10 @@ app.engine('handlebars', exphbs.engine({
       return total.toFixed(2);
     },
     eq: (a, b) => a === b,
-    json: (context) => JSON.stringify(context)
+    json: (context) => JSON.stringify(context),
+    // Add these new helpers:
+    gt: (a, b) => a > b,  // Greater than
+    lt: (a, b) => a < b   // Less than (optional but useful)
   }
 }));
 
@@ -135,6 +139,8 @@ app.use((req, res, next) => {
   req.user = { isGuest: true };
   next();
 });
+
+
 
 // Routes setup
 app.use('/', googleAuthRoutes);  // Google Auth Routes
