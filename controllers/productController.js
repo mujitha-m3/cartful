@@ -15,6 +15,64 @@ const calculateDiscountPrice = (price, discount) => {
   }
 };
 
+// GET: View Products (Customer View)
+const viewProducts = async (req, res) => {
+  try {
+    const searchQuery = req.query.search || '';
+    const filter = searchQuery
+      ? { name: { $regex: searchQuery, $options: 'i' } }
+      : {};
+
+    const products = await Product.find(filter);
+    const productsWithFinalPrice = products.map(product => ({
+      ...product._doc,
+      finalPrice: calculateDiscountPrice(product.price, product.discount),
+      hasDiscount: product.discount?.value > 0,
+      original_price: product.price
+    }));
+
+    res.render('ViewProducts', {  
+      title: 'Our Products',
+      products: productsWithFinalPrice,
+      searchQuery,
+      customerView: true 
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Failed to load products');
+    res.redirect('/');
+  }
+};
+
+const viewProductDetails = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      req.flash('error_msg', 'Product not found');
+      return res.redirect('/products/viewproducts');
+    }
+
+    const finalPrice = calculateDiscountPrice(product.price, product.discount);
+    
+    res.render('productDetails', {  // This should match your template file name
+      title: product.name,
+      product: {
+        ...product._doc,
+        price: finalPrice,
+        original_price: product.price,
+        image: product.image_url,  // Map to expected field name
+        stock: product.stock   // Map to expected field name if different
+      },
+      isInWishlist: false  // You'll need to implement this logic
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Server error');
+    res.redirect('/products/viewproducts');
+  }
+};
+
+
 // GET: All Products
 const listProducts = async (req, res) => {
   try {
@@ -220,5 +278,7 @@ module.exports = {
   createProduct,
   renderUpdateProductForm,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  viewProducts,
+  viewProductDetails
 };

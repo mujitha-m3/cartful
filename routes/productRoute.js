@@ -2,11 +2,16 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
 
+// Browse Products
+router.get('/viewproducts', productController.viewProducts); 
+
 // Display all products
 router.get('/', productController.listProducts);
 
 // Show add product form
 router.get('/add-product', productController.renderAddProductForm);
+
+router.get('/view/:id', productController.viewProductDetails);
 
 // Show single product
 router.get('/:id', productController.getProductById);
