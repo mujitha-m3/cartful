@@ -15,6 +15,7 @@ const nodemailer = require('nodemailer');  // Nodemailer for email functionality
 const passport = require('passport'); 
 require('./passport'); // Passport configuration
 
+
 // Import routes
 const googleAuthRoutes = require('./routes/authClientGoogleRoute');  
 const userRoute = require('./routes/userRoute');
@@ -25,6 +26,7 @@ const checkoutRoutes = require('./routes/checkoutRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const userController = require('./controllers/userController');
+const wishlistRoutes = require('./routes/wishlistRoutes');
 
 // Initialize Express
 const app = express();
@@ -69,6 +71,7 @@ app.engine('handlebars', exphbs.engine({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
   defaultLayout: 'main',
   helpers: {
+    // Existing helpers...
     formatDate: (date) => date ? new Date(date).toLocaleDateString() : 'N/A',
     ifEquals: (arg1, arg2, options) => (arg1 == arg2 ? options.fn(this) : options.inverse(this)),
     formatPrice: (price) => (price ? `€${price.toFixed(2)}` : '€0.00'),
@@ -82,7 +85,10 @@ app.engine('handlebars', exphbs.engine({
       return total.toFixed(2);
     },
     eq: (a, b) => a === b,
-    json: (context) => JSON.stringify(context)
+    json: (context) => JSON.stringify(context),
+    // Add these new helpers:
+    gt: (a, b) => a > b,  // Greater than
+    lt: (a, b) => a < b   // Less than (optional but useful)
   }
 }));
 
@@ -136,6 +142,8 @@ app.use((req, res, next) => {
   next();
 });
 
+
+
 // Routes setup
 app.use('/', googleAuthRoutes);  // Google Auth Routes
 app.use('/', userRoute);         // User Routes
@@ -145,6 +153,7 @@ app.use('/categories', categoryRoutes); // Category Routes
 app.use('/', viewRoutes);        // View Routes
 app.use('/checkout', checkoutRoutes); // Checkout Routes
 app.use('/cart', cartRoutes);    // Cart Routes
+app.use('/wishlist', wishlistRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
