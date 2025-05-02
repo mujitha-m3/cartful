@@ -111,13 +111,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
-app.use((req, res, next) => {
-  res.locals.user = req.user || null;
-  next();
-});
-
-
 // Middleware to handle user authentication state
 app.use((req, res, next) => {
   // If user is already authenticated (via Passport), continue
