@@ -8,6 +8,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendVerificationEmail = (toEmail, userName, code, newuserID) => {
+  console.log("Incometing paremters",toEmail,userName,code,newuserID);
     const mailOptions = {
       from: `"Cartful App" <${process.env.EMAIL_USER}>`,
       to: toEmail,
