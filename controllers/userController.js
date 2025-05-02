@@ -450,6 +450,53 @@ const forgotPasswordSendCode = async (req, res) => {
   }
 };
 
+const createGoogleUser = async (profile) => {
+  try {
+    const { displayName, emails, photos } = profile;
+    const email = emails[0].value;
+
+    const newUser = new User({
+      fullName: displayName,
+      email: email,
+      profileImage: photos[0].value,
+      isActive: true,
+      emailVerified: true
+    });
+
+    await newUser.save();
+    console.log('createGoogleUser: New user created via Google:', email);
+    return newUser;
+
+  } catch (err) {
+    console.error('createGoogleUser Error:', err);
+    throw err;
+  }
+};
+
+const renderProfilePage = async (req, res) => {
+  try {
+    const user = req.user;
+
+    // Step 1: Find the wishlist for this user
+    const wishlist = await Wishlist.findOne({ user_id: user._id });
+
+    // Step 2: Count wishlist items
+    let wishlistCount = 0;
+    if (wishlist) {
+      wishlistCount = await WishlistItem.countDocuments({ wishlist_id: wishlist._id });
+    }
+
+    res.render('profile', {
+      user,
+      wishlistCount
+    });
+  } catch (err) {
+    console.error('renderProfilePage Error:', err);
+    res.status(500).send('Error loading profile');
+  }
+};
+
+
   module.exports = {
     registerNewUser,
     verifyEmailVerificationCode,
@@ -470,7 +517,9 @@ const forgotPasswordSendCode = async (req, res) => {
     createPassword,
     userLogin,
     renderForgotPasswordForm,
-    forgotPasswordSendCode
+    forgotPasswordSendCode,
+    createGoogleUser,
+    renderProfilePage
 
 };
 

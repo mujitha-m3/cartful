@@ -951,3 +951,164 @@ aside.success-message {
     border-radius: 6px;
     box-sizing: border-box;
   }
+
+
+  .profile-section {
+  max-width: 600px;
+  margin: 60px auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.profile-section h1,
+.profile-section h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
+}
+
+.profile-info p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.profile-info img {
+  margin-top: 0.5rem;
+  border-radius: 6px;
+  max-width: 120px;
+  height: auto;
+  display: block;
+}
+
+.input-group {
+  margin-bottom: 1.2rem;
+}
+
+.input-group label {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.btn-update,
+.btn-logout,
+.btn-navigate {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-update {
+  background-color: hsl(150, 55%, 45%);
+  color: white;
+}
+
+.btn-update:hover {
+  background-color: hsl(150, 55%, 38%);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-logout {
+  background-color: hsl(0, 70%, 55%);
+  color: white;
+}
+
+.btn-logout:hover {
+  background-color: hsl(0, 70%, 45%);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-navigate {
+  background-color: hsl(221, 67%, 56%);
+  color: white;
+  margin-top: 2rem;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-navigate:hover {
+  background-color: hsl(221, 67%, 50%);
+}
+
+/* MY Accoutn */
+.account-dashboard {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+}
+
+.welcome-title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.sub-text {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 1rem;
+}
+
+.btn.btn-outline-primary {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  color: #007bff;
+  border: 1px solid #007bff;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.btn.btn-outline-primary:hover {
+  background-color: #007bff;
+  color: #fff;
+}
