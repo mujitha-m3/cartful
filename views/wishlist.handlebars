@@ -1,0 +1,42 @@
+<main>
+  <h1 id="wishlist-heading">My Wishlist</h1>
+
+  {{#if wishlist.length}}
+    <section aria-labelledby="wishlist-heading" class="mt-4">
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        {{#each wishlist}}
+          {{#if this.product}} <!-- Check if product exists -->
+            <div class="col">
+              <article class="card h-100 shadow-sm">
+                <img
+                  src="{{this.product.image}}"
+                  class="card-img-top"
+                  alt="{{this.product.name}}"
+                  loading="lazy"
+                  style="object-fit: cover; height: 200px"
+                />
+                <div class="card-body d-flex flex-column">
+                  <h2 class="h6 card-title">{{this.product.name}}</h2>
+                  <p class="card-text">{{this.product.price}} €</p>
+
+                  <form action="/cart/add" method="POST">
+                    <input type="hidden" name="productId" value="{{this.product._id}}">
+                    <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
+                  </form>
+
+                  <form action="/wishlist/remove/{{this.product._id}}" method="POST" class="mt-2">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                  </form>
+                </div>
+              </article>
+            </div>
+          {{/if}}
+        {{/each}}
+      </div>
+    </section>
+  {{else}}
+    <p class="mt-3">You haven't added anything to your wishlist yet.</p>
+  {{/if}}
+
+  <a href="/account" class="btn btn-outline-secondary mt-4">⬅ Back to Account</a>
+</main>
