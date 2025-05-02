@@ -70,6 +70,12 @@ router.post('/logout', (req, res) => {
   userController.logout(req, res);
 });
 
+router.get('/forgotPassword', userController.renderForgotPasswordForm);
+//router.post('/api/forgotPasswordSendCode',userController.forgotPasswordSendCode);
+router.post('/api/forgotPasswordSendCode',(req,res)=>{
+  console.log('router forgot Password /api/forgotPasswordSendCode method called');
+  userController.forgotPasswordSendCode(req,res);
+});
 // Profile Management
 router.patch('/api/users/:id', (req, res) => {
   console.log('router patch /api/users/:id called');

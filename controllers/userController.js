@@ -15,7 +15,7 @@
 };
 
 const registerNewUser = async (req, res) => {
-  console.log("Incomeing msg req data []", req.body);
+  console.log("Incomeing msg req data ", req.body);
   let {
     fullName,
     email,
@@ -150,30 +150,6 @@ const renderRegisterPage = async (req, res) => {
   res.render('verifyEmail');
   };
   
- /* const resendVerificationCode = async (req, res) => {
-    const { email } = req.body;
-    console.log("resendVerificationCode Request to resend code to:", email); 
-
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            console.log("[resendVerificationCode] User not found:", email);
-            return res.status(404).json({ message: "User not registered." });
-        }
-
-        const verificationCode = getVerificationCode(email);
-        user.verificationGeneratedBySystem = verificationCode;
-        await user.save();
-
-        sendVerificationEmail(email, user.fullName, verificationCode);
-        console.log("New code sent to:", email); 
-
-        res.status(200).json({ message: "Verification code resent successfully." });
-    } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ message: "Error resending verification code." });
-    }
-}; */
 const resendVerificationCode = async (req, res) => {
   const { email, fullName } = req.body;
   console.log("resendVerificationCode Request to resend code to:", { email }); 
@@ -276,6 +252,10 @@ const deleteAllUserbyEmail = async (req, res) => {
 };
 
 //loginUser method
+const userLogin = async (req, res) =>{
+  res.render('login');
+};
+
 const loginUser = (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
@@ -288,6 +268,7 @@ const loginUser = (req, res, next) => {
       return res.status(401).json({ message: info.message || 'Login failed.' });
     }
 
+  
     req.logIn(user, (err) => {
       if (err) {
         console.error('Login API Login error:', err);
@@ -361,6 +342,7 @@ const findAllUsersByEmail = async (req, res) => {
   } catch (error) {
     console.error("get UsersByEmail Error:", error);
     res.status(500).json({ message: "Failed to fetch users." });
+    
   }
 };
 
@@ -428,9 +410,46 @@ const createPassword = async (req, res) => {
   
 };
 
-const userLogin = async (req, res) =>{
-  res.render('login');
-}
+const renderForgotPasswordForm = async (req, res) =>{
+  res.render('forgotPassword');
+};
+
+
+const forgotPasswordSendCode = async (req, res) => {
+  const { email } = req.body;
+  console.log("Email received:", email);
+
+  try {
+    const user = await User.findOne({ email: email.toLowerCase() });
+    console.log("Search Query Executed");
+
+    if (user && user.isActive) {
+      const verificationCode = getVerificationCode(email);
+      user.verificationGeneratedBySystem = verificationCode;
+      await user.save();
+      console.log("Verification code saved to user");
+
+      const fullName = user.fullName;
+      console.log("Send Verification Email Method Called");
+      await sendVerificationEmail(email, fullName, verificationCode, user._id);
+
+      return res.status(200).render('forgotPassword', {
+        successMessage: "Verification Code sent to your email.",
+      });
+    } else {
+      console.log("Invalid or inactive user");
+      return res.status(400).render('forgotPassword', {
+        errorMessage: "Please use a valid registered email address.",
+      });
+    }
+  } catch (err) {
+    console.error("forgotPasswordSendCode error:", err);
+    return res.status(500).render('forgotPassword', {
+      errorMessage: "An error occurred. Please try again later.",
+    });
+  }
+};
+
   module.exports = {
     registerNewUser,
     verifyEmailVerificationCode,
@@ -449,7 +468,9 @@ const userLogin = async (req, res) =>{
     findAllUsersByEmail,
     deleteAllUserbyEmail,
     createPassword,
-    userLogin
+    userLogin,
+    renderForgotPasswordForm,
+    forgotPasswordSendCode
 
 };
 
