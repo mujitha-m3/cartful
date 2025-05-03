@@ -17,11 +17,20 @@
   <!-- Registration Form -->
   <form method="POST" action="/api/customerRegister">
 
-    <!-- Full Name -->
+    <!-- First Name -->
     <fieldset>
-      <label for="fullName">Full Name*</label>
-      <input type="text" id="fullName" name="fullName" required>
+      <label for="firstName">First Name*</label>
+      <input type="text" id="firstName" name="firstName" required>
     </fieldset>
+
+    <!-- Last Name -->
+    <fieldset>
+      <label for="lastName">Last Name*</label>
+      <input type="text" id="lastName" name="lastName" required>
+    </fieldset>
+
+    <!-- Full Name (automatically populated in backend) -->
+    <!--<input type="hidden" id="fullName" name="fullName"> -->
 
     <!-- Email -->
     <fieldset>

@@ -15,7 +15,7 @@ const sendVerificationEmail = (toEmail, userName, code, newuserID) => {
       subject: 'Cartful - Email Verification',
       text: `Hi ${userName},\n\nThank you for registering with Cartful!\n\nYour verification code is:\n\n${code}\n\nBest regards,\nCartful Team\n
 Please click the link below or visit the page to verify your email:
-${process.env.EMAIL_VEFIY_URL}`
+${process.env.EMAIL_VERIFY_URL}`
     };
   
      transporter.sendMail(mailOptions).then(() => {

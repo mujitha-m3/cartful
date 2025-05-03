@@ -7,6 +7,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { sendEmail } = require('../utils/sendEmail');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
+const userController  = require('./userController')
 
 // Show checkout page
 exports.checkoutPage = async (req, res) => {
@@ -19,6 +20,12 @@ exports.checkoutPage = async (req, res) => {
     const items = await CartItem.find({ cart_id: cart._id }).populate('product_id');
     const total = items.reduce((sum, item) => sum + item.total_price, 0);
 
+    if (req.user && !req.session.checkoutDetails) {
+      const userPrefill = await userController.getUserDetailsForCheckout(req.user._id);
+      if (userPrefill) {
+        req.session.checkoutDetails = userPrefill;
+      }
+    }  // Added  to load the user data
     // Render the checkout page with the required details
     res.render('checkout', {
       cartItems: items,
