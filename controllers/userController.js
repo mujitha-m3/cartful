@@ -1,4 +1,4 @@
-  const User = require('../models/user');
+  const User = require('../models/User');
   const Country = require('../models/Country');
   const crypto = require('crypto');
   require('dotenv').config();
@@ -15,61 +15,47 @@
 };
 
 const registerNewUser = async (req, res) => {
-  console.log("Incomeing msg req data ", req.body);
-  let {
-    fullName,
-    email,
-    /* password,
-    gender,
-    dateOfBirth,
-    language,
-    phone,
-    profileImage,
-    addressLine1,
-    addressLine2,
-    city,
-    postalCode,
-    country */
-  } = req.body;
+  console.log("Incoming msg req data", req.body);
+
+  let { firstName, lastName, email } = req.body;
+
+  const fullName = `${firstName} ${lastName}`.trim();
 
   try {
     let newUser = new User({
+      firstName,
+      lastName,
       fullName,
       email,
-      /* password,
-      gender,
-      dateOfBirth,
-      language,
-      phone,
-      profileImage,
-      addressLine1,
-      addressLine2,
-      city,
-      postalCode,
-      country, */
       isActive: false,
       emailVerified: false
     });
 
     newUser = await newUser.save();
     console.log("registerNewUser User saved:", newUser);
+
     const verificationCode = getVerificationCode(email);
     await User.findByIdAndUpdate(newUser._id, {
       verificationGeneratedBySystem: verificationCode
     });
+
     console.log("registerNewUser OTP saved to user:", verificationCode);
+
     sendVerificationEmail(email, fullName, verificationCode, newUser._id);
-    console.log("registerNewUser veified", email);
-    res.status(201).location('/api/users/${newUser._id}')
-      .json({
-        msg: "Registration successful. Please verify your email.",
-        userId: newUser._id
-      });
+
+    console.log("registerNewUser verified", email);
+
+    res.status(201).location(`/api/users/${newUser._id}`).json({
+      msg: "Registration successful. Please verify your email.",
+      userId: newUser._id
+    });
+
   } catch (error) {
     console.error("registerNewUser Registration error:", error);
     res.status(500).json({ message: "Registration failed." });
   }
 };
+
 
   /*const verifyEmailVerificationCode = async (req, res) => {
     const { email, veficode } = req.body; 
@@ -496,6 +482,36 @@ const renderProfilePage = async (req, res) => {
   }
 };
 
+const getUserDetailsForCheckout = async (userId) => {
+  try {
+    const user = await User.findById(userId);
+    if (!user) return null;
+
+    return {
+      first_name: user.firstName || '',
+      last_name: user.lastName || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      shipping_address: {
+        line1: user.addressLine1 || '',
+        line2: user.addressLine2 || '',
+        city: user.city || '',
+        postal: user.postalCode || '',
+        country: user.country || ''
+      },
+      billing_address: {
+        line1: user.addressLine1 || '',
+        line2: user.addressLine2 || '',
+        city: user.city || '',
+        postal: user.postalCode || '',
+        country: user.country || ''
+      }
+    };
+  } catch (err) {
+    console.error('getUserDetailsForCheckout Error:', err);
+    return null;
+  }
+};
 
   module.exports = {
     registerNewUser,
@@ -519,7 +535,8 @@ const renderProfilePage = async (req, res) => {
     renderForgotPasswordForm,
     forgotPasswordSendCode,
     createGoogleUser,
-    renderProfilePage
+    renderProfilePage,
+    getUserDetailsForCheckout
 
 };
 
