@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
+const reviewController = require('../controllers/reviewController');
 
 // Browse Products
 router.get('/viewproducts', productController.viewProducts); 
@@ -27,5 +28,8 @@ router.post('/update/:id', productController.updateProduct);
 
 // Delete product
 router.post('/delete/:id', productController.deleteProduct);
+
+// Submit review - Make sure the parameter name matches what the controller expects
+router.post('/:productId/reviews', reviewController.submitReview);
 
 module.exports = router;

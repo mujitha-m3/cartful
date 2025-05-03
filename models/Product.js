@@ -39,4 +39,16 @@ productSchema.statics.findProductsByCategory = async function (categoryId) {
   return await this.find({ category_id: categoryId, status: 'active' }).exec();
 };
 
+// Add this to your Product.js schema
+productSchema.virtual('reviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'product_id'
+});
+
+// Enable virtuals in toJSON
+productSchema.set('toJSON', { virtuals: true });
+productSchema.set('toObject', { virtuals: true });
+
+
 module.exports = mongoose.model('Product', productSchema);

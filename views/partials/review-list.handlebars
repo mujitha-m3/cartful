@@ -1,0 +1,54 @@
+<div class="mt-5">
+    <h4>Customer Reviews</h4>
+    {{#if product.averageRating}}
+    <div class="d-flex align-items-center mb-3">
+        <span class="display-6 me-2">{{product.averageRating}}</span>
+        <div class="text-warning">
+            {{#times (round product.averageRating)}}
+            <i class="fas fa-star"></i>
+            {{/times}}
+            {{#times (sub 5 (round product.averageRating))}}
+            <i class="far fa-star"></i>
+            {{/times}}
+        </div>
+        <span class="ms-2 text-muted">({{product.reviews.length}} reviews)</span>
+    </div>
+    {{else}}
+    <p class="text-muted">No reviews yet</p>
+    {{/if}}
+
+    {{#if product.reviews.length}}
+    <div id="reviews-list">
+        {{#each product.reviews}}
+        <div class="card mb-3 review-item" data-review-id="{{this._id}}">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="me-3">
+                        {{#if this.user_id.profileImage}}
+                        <img src="{{this.user_id.profileImage}}" alt="{{this.user_id.fullName}}" class="rounded-circle" width="40">
+                        {{else}}
+                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            {{firstLetter this.user_id.fullName}}
+                        </div>
+                        {{/if}}
+                    </div>
+                    <div>
+                        <h6 class="mb-0">{{this.user_id.fullName}}</h6>
+                        <div class="text-warning">
+                            {{#times this.rating}}
+                            <i class="fas fa-star"></i>
+                            {{/times}}
+                            {{#times (sub 5 this.rating)}}
+                            <i class="far fa-star"></i>
+                            {{/times}}
+                        </div>
+                    </div>
+                </div>
+                <p class="mb-0">{{this.comment}}</p>
+                <small class="text-muted">{{formatReviewDate this.createdAt}}</small>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
+</div>

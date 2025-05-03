@@ -14,6 +14,8 @@ const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-ac
 const nodemailer = require('nodemailer');  // Nodemailer for email functionality
 const passport = require('passport'); 
 require('./passport'); // Passport configuration
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 
 
 // Import routes
@@ -86,9 +88,33 @@ app.engine('handlebars', exphbs.engine({
     },
     eq: (a, b) => a === b,
     json: (context) => JSON.stringify(context),
-    // Add these new helpers:
     gt: (a, b) => a > b,  // Greater than
-    lt: (a, b) => a < b   // Less than (optional but useful)
+    lt: (a, b) => a < b,   // Less than
+    
+    // New helpers for review system
+    formatReviewDate: function(date) {
+      return new Date(date).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    },
+    times: function(n, block) {
+      let accum = '';
+      for(let i = 0; i < n; ++i) {
+        accum += block.fn(i);
+      }
+      return accum;
+    },
+    sub: function(a, b) {
+      return a - b;
+    },
+    round: function(num) {
+      return Math.round(num);
+    },
+    firstLetter: function(str) {
+      return str ? str.charAt(0).toUpperCase() : '';
+    }
   }
 }));
 
@@ -141,8 +167,6 @@ app.use((req, res, next) => {
   req.user = { isGuest: true };
   next();
 });
-
-
 
 // Routes setup
 app.use('/', googleAuthRoutes);  // Google Auth Routes
@@ -200,11 +224,31 @@ mongoose.connect(dbURI, {
 })
 .then(() => {
   const PORT = process.env.PORT || 8000;
-  const server = app.listen(PORT, () => {
+  const httpServer = createServer(app);
+  
+  // Set up Socket.IO
+  const io = new Server(httpServer, {
+    serveClient: false,
+    pingInterval: 10000,
+    pingTimeout: 5000,
+    cookie: false
+  });
+
+  // Socket.IO connection handler
+  io.on('connection', (socket) => {
+    console.log('New client connected');
+    
+    socket.on('disconnect', () => {
+      console.log('Client disconnected');
+    });
+  });
+
+  app.locals.io = io; // Make io accessible in routes
+
+  const server = httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log('Connected to MongoDB');
   });
-
 
   // Handle server shutdown gracefully
   process.on('SIGTERM', () => {
