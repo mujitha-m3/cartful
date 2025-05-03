@@ -74,6 +74,14 @@
           <input class="form-check-input" type="radio" name="shipping_method" value="Pickup" {{#if (eq session.checkoutDetails.shipping_method "Pickup")}}checked{{/if}}>
           <label class="form-check-label">In-store Pickup</label>
         </div>
+
+        {{#if session.checkoutDetails}}
+          <div class="text-end mt-4">
+            <button class="btn btn-success" type="submit">Place Order</button>
+          </div>
+        {{else}}
+          <p class="mt-3 text-danger">Please save order details before placing the order.</p>
+        {{/if}}
       </div>
 
       <!-- Payment Tab -->
@@ -89,14 +97,6 @@
         </div>
       </div>
     </div>
-
-    {{#if session.checkoutDetails}}
-      <div class="text-end mt-4">
-        <button class="btn btn-success" type="submit">Place Order</button>
-      </div>
-    {{else}}
-      <p class="mt-3 text-danger">Please save order details before placing the order.</p>
-    {{/if}}
   </form>
 
 {{else}}
