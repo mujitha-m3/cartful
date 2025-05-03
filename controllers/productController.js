@@ -44,9 +44,18 @@ const viewProducts = async (req, res) => {
   }
 };
 
+// Modify the viewProductDetails function to include reviews
 const viewProductDetails = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id)
+      .populate({
+        path: 'reviews',
+        populate: {
+          path: 'user_id',
+          select: 'fullName profileImage'
+        }
+      });
+
     if (!product) {
       req.flash('error_msg', 'Product not found');
       return res.redirect('/products/viewproducts');
@@ -54,19 +63,43 @@ const viewProductDetails = async (req, res) => {
 
     const finalPrice = calculateDiscountPrice(product.price, product.discount);
     
-    res.render('productDetails', {  // This should match your template file name
+    // Calculate average rating
+    let averageRating = 0;
+    let reviewsCount = 0;
+    if (product.reviews && product.reviews.length > 0) {
+      const total = product.reviews.reduce((sum, review) => sum + review.rating, 0);
+      averageRating = total / product.reviews.length;
+      reviewsCount = product.reviews.length;
+    }
+
+    // Create a safe product object for the template
+    const productForTemplate = {
+      ...product._doc,
+      price: finalPrice,
+      original_price: product.price,
+      image: product.image_url,
+      stock: product.stock,
+      averageRating: averageRating.toFixed(1),
+      reviews: product.reviews || [], // Ensure reviews array exists
+      reviewsCount: reviewsCount      // Add explicit reviews count
+    };
+
+    res.render('productDetails', {
       title: product.name,
-      product: {
-        ...product._doc,
-        price: finalPrice,
-        original_price: product.price,
-        image: product.image_url,  // Map to expected field name
-        stock: product.stock   // Map to expected field name if different
-      },
-      isInWishlist: false  // You'll need to implement this logic
+      product: productForTemplate,
+      isInWishlist: false,
+      user: req.user
+    });
+
+    // Optional debug logging
+    console.log('Product details loaded:', {
+      id: product._id,
+      name: product.name,
+      reviewsCount: productForTemplate.reviews.length,
+      averageRating: productForTemplate.averageRating
     });
   } catch (err) {
-    console.error(err);
+    console.error('Error in viewProductDetails:', err);
     req.flash('error_msg', 'Server error');
     res.redirect('/products/viewproducts');
   }
@@ -269,6 +302,7 @@ const deleteProduct = async (req, res) => {
     res.redirect('/products');
   }
 };
+
 
 // Exports
 module.exports = {

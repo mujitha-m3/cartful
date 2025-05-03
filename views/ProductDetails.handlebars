@@ -10,30 +10,58 @@
             <p class="fw-bold h4">{{product.price}} €</p>
 
             {{#if (gt product.stock 0)}}
-  <form action="/cart/add" method="POST" class="mt-3">
-    <input type="hidden" name="productId" value="{{product._id}}">
-    <button type="submit" class="btn btn-success">Add to Cart</button>
-  </form>
-{{else}}
-  <p class="text-danger fw-bold mt-3">Out of stock</p>
-{{/if}}
+            <form action="/cart/add" method="POST" class="mt-3">
+                <input type="hidden" name="productId" value="{{product._id}}">
+                <button type="submit" class="btn btn-success">Add to Cart</button>
+            </form>
+            {{else}}
+            <p class="text-danger fw-bold mt-3">Out of stock</p>
+            {{/if}}
             <br />
 
-            <!-- In your ProductDetails.handlebars, modify the wishlist section: -->
-{{#if isInWishlist}}
-  <form action="/wishlist/remove/{{product._id}}" method="POST" class="d-inline">
-    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Remove from wishlist">
-      ❤️ In Wishlist
-    </button>
-  </form>
-{{else}}
-  <form action="/wishlist/add/{{product._id}}" method="POST" class="d-inline">
-    <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Add to wishlist">
-      🤍 Add to Wishlist
-    </button>
-  </form>
-{{/if}}
+            {{#if isInWishlist}}
+            <form action="/wishlist/remove/{{product._id}}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Remove from wishlist">
+                    ❤️ In Wishlist
+                </button>
+            </form>
+            {{else}}
+            <form action="/wishlist/add/{{product._id}}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Add to wishlist">
+                    🤍 Add to Wishlist
+                </button>
+            </form>
+            {{/if}}
 
         </div>
     </div>
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            {{> review-form}}
+            <div id="reviews-container">
+                {{> review-list}}
+            </div>
+        </div>
+    </div>
 </main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const socket = io();
+        const productId = '{{product._id}}';
+
+        // Listen for new reviews
+        socket.on('new-review', (data) => {
+            if (data.productId === productId) {
+                // Update the reviews container with the new review
+                fetch(`/products/view/${productId}/reviews`)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('reviews-container').innerHTML = html;
+                    });
+            }
+        });
+    });
+</script>
