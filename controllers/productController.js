@@ -15,26 +15,68 @@ const calculateDiscountPrice = (price, discount) => {
   }
 };
 
-// GET: View Products (Customer View)
+// Update the viewProducts function in productController.js
 const viewProducts = async (req, res) => {
   try {
     const searchQuery = req.query.search || '';
-    const filter = searchQuery
-      ? { name: { $regex: searchQuery, $options: 'i' } }
-      : {};
+    const categoryId = req.query.category || '';
+    const priceFilter = req.query.price || '';
+    
+    // Build the filter object
+    const filter = { status: 'active' };
+    
+    // Add search filter if exists
+    if (searchQuery) {
+      filter.name = { $regex: searchQuery, $options: 'i' };
+    }
+    
+    // Add category filter if exists
+    if (categoryId) {
+      filter.category_id = categoryId;
+    }
+    
+    // Get all active categories for the filter dropdown
+    const categories = await Category.find({ is_active: true });
+    
+    // Find products with the applied filters and populate category
+    let products = await Product.find(filter).populate('category_id');
+    
+    // Calculate final prices and apply price filter in memory
+    let productsWithFinalPrice = products.map(product => {
+      const finalPrice = calculateDiscountPrice(product.price, product.discount);
+      return {
+        ...product._doc,
+        finalPrice,
+        hasDiscount: product.discount?.value > 0,
+        original_price: product.price
+      };
+    });
 
-    const products = await Product.find(filter);
-    const productsWithFinalPrice = products.map(product => ({
-      ...product._doc,
-      finalPrice: calculateDiscountPrice(product.price, product.discount),
-      hasDiscount: product.discount?.value > 0,
-      original_price: product.price
-    }));
+    // Apply price filter after calculating final prices
+    if (priceFilter) {
+      productsWithFinalPrice = productsWithFinalPrice.filter(product => {
+        switch (priceFilter) {
+          case '0-50':
+            return product.finalPrice < 50;
+          case '50-100':
+            return product.finalPrice >= 50 && product.finalPrice < 100;
+          case '100-200':
+            return product.finalPrice >= 100 && product.finalPrice < 200;
+          case '200+':
+            return product.finalPrice >= 200;
+          default:
+            return true;
+        }
+      });
+    }
 
     res.render('ViewProducts', {  
       title: 'Our Products',
       products: productsWithFinalPrice,
+      categories,
       searchQuery,
+      selectedCategory: categoryId,
+      priceFilter,
       customerView: true 
     });
   } catch (err) {

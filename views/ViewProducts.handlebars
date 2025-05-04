@@ -1,5 +1,57 @@
 <h1 class="mb-4">Our Products</h1>
 
+<!-- Search and Filter Section -->
+<section class="mb-4">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="GET" action="/products/viewproducts" class="row g-3">
+        <!-- Search Bar -->
+        <div class="col-md-4">
+          <div class="input-group">
+            <input 
+              type="text" 
+              class="form-control" 
+              name="search" 
+              placeholder="Search products..." 
+              value="{{searchQuery}}"
+            >
+            <button class="btn btn-primary" type="submit">Search</button>
+          </div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="col-md-3">
+          <select class="form-select" name="category">
+            <option value="">All Categories</option>
+            {{#each categories}}
+              <option value="{{this._id}}" {{#if (eq this._id ../selectedCategory)}}selected{{/if}}>
+                {{this.name}}
+              </option>
+            {{/each}}
+          </select>
+        </div>
+
+        <!-- Price Filter -->
+        <div class="col-md-3">
+          <select class="form-select" name="price">
+            <option value="">All Prices</option>
+            <option value="0-50" {{#if (eq priceFilter "0-50")}}selected{{/if}}>Under €50</option>
+            <option value="50-100" {{#if (eq priceFilter "50-100")}}selected{{/if}}>€50 - €100</option>
+            <option value="100-200" {{#if (eq priceFilter "100-200")}}selected{{/if}}>€100 - €200</option>
+            <option value="200+" {{#if (eq priceFilter "200+")}}selected{{/if}}>Over €200</option>
+          </select>
+        </div>
+
+        <!-- Submit Button for filters -->
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Product Listing -->
 <section aria-label="Product listing">
   <div class="row row-cols-1 row-cols-md-3 g-4">
     {{#each products}}
@@ -17,6 +69,7 @@
           />
           <div class="card-body">
             <h2 class="card-title h5">{{this.name}}</h2>
+            <p class="text-muted small">{{this.category_id.name}}</p>
           </div>
         </a>
 
@@ -42,12 +95,16 @@
           <form method="POST" action="/cart/add" class="add-to-cart-form">
             <input type="hidden" name="product_id" value="{{this._id}}" />
             <div class="d-flex">
-            <button type="submit" class="btn btn-primary add-to-cart-button">Add to Cart</button>
-            <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button">View Details</a>
+              <button type="submit" class="btn btn-primary add-to-cart-button">Add to Cart</button>
+              <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button">View Details</a>
             </div>
-            </form>
+          </form>
         </div>
       </article>
+    </div>
+    {{else}}
+    <div class="col-12">
+      <div class="alert alert-info">No products found matching your criteria.</div>
     </div>
     {{/each}}
   </div>
