@@ -17,7 +17,6 @@ require('./passport'); // Passport configuration
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 
-
 // Import routes
 const googleAuthRoutes = require('./routes/authClientGoogleRoute');  
 const userRoute = require('./routes/userRoute');
@@ -73,7 +72,6 @@ app.engine('handlebars', exphbs.engine({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
   defaultLayout: 'main',
   helpers: {
-    // Existing helpers...
     formatDate: (date) => date ? new Date(date).toLocaleDateString() : 'N/A',
     ifEquals: (arg1, arg2, options) => (arg1 == arg2 ? options.fn(this) : options.inverse(this)),
     formatPrice: (price) => (price ? `€${price.toFixed(2)}` : '€0.00'),
@@ -86,6 +84,9 @@ app.engine('handlebars', exphbs.engine({
       }
       return total.toFixed(2);
     },
+    // Add the or helper
+    or: (a, b) => a || b,
+    // Add the eq helper
     eq: (a, b) => a === b,
     json: (context) => JSON.stringify(context),
     gt: (a, b) => a > b,  // Greater than

@@ -362,6 +362,22 @@ input[name="quantity"] {
   box-shadow: 0 0 0 3px #043870(46, 204, 113, 0.4); /* Adds focus outline effect */
 }
 
+/* Add to your main CSS file */
+.filter-section {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.filter-section .form-select {
+  cursor: pointer;
+}
+
+.filter-section .btn {
+  white-space: nowrap;
+}
+
 /* -------------------------- Newsletter Section -------------------------- */
 .newsletter-section {
   padding: 4rem 0;
