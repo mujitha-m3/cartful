@@ -1,58 +1,317 @@
-<div class="container">
-  <h1>{{title}}</h1>
+<div class="category-form-container">
+  <div class="category-form-header">
+    <h1 class="form-title">{{title}}</h1>
+    <div class="form-messages">
+      {{#if error_msg}}
+        <div class="alert alert-error">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+          </svg>
+          <div>
+            <h4>Error</h4>
+            <p>{{error_msg}}</p>
+          </div>
+        </div>
+      {{/if}}
 
-  {{#if error_msg}}
-    <div class="error-message">
-      <h4>Error</h4>
-      <p>{{error_msg}}</p>
+      {{#if success_msg}}
+        <div class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+          </svg>
+          <div>
+            <h4>Success</h4>
+            <p>{{success_msg}}</p>
+          </div>
+        </div>
+      {{/if}}
     </div>
-  {{/if}}
+  </div>
 
-  {{#if success_msg}}
-    <div class="success-message">
-      <h4>Success</h4>
-      <p>{{success_msg}}</p>
+  <form class="category-form" action="/categories" method="POST">
+    <div class="form-grid">
+      <div class="input-group">
+        <div class="label-container">
+          <label for="name">Category Name *</label>
+        </div>
+        <input type="text" id="name" name="name" required placeholder="Enter category name">
+      </div>
+
+      <div class="input-group">
+        <div class="label-container">
+          <label for="description">Description</label>
+        </div>
+        <textarea id="description" name="description" placeholder="Enter a brief description"></textarea>
+      </div>
+
+      <div class="input-group">
+        <div class="label-container">
+          <label for="icon_url">Icon URL</label>
+        </div>
+        <input type="url" id="icon_url" name="icon_url" placeholder="https://example.com/icon.png">
+      </div>
+
+      <div class="input-group">
+        <div class="label-container">
+          <label for="parent_category_id">Parent Category</label>
+        </div>
+        <select id="parent_category_id" name="parent_category_id">
+          <option value="">-- None --</option>
+          {{#each parentCategories}}
+            <option value="{{this._id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div class="input-group">
+        <div class="label-container">
+          <label for="restricted_countries">Restricted Countries</label>
+        </div>
+        <input type="text" id="restricted_countries" name="restricted_countries" placeholder="US,CA,GB (comma separated)">
+      </div>
+
+      <!-- Updated checkbox group to properly align -->
+      <div class="input-group checkbox-group">
+        <div class="label-container">
+          <label>Status</label>
+        </div>
+        <label class="checkbox-label">
+          <input type="checkbox" name="is_active" checked>
+          <span class="checkbox-custom"></span>
+          <span>Active Category</span>
+        </label>
+      </div>
     </div>
-  {{/if}}
 
-  <form action="/categories" method="POST">
-    <div class="input-group">
-      <label for="name">Category Name *</label>
-      <input type="text" id="name" name="name" required>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-submit">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="icon">
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+          <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+        </svg>
+        Add Category
+      </button>
     </div>
-
-    <div class="input-group">
-      <label for="description">Description</label>
-      <textarea id="description" name="description"></textarea>
-    </div>
-
-    <div class="input-group">
-      <label for="icon_url">Icon URL</label>
-      <input type="url" id="icon_url" name="icon_url">
-    </div>
-
-    <div class="input-group">
-      <label for="parent_category_id">Parent Category</label>
-      <select id="parent_category_id" name="parent_category_id">
-        <option value="">-- None --</option>
-        {{#each parentCategories}}
-          <option value="{{this._id}}">{{this.name}}</option>
-        {{/each}}
-      </select>
-    </div>
-
-    <div class="input-group">
-      <label for="restricted_countries">Restricted Countries (comma-separated)</label>
-      <input type="text" id="restricted_countries" name="restricted_countries">
-    </div>
-
-    <div class="input-group">
-      <label>
-        <input type="checkbox" name="is_active" checked>
-        Active
-      </label>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Add Category</button>
   </form>
 </div>
+
+<style>
+  /* Main Container */
+  .category-form-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  /* Header */
+  .category-form-header {
+    margin-bottom: 2rem;
+  }
+
+  .form-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.75rem;
+  }
+
+  /* Alerts */
+  .alert {
+    padding: 1rem;
+    border-radius: 4px;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .alert h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+  }
+
+  .alert p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  .alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+  }
+
+  .alert-success {
+    background: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+  }
+
+  /* Form Layout */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* Input Groups - Updated for perfect alignment */
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+  }
+
+  .label-container {
+    margin-bottom: 0.5rem;
+    min-height: 1.5rem; /* Ensures consistent height even when empty */
+  }
+
+  label {
+    font-weight: 500;
+    color: #495057;
+    display: block;
+  }
+
+  input[type="text"],
+  input[type="url"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  input[type="text"]:focus,
+  input[type="url"]:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: #20c997;
+    box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.1);
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+  }
+
+  /* Checkbox */
+ .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0;
+  }
+
+    .checkbox-group .label-container {
+    margin-bottom: 0.5rem;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+  }
+
+  input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .checkbox-custom {
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  input[type="checkbox"]:checked + .checkbox-custom {
+    background-color: #20c997;
+    border-color: #20c997;
+  }
+
+  input[type="checkbox"]:checked + .checkbox-custom::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  /* Submit Button */
+  .form-actions {
+    margin-top: 2rem;
+    text-align: right;
+    grid-column: 1 / -1;
+  }
+
+  .btn-submit {
+    background: #20c997;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-submit:hover {
+    background: #1aa179;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  .btn-submit .icon {
+    margin-right: 0.5rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .category-form-container {
+      padding: 1.5rem;
+    }
+    
+    .form-actions {
+      text-align: center;
+    }
+    
+    .btn-submit {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>

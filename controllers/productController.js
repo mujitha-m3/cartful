@@ -114,10 +114,12 @@ const listProducts = async (req, res) => {
       ? { name: { $regex: searchQuery, $options: 'i' } }
       : {};
 
-    const products = await Product.find(filter);
+    // Populate the category_id field to get category details
+    const products = await Product.find(filter).populate('category_id');
     const productsWithFinalPrice = products.map(product => ({
       ...product._doc,
-      finalPrice: calculateDiscountPrice(product.price, product.discount)
+      finalPrice: calculateDiscountPrice(product.price, product.discount),
+      categoryName: product.category_id?.name || 'Uncategorized' // Add category name
     }));
 
     res.render('products', {
