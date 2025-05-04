@@ -1,41 +1,253 @@
-<div class="products-container">
-  <h2>Category Management</h2>
-
-  <a href="/categories/add" class="btn btn-primary">Add Category</a>
+<div class="categories-container">
+  <div class="categories-header">
+    <h2 class="page-title">Category Management</h2>
+    <a href="/categories/add" class="btn btn-primary">Add Category</a>
+  </div>
 
   {{#if categories.length}}
-  <table class="product-table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Parent Category</th>
-        <th>Active</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#each categories}}
-      <tr>
-        <td>{{this.name}}</td>
-        <td>{{this.description}}</td>
-        <td>{{#if this.parent_category_id}}{{this.parent_category_id.name}}{{else}}—{{/if}}</td>
-        <td>{{#if this.is_active}}Yes{{else}}No{{/if}}</td>
-        <td>
-          <div class="table-actions">
-            <a href="/categories/edit/{{this._id}}" class="btn btn-update">Edit</a>
-            <a href="#" class="btn btn-danger"
-               onclick="event.preventDefault(); document.getElementById('del-{{this._id}}').submit();">
-              Delete
-            </a>
-            <form id="del-{{this._id}}" action="/categories/delete/{{this._id}}" method="POST" style="display:none;"></form>
-          </div>
-        </td>
-      </tr>
-      {{/each}}
-    </tbody>
-  </table>
+  <div class="table-responsive">
+    <table class="category-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Parent Category</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each categories}}
+        <tr>
+          <td class="category-name">{{this.name}}</td>
+          <td class="category-description">{{this.description}}</td>
+          <td class="parent-category">{{#if this.parent_category_id}}{{this.parent_category_id.name}}{{else}}—{{/if}}</td>
+          <td class="category-status">
+            <span class="status-badge {{#if this.is_active}}status-active{{else}}status-inactive{{/if}}">
+              {{#if this.is_active}}Active{{else}}Inactive{{/if}}
+            </span>
+          </td>
+          <td class="category-actions">
+            <div class="action-buttons">
+              <a href="/categories/edit/{{this._id}}" class="btn btn-edit" title="Edit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="action-icon">
+                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                </svg>
+              </a>
+              <button onclick="event.preventDefault(); document.getElementById('del-{{this._id}}').submit();" 
+                class="btn btn-delete" title="Delete">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="action-icon">
+                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                </svg>
+              </button>
+              <form id="del-{{this._id}}" action="/categories/delete/{{this._id}}" method="POST" style="display:none;"></form>
+            </div>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
   {{else}}
-    <p class="no-products">No categories found.</p>
+    <div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16" class="empty-icon">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+      </svg>
+      <h3>No Categories Found</h3>
+      <p>Try adding a new category to get started</p>
+      <a href="/categories/add" class="btn btn-primary">Add Category</a>
+    </div>
   {{/if}}
 </div>
+
+<style>
+  /* Main Container */
+  .categories-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  /* Header */
+  .categories-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .page-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  /* Table */
+  .table-responsive {
+    overflow-x: auto;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 8px;
+  }
+
+  .category-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+  }
+
+  .category-table th {
+    background: #00570d;
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  .category-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
+
+  .category-table tr:hover {
+    background: #f8f9fa;
+  }
+
+  /* Category Details */
+  .category-name {
+    font-weight: 500;
+    color: #495057;
+  }
+
+  .category-description {
+    color: #6c757d;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .parent-category {
+    font-style: italic;
+    color: #6c757d;
+  }
+
+  /* Status Badges */
+  .status-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-block;
+  }
+
+  .status-active {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn {
+    padding: 0.5rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-size: 0.9rem;
+  }
+
+  .btn-edit {
+    background: #ffc107;
+    color: #212529;
+  }
+
+  .btn-edit:hover {
+    background: #e0a800;
+  }
+
+  .btn-delete {
+    background: #dc3545;
+    color: white;
+  }
+
+  .btn-delete:hover {
+    background: #c82333;
+  }
+
+  .btn-primary {
+    background: #00570d;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 4px;
+  }
+
+  .btn-primary:hover {
+    background: #5a6268;
+  }
+
+  .action-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  }
+
+  .empty-icon {
+    color: #6c757d;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state h3 {
+    color: #343a40;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .categories-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .category-table th, 
+    .category-table td {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .action-buttons {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+  }
+</style>
