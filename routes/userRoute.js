@@ -1,31 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
+const { ensureAuthenticated } = require('../middleware/auth');
 
+console.log('ensureAuthenticated type:', typeof ensureAuthenticated);
+console.log('updateProfile type:', typeof userController.updateProfile);
 
-
-//  Customer Registration
-/*router.post('/api/customerRegister', userController.registerNewUser);
-router.get('/verifyEmail', userController.renderVerificationPage);
-router.post('/resendCode', userController.resendVerificationCode);
-router.post('/verifyEmail', userController.verifyEmailVerificationCode); 
-router.get('/logout', userController.logout);
- // To view the profile
-router.patch('/api/users/:id', userController.updateProfile); // To update the profile
-router.post('/deleteUser', userController.deleteUser);*/
-
-/*router.post('/api/customerRegister', userController.registerNewUser);
-router.get('/api/verifyEmail', userController.renderVerificationPage);  
-router.post('/api/resendCode', userController.resendVerificationCode);  
-router.post('/api/verifyEmail', userController.verifyEmailVerificationCode);  
-router.post('/api/login', userController.loginUser);
-router.patch('/api/users/:id', userController.updateProfile);
-router.get('/api/users/email/:email', userController.findUserByEmail);
-router.get('/api/users', userController.getAllUsers);
-router.get('/api/users/:id', userController.getUserById);
-router.post('/api/deleteUser', userController.deleteUser);
-router.post('/api/logout', userController.logout);
-router.post('/logout', userController.logout);*/
+router.get('/account/settings', ensureAuthenticated, (req, res) => {
+  res.render('accountSettings', { user: req.user });
+});
 
 // Registration
 router.get('/register', userController.renderRegisterPage);
@@ -77,16 +60,18 @@ router.post('/api/forgotPasswordSendCode',(req,res)=>{
   userController.forgotPasswordSendCode(req,res);
 });
 // Profile Management
-router.patch('/api/users/:id', (req, res) => {
-  console.log('router patch /api/users/:id called');
-  userController.updateProfile(req, res);
-});
+router.patch('/api/users/profile', ensureAuthenticated, userController.updateProfile);
+
+//Update pwed
+//router.patch('/api/users/password/update', ensureAuthenticated, userController.updatePassword);
+router.post('/api/users/password/update', ensureAuthenticated, userController.updatePassword);
 
 // Find User by Email
 router.get('/api/users/email/:email', (req, res) => {
   console.log('router get /api/users/email/:email called');
   userController.findUserByEmail(req, res);
 });
+
 
 // Find All Users with Same Email
 router.get('/api/allUsers/email/:email', (req, res) => {

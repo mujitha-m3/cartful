@@ -9,11 +9,11 @@ module.exports = {
       res.redirect('/login');
     },
     
-    // You can add other auth-related middleware here too
+    
     forwardAuthenticated: (req, res, next) => {
       if (!req.isAuthenticated()) {
         return next();
       }
-      res.redirect('/account');  
+      res.redirect('/profile');  
     }
   };
