@@ -16,6 +16,7 @@ const passport = require('passport');
 require('./passport'); // Passport configuration
 const { createServer } = require('http');
 const { Server } = require('socket.io');
+const methodOverride = require('method-override');
 
 // Import routes
 const googleAuthRoutes = require('./routes/authClientGoogleRoute');  
@@ -37,6 +38,8 @@ const tempDir = path.join(__dirname, 'temp');
 if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir, { recursive: true });
 }
+// Enable PATCH/PUT/DELETE
+app.use(methodOverride('_method'));
 
 // Serve static files from "public" folder
 app.use(express.static('public'));
@@ -118,6 +121,8 @@ app.engine('handlebars', exphbs.engine({
     }
   }
 }));
+
+
 
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));

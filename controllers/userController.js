@@ -133,6 +133,7 @@ const resendVerificationCode = async (req, res) => {
 };
 
 
+
 // Update User Profile
 const updateProfile = async (req, res) => {
   const { firstname, lastname, phone } = req.body;
@@ -161,48 +162,48 @@ const updateProfile = async (req, res) => {
   }
 };
 
-// Change Password
-const updatePassword = async (req, res) => {
-  const { currentPassword, newPassword, confirmPassword } = req.body;
+  // Update Password
+  const updatePassword = async (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
 
-  try {
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      req.flash('error_msg', 'User not found.');
-      return res.redirect('/account/settings');
+    try {
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        req.flash('error_msg', 'User not found.');
+        return res.redirect('/account/settings');
+      }
+
+      // Check all fields are filled
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        req.flash('error_msg', 'All password fields are required.');
+        return res.redirect('/account/settings');
+      }
+
+      // Compare entered current password with saved one
+      const isMatch = currentPassword === user.password;
+      if (!isMatch) {
+        req.flash('error_msg', 'Current password is incorrect.');
+        return res.redirect('/account/settings');
+      }
+
+      // Check new passwords match
+      if (newPassword !== confirmPassword) {
+        req.flash('error_msg', 'New passwords do not match.');
+        return res.redirect('/account/settings');
+      }
+
+      // Save new password
+      user.password = newPassword;
+      await user.save();
+
+      req.flash('success_msg', 'Password updated successfully.');
+      res.redirect('/account/settings');
+    } catch (err) {
+      console.error('updatePassword Error:', err);
+      req.flash('error_msg', 'Error updating password.');
+      res.redirect('/account/settings');
     }
-
-    // Check all fields are filled
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      req.flash('error_msg', 'All password fields are required.');
-      return res.redirect('/account/settings');
-    }
-
-    // Compare entered current password with saved one
-    const isMatch = await user.comparePassword(currentPassword);
-    if (!isMatch) {
-      req.flash('error_msg', 'Current password is incorrect.');
-      return res.redirect('/account/settings');
-    }
-
-    // Check new passwords match
-    if (newPassword !== confirmPassword) {
-      req.flash('error_msg', 'New passwords do not match.');
-      return res.redirect('/account/settings');
-    }
-
-    // Save new password
-    user.password = newPassword;
-    await user.save();
-
-    req.flash('success_msg', 'Password updated successfully.');
-    res.redirect('/account/settings');
-  } catch (err) {
-    console.error('updatePassword Error:', err);
-    req.flash('error_msg', 'Error updating password.');
-    res.redirect('/account/settings');
-  }
-};
+  };
 
 // Delete User
 const deleteUser = async (req, res) => {
@@ -255,7 +256,6 @@ const deleteAllUserbyEmail = async (req, res) => {
 };
 
 //loginUser methods
-
 
 const userLogin = async (req, res) =>{
   res.render('login');
@@ -550,7 +550,6 @@ const getUserDetailsForCheckout = async (userId) => {
     resendVerificationCode,
     renderVerificationPage,
     logout,
-    updateProfile,
     deleteUser,
     requireLogin,
     loginUser,
@@ -567,7 +566,9 @@ const getUserDetailsForCheckout = async (userId) => {
     forgotPasswordSendCode,
     createGoogleUser,
     renderProfilePage,
-    getUserDetailsForCheckout
+    getUserDetailsForCheckout,
+    updateProfile,
+    updatePassword
 
 };
 

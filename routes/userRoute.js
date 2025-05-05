@@ -1,7 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
+const { ensureAuthenticated } = require('../middleware/auth');
 
+console.log('ensureAuthenticated type:', typeof ensureAuthenticated);
+console.log('updateProfile type:', typeof userController.updateProfile);
+
+router.get('/account/settings', ensureAuthenticated, (req, res) => {
+  res.render('accountSettings', { user: req.user });
+});
 
 // Registration
 router.get('/register', userController.renderRegisterPage);
@@ -53,16 +60,18 @@ router.post('/api/forgotPasswordSendCode',(req,res)=>{
   userController.forgotPasswordSendCode(req,res);
 });
 // Profile Management
-router.patch('/api/users/:id', (req, res) => {
-  console.log('router patch /api/users/:id called');
-  userController.updateProfile(req, res);
-});
+router.patch('/api/users/profile', ensureAuthenticated, userController.updateProfile);
+
+//Update pwed
+//router.patch('/api/users/password/update', ensureAuthenticated, userController.updatePassword);
+router.post('/api/users/password/update', ensureAuthenticated, userController.updatePassword);
 
 // Find User by Email
 router.get('/api/users/email/:email', (req, res) => {
   console.log('router get /api/users/email/:email called');
   userController.findUserByEmail(req, res);
 });
+
 
 // Find All Users with Same Email
 router.get('/api/allUsers/email/:email', (req, res) => {
