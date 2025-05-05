@@ -57,35 +57,6 @@ const registerNewUser = async (req, res) => {
 };
 
 
-  /*const verifyEmailVerificationCode = async (req, res) => {
-    const { email, veficode } = req.body; 
-    console.log("verification request:", { email, veficode }); 
-  
-    try {
-      const user = await User.findOne({ email });
-      if (!user) {
-        console.log("User not found:", email);
-        return res.status(404).json({ message: "User not registered. Please register first." });
-      }  
-      if (user.verificationGeneratedBySystem === veficode) { 
-        user.emailVerified = true;
-        user.isActive = true;
-        user.verificationGeneratedBySystem = null;
-        await user.save();
-        
-        console.log("verifyEmailVerificationCode User email verified successfully:", user.email);
-        return res.status(200).json({ message: "Email verified successfully! You can now log in." });
-      } else {
-        console.log("verifyEmailVerificationCode Verification code mismatch!");
-        return res.status(400).json({ message: "Verification code is incorrect. Please try again or request a new code." });
-      }
-  
-    } catch (error) {
-      console.error("Error during email verification:", error);
-      res.status(500).json({ message: "Server error during verification." });
-    }
-  }; */
-
   // verifyEmailVerificationCode: redirects to createPassword view on success
 const verifyEmailVerificationCode = async (req, res) => {
   const { email, verificationCode } = req.body;
@@ -161,29 +132,75 @@ const resendVerificationCode = async (req, res) => {
   }
 };
 
+
 // Update User Profile
 const updateProfile = async (req, res) => {
-  const { fullName, email, phone, profileImage } = req.body;
-  console.log("updateProfile Incoming update for user:", req.params.id);
+  const { firstname, lastname, phone } = req.body;
+  console.log("updateProfile for logged-in user:", req.user._id);
 
   try {
-      const user = await User.findById(req.params.id);
-      if (!user) {
-          return res.status(404).json({ message: 'User not found.' });
-      }
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
 
-      if (fullName) user.fullName = fullName;
-      if (email) user.email = email;
-      if (phone) user.phone = phone;
-      if (profileImage) user.profileImage = profileImage;
+    if (firstname) user.firstName = firstname;
+    if (lastname) user.lastName = lastname;
+    if (firstname || lastname) {
+      user.fullName = `${user.firstName} ${user.lastName}`;
+    }
+    if (phone) user.phone = phone;
 
-      await user.save();
-      console.log("updateProfile User updated:", user._id);
-      res.status(200).json({ message: 'Profile updated successfully.', user });
-
+    await user.save();
+    req.flash('success_msg', 'Profile updated successfully.');
+    res.redirect('/account/settings');
   } catch (error) {
-      console.error("Error:", error);
-      res.status(500).json({ message: 'Failed to update profile.' });
+    console.error("updateProfile Error:", error);
+    req.flash('error_msg', 'Failed to update profile.');
+    res.redirect('/account/settings');
+  }
+};
+
+// Change Password
+const updatePassword = async (req, res) => {
+  const { currentPassword, newPassword, confirmPassword } = req.body;
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      req.flash('error_msg', 'User not found.');
+      return res.redirect('/account/settings');
+    }
+
+    // Check all fields are filled
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      req.flash('error_msg', 'All password fields are required.');
+      return res.redirect('/account/settings');
+    }
+
+    // Compare entered current password with saved one
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      req.flash('error_msg', 'Current password is incorrect.');
+      return res.redirect('/account/settings');
+    }
+
+    // Check new passwords match
+    if (newPassword !== confirmPassword) {
+      req.flash('error_msg', 'New passwords do not match.');
+      return res.redirect('/account/settings');
+    }
+
+    // Save new password
+    user.password = newPassword;
+    await user.save();
+
+    req.flash('success_msg', 'Password updated successfully.');
+    res.redirect('/account/settings');
+  } catch (err) {
+    console.error('updatePassword Error:', err);
+    req.flash('error_msg', 'Error updating password.');
+    res.redirect('/account/settings');
   }
 };
 
@@ -237,7 +254,9 @@ const deleteAllUserbyEmail = async (req, res) => {
   }
 };
 
-//loginUser method
+//loginUser methods
+
+
 const userLogin = async (req, res) =>{
   res.render('login');
 };
@@ -267,6 +286,15 @@ const loginUser = (req, res, next) => {
       return res.redirect('/');
     });
   })(req, res, next);
+};
+
+
+const requireLogin = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  req.flash('error_msg', 'Please log in to continue');
+  return res.redirect('/login');
 };
 
 const getAllUsers = async (req, res) => {
@@ -513,6 +541,8 @@ const getUserDetailsForCheckout = async (userId) => {
   }
 };
 
+
+
   module.exports = {
     registerNewUser,
     verifyEmailVerificationCode,
@@ -522,6 +552,7 @@ const getUserDetailsForCheckout = async (userId) => {
     logout,
     updateProfile,
     deleteUser,
+    requireLogin,
     loginUser,
     getAllUsers,
     getUserById,
