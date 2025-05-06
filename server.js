@@ -17,6 +17,7 @@ require('./passport'); // Passport configuration
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const methodOverride = require('method-override');
+const MongoStore = require('connect-mongo'); // Connect-mongo for session store
 
 // Import routes
 const googleAuthRoutes = require('./routes/authClientGoogleRoute');  
@@ -53,6 +54,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'cartful-secret-key',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: `mongodb+srv://${process.env.DBUSERNAME}:${process.env.DBPASSWORD}@${process.env.CLUSTER}.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`,
+    ttl: 24 * 60 * 60 // 1 day
+  }),
   cookie: { 
     secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
@@ -186,20 +191,25 @@ app.use(async (req, res, next) => {
 
 // Middleware to handle user authentication state
 app.use((req, res, next) => {
-  // If user is already authenticated (via Passport), continue
+  // If Passport says authenticated but user is not real, force logout
+  if (req.isAuthenticated() && (!req.user || req.user.isGuest)) {
+    req.logout(() => {
+      req.session.destroy(() => {
+        return res.redirect('/login');
+      });
+    });
+    return;
+  }
+  // Only set guest user if req.user is not already set by Passport
   if (req.user) return next();
-  
+
   // For checkout process without authentication
   if (req.session.checkoutDetails?.email) {
     req.user = {
       isGuest: true,
       email: req.session.checkoutDetails.email,
-      ...(req.session.checkoutDetails.first_name && { 
-        first_name: req.session.checkoutDetails.first_name 
-      }),
-      ...(req.session.checkoutDetails.last_name && { 
-        last_name: req.session.checkoutDetails.last_name 
-      })
+      ...(req.session.checkoutDetails.first_name ? { first_name: req.session.checkoutDetails.first_name } : {}),
+      ...(req.session.checkoutDetails.last_name ? { last_name: req.session.checkoutDetails.last_name } : {})
     };
     return next();
   }
