@@ -1,3 +1,4 @@
+const { confirmOrder, confirmCheckout } = require('../controllers/checkoutController');
 const express = require('express');
 const router = express.Router();
 const {
@@ -18,5 +19,11 @@ router.post('/', createOrder);
 
 // Show success page after payment
 router.get('/success', checkoutSuccess);
+
+// Show confirmation page before placing the order
+router.post('/confirm', confirmOrder);
+
+// Add route for checkout confirmation
+router.post('/checkout/confirm', confirmCheckout);
 
 module.exports = router;

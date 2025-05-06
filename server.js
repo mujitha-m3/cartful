@@ -118,7 +118,8 @@ app.engine('handlebars', exphbs.engine({
     },
     firstLetter: function(str) {
       return str ? str.charAt(0).toUpperCase() : '';
-    }
+    },
+    multiply: (a, b) => a * b,
   }
 }));
 

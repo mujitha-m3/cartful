@@ -80,6 +80,90 @@ exports.saveCheckoutDetails = (req, res) => {
   }
 };
 
+exports.confirmOrder = async (req, res) => {
+  const {
+    firstName, lastName, phone,
+    shippingStreet, shippingPostal, shippingCity,
+    shippingMethod, paymentMethod
+  } = req.body;
+
+  const cartItems = await getCartItems(req.user._id); // helper or your DB logic
+
+  const shippingFees = {
+    Posti: 4.90,
+    Matkahuolto: 5.90,
+    Pickup: 0
+  };
+
+  const shippingFee = shippingFees[shippingMethod] || 0;
+  let subtotal = 0;
+  cartItems.forEach(item => {
+    subtotal += item.quantity * item.product.price;
+  });
+
+  const total = subtotal + shippingFee;
+
+  // Save to session for later
+  req.session.checkout = {
+    firstName, lastName, phone,
+    shippingStreet, shippingPostal, shippingCity,
+    shippingMethod, paymentMethod,
+    shippingFee, subtotal, total
+  };
+
+  res.render('checkout-confirm', {
+    firstName, lastName, phone,
+    address: {
+      street: shippingStreet,
+      postal: shippingPostal,
+      city: shippingCity
+    },
+    shippingMethod,
+    paymentMethod,
+    shippingFee: shippingFee.toFixed(2),
+    subtotal: subtotal.toFixed(2),
+    total: total.toFixed(2),
+    cart: cartItems
+  });
+};
+
+// Handle checkout confirmation
+exports.confirmCheckout = async (req, res) => {
+  try {
+    const { firstName, lastName, phone, shippingStreet, shippingPostal, shippingCity, shippingMethod, paymentMethod } = req.body;
+
+    // Validate required fields
+    if (!firstName || !lastName || !phone || !shippingStreet || !shippingPostal || !shippingCity || !shippingMethod || !paymentMethod) {
+      req.flash('error_msg', 'Please fill in all required fields.');
+      return res.redirect('/checkout');
+    }
+
+    // Simulate order creation (replace with actual logic)
+    const order = {
+      id: Math.floor(Math.random() * 1000000),
+      firstName,
+      lastName,
+      phone,
+      shippingAddress: `${shippingStreet}, ${shippingCity}, ${shippingPostal}`,
+      shippingMethod,
+      paymentMethod,
+      total: req.session.cartTotalPrice || 0,
+    };
+
+    // Clear cart session (optional)
+    req.session.cart = {};
+    req.session.cartItemCount = 0;
+    req.session.cartTotalPrice = 0;
+
+    // Render confirmation page
+    res.render('checkout-confirm', { order });
+  } catch (error) {
+    console.error('Error confirming checkout:', error);
+    req.flash('error_msg', 'An error occurred during checkout. Please try again.');
+    res.redirect('/checkout');
+  }
+};
+
 // Place order (Stripe or COD)
 exports.createOrder = async (req, res) => {
   try {
@@ -315,3 +399,20 @@ exports.checkoutSuccess = async (req, res) => {
     res.redirect('/');
   }
 };
+
+async function getCartItems(userId) {
+  try {
+    const cart = await Cart.findOne({ user_id: userId });
+    if (!cart) return [];
+
+    const items = await CartItem.find({ cart_id: cart._id }).populate('product_id');
+    return items.map(item => ({
+      product: item.product_id,
+      quantity: item.quantity,
+      total_price: item.total_price
+    }));
+  } catch (error) {
+    console.error('Error fetching cart items:', error);
+    return [];
+  }
+}
