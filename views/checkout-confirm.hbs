@@ -1,0 +1,74 @@
+<main>
+  <h1 class="mb-4">Order Confirmation</h1>
+
+  <!-- 👤 Customer Info Section -->
+  <section aria-labelledby="customer-heading">
+    <h2 id="customer-heading" class="h5">Customer Information</h2>
+    <dl class="row">
+      <dt class="col-sm-3">Name</dt>
+      <dd class="col-sm-9">{{firstName}} {{lastName}}</dd>
+
+      <dt class="col-sm-3">Phone</dt>
+      <dd class="col-sm-9">{{phone}}</dd>
+
+      <dt class="col-sm-3">Address</dt>
+      <dd class="col-sm-9">{{address.street}}, {{address.postal}} {{address.city}}</dd>
+
+      <dt class="col-sm-3">Shipping Method</dt>
+      <dd class="col-sm-9">{{shippingMethod}} ({{shippingFee}} €)</dd>
+
+      <dt class="col-sm-3">Payment Method</dt>
+      <dd class="col-sm-9">{{paymentMethod}}</dd>
+    </dl>
+  </section>
+
+  <!-- 🛒 Order Summary -->
+  <section aria-labelledby="summary-heading" class="mt-4">
+    <h2 id="summary-heading" class="h5">Order Summary</h2>
+
+    <div class="table-responsive" role="region" aria-labelledby="summary-heading">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Item</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Price</th>
+            <th scope="col">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each cart}}
+          <tr>
+            <td>{{this.product.name}}</td>
+            <td>{{this.quantity}}</td>
+            <td>{{this.product.price}} €</td>
+            <td>{{multiply this.product.price this.quantity}} €</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Subtotal:</strong> {{subtotal}} €</p>
+    <p><strong>Shipping:</strong> {{shippingFee}} €</p>
+    <h4><strong>Total:</strong> {{total}} €</h4>
+  </section>
+
+  <!-- ✅ Confirm Button -->
+  <nav class="mt-4" aria-label="Order actions">
+    {{#if (eq paymentMethod "cod")}}
+    <form action="/checkout/place-order" method="POST">
+      <input type="hidden" name="confirm" value="true">
+      <button type="submit" class="btn btn-success mt-3">✅ Confirm and Place Order</button>
+    </form>
+    {{else}}
+    <form action="/checkout/stripe" method="POST">
+      <button type="submit" class="btn btn-primary mt-3">💳 Pay with Card (Stripe)</button>
+    </form>
+    {{/if}}
+
+    <a href="/cart" class="btn btn-outline-danger mt-3 ms-2" role="button">
+      Back to Cart
+    </a>
+  </nav>
+</main>
