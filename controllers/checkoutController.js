@@ -7,11 +7,16 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { sendEmail } = require('../utils/sendEmail');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
-const userController  = require('./userController')
+const userController = require('./userController');
 
 // Show checkout page
 exports.checkoutPage = async (req, res) => {
   try {
+    if (!req.user || req.user.isGuest) {
+      req.flash('error_msg', 'Please log in to proceed with checkout.');
+      return res.redirect('/login');
+    }
+
     // Get the user's cart
     const cart = await Cart.findOne({ user_id: req.user._id });
     if (!cart) return res.redirect('/cart');
@@ -25,8 +30,8 @@ exports.checkoutPage = async (req, res) => {
       if (userPrefill) {
         req.session.checkoutDetails = userPrefill;
       }
-    }  // Added  to load the user data
-    // Render the checkout page with the required details
+    }
+
     res.render('checkout', {
       cartItems: items,
       total: total.toFixed(2),
@@ -45,26 +50,26 @@ exports.checkoutPage = async (req, res) => {
 
 // Save customer order details into session
 exports.saveCheckoutDetails = (req, res) => {
+  if (!req.user || req.user.isGuest) {
+    req.flash('error_msg', 'Please log in to proceed with checkout.');
+    return res.redirect('/login');
+  }
   try {
-    const { email, first_name, last_name, phone, shipping_address, billing_address, shipping_method } = req.body;
-
-    // Validate email
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      req.flash('error_msg', 'Please enter a valid email address');
-      return res.redirect('/checkout?tab=details');
-    }
-
-    // Validate names
-    if (!first_name || !last_name) {
-      req.flash('error_msg', 'Please enter both first and last name');
-      return res.redirect('/checkout?tab=details');
-    }
+    const {
+      email,
+      first_name,
+      last_name,
+      phone,
+      shipping_address,
+      billing_address,
+      shipping_method,
+    } = req.body;
 
     // Save checkout details to session
     req.session.checkoutDetails = {
       email,
-      first_name,  
-      last_name,    
+      first_name,
+      last_name,
       phone,
       shipping_address,
       billing_address,
@@ -81,6 +86,10 @@ exports.saveCheckoutDetails = (req, res) => {
 };
 
 exports.confirmOrder = async (req, res) => {
+  if (!req.user || req.user.isGuest) {
+    req.flash('error_msg', 'Please log in to proceed with checkout.');
+    return res.redirect('/login');
+  }
   const {
     firstName, lastName, phone,
     shippingStreet, shippingPostal, shippingCity,
@@ -130,6 +139,11 @@ exports.confirmOrder = async (req, res) => {
 // Handle checkout confirmation
 exports.confirmCheckout = async (req, res) => {
   try {
+    if (!req.user || req.user.isGuest) {
+      req.flash('error_msg', 'Please log in to proceed with checkout.');
+      return res.redirect('/login');
+    }
+
     const { firstName, lastName, phone, shippingStreet, shippingPostal, shippingCity, shippingMethod, paymentMethod } = req.body;
 
     // Validate required fields
@@ -166,16 +180,19 @@ exports.confirmCheckout = async (req, res) => {
 
 // Place order (Stripe or COD)
 exports.createOrder = async (req, res) => {
+  if (!req.user || req.user.isGuest) {
+    req.flash('error_msg', 'Please log in to proceed with checkout.');
+    return res.redirect('/login');
+  }
   try {
     const { payment_method } = req.body;
     const checkoutDetails = req.session.checkoutDetails;
 
     if (!checkoutDetails) {
-      req.flash('error_msg', 'Please save order details first.');
+      req.flash('error_msg', 'Checkout details are missing. Please try again.');
       return res.redirect('/checkout');
     }
 
-    // Get the cart and items
     const cart = await Cart.findOne({ user_id: req.user._id });
     const items = await CartItem.find({ cart_id: cart._id }).populate('product_id');
     const total = items.reduce((sum, item) => sum + item.total_price, 0);
@@ -339,6 +356,11 @@ exports.createOrder = async (req, res) => {
 // After Stripe payment success
 exports.checkoutSuccess = async (req, res) => {
   try {
+    if (!req.user || req.user.isGuest) {
+      req.flash('error_msg', 'Please log in to proceed with checkout.');
+      return res.redirect('/login');
+    }
+
     const orderId = req.session.stripe_order_id;
     if (!orderId) return res.redirect('/');
 

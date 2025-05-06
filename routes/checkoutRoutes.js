@@ -7,6 +7,10 @@ const {
   checkoutSuccess,
   saveCheckoutDetails
 } = require('../controllers/checkoutController');
+const { ensureAuthenticated } = require('../middleware/auth');
+
+// Protect all checkout routes with authentication
+router.use(ensureAuthenticated);
 
 // Show checkout form
 router.get('/', checkoutPage);
@@ -22,8 +26,5 @@ router.get('/success', checkoutSuccess);
 
 // Show confirmation page before placing the order
 router.post('/confirm', confirmOrder);
-
-// Add route for checkout confirmation
-router.post('/checkout/confirm', confirmCheckout);
 
 module.exports = router;
