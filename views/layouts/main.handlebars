@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>{{title}}</title>
@@ -58,32 +59,43 @@
             <li class="nav-item"><a class="nav-link" href="/products/add-product">Add Product</a></li>
             <li class="nav-item"><a class="nav-link" href="/categories">Categories</a></li>
             <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
-            
+            <li class="nav-item">
+
+            </li>
           </ul>
 
           <ul class="navbar-nav">
             {{#if user}}
-              <li class="nav-item">
-                <a class="nav-link" href="/profile">
-                  <i class="fas fa-user"></i> {{user.fullName}}
-                </a>
-              </li>
-              <li class="nav-item">
-                <form method="POST" action="/logout" class="d-inline">
-                  <button type="submit" class="nav-link btn btn-link p-0 text-white">Logout</button>
-                </form>
-              </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/profile">
+                <i class="fas fa-user"></i> {{user.fullName}}
+              </a>
+            </li>
+            <li class="nav-item">
+              <form method="POST" action="/logout" class="d-inline">
+                <button type="submit" class="nav-link btn btn-link p-0 text-white">Logout</button>
+              </form>
+            </li>
             {{else}}
-              <li class="nav-item">
-                <a class="nav-link" href="/login">
-                  <i class="fas fa-sign-in-alt"></i> Login
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/register">
-                  <i class="fas fa-user-plus"></i> Register
-                </a>
-              </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/login">
+                <i class="fas fa-sign-in-alt"></i> Login
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/register">
+                <i class="fas fa-user-plus"></i> Register
+              </a>
+            </li>
+
+            {{/if}}
+            {{#if user._id}}
+            <li class="nav-item">
+              <a class="nav-link" href="/cart" aria-label="View cart">
+                <i class="fas fa-cart-shopping"></i>
+                Cart ({{cartItemCount}})
+              </a>
+            </li>
             {{/if}}
           </ul>
         </div>
@@ -101,22 +113,23 @@
 
   <!-- Bootstrap 5 JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/cart.js"></script>
   <script>
-document.querySelectorAll('.add-to-cart-form').forEach(form => {
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
+    document.querySelectorAll('.add-to-cart-form').forEach(form => {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
 
-    const formData = new FormData(form);
-    const product_id = formData.get('product_id');
-    const quantity = formData.get('quantity') || 1;
+        const formData = new FormData(form);
+        const product_id = formData.get('product_id');
+        const quantity = formData.get('quantity') || 1;
 
-    // Remove any existing toast
-    document.querySelectorAll('.toast-notification').forEach(t => t.remove());
+        // Remove any existing toast
+        document.querySelectorAll('.toast-notification').forEach(t => t.remove());
 
-    const toast = document.createElement("div");
-    toast.className = "toast-notification";
-    toast.innerText = "Adding item to cart...";
-    toast.style = `
+        const toast = document.createElement("div");
+        toast.className = "toast-notification";
+        toast.innerText = "Adding item to cart...";
+        toast.style = `
       position: fixed;
       top: 20px;
       right: 20px;
@@ -128,29 +141,30 @@ document.querySelectorAll('.add-to-cart-form').forEach(form => {
       z-index: 1000;
       font-size: 14px;
     `;
-    document.body.appendChild(toast);
+        document.body.appendChild(toast);
 
-    fetch('/cart/add', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ product_id, quantity })
-    })
-    .then(res => res.json())
-    .then(data => {
-      toast.innerText = data.message || 'Response received.';
-      toast.style.backgroundColor = data.success ? '#28a745' : '#dc3545';
-    })
-    .catch(() => {
-      toast.innerText = 'Something went wrong.';
-      toast.style.backgroundColor = '#dc3545';
+        fetch('/cart/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ product_id, quantity })
+        })
+          .then(res => res.json())
+          .then(data => {
+            toast.innerText = data.message || 'Response received.';
+            toast.style.backgroundColor = data.success ? '#28a745' : '#dc3545';
+          })
+          .catch(() => {
+            toast.innerText = 'Something went wrong.';
+            toast.style.backgroundColor = '#dc3545';
+          });
+
+        setTimeout(() => toast.remove(), 3000);
+      });
     });
-
-    setTimeout(() => toast.remove(), 3000);
-  });
-});
-</script>
+  </script>
 
 </body>
+
 </html>

@@ -123,7 +123,6 @@ app.engine('handlebars', exphbs.engine({
 }));
 
 
-
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -148,6 +147,41 @@ app.use((req, res, next) => {
   res.locals.user = req.user || null;
   next();
 });
+
+const Cart = require('./models/Cart');
+const CartItem = require('./models/CartItem');
+
+// Mini cart summary middleware using MongoDB
+app.use(async (req, res, next) => {
+  if (!req.user || !req.user._id) {
+    res.locals.cartItemCount = 0;
+    res.locals.cartTotalPrice = '0.00';
+    return next();
+  }
+
+  try {
+    const cart = await Cart.findOne({ user_id: req.user._id });
+    if (!cart) {
+      res.locals.cartItemCount = 0;
+      res.locals.cartTotalPrice = '0.00';
+      return next();
+    }
+
+    const items = await CartItem.find({ cart_id: cart._id });
+    const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = items.reduce((sum, item) => sum + item.total_price, 0);
+
+    res.locals.cartItemCount = totalItems;
+    res.locals.cartTotalPrice = totalPrice.toFixed(2);
+    next();
+  } catch (err) {
+    console.error('Mini cart middleware error:', err);
+    res.locals.cartItemCount = 0;
+    res.locals.cartTotalPrice = '0.00';
+    next();
+  }
+});
+
 
 // Middleware to handle user authentication state
 app.use((req, res, next) => {
