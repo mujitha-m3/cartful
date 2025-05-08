@@ -77,8 +77,6 @@ app.use((req, res, next) => {
 });
 
 
-app.use('/', productDiscountRoutes);
-
 
 // Config for Handlebars
 app.engine('handlebars', exphbs.engine({
@@ -101,6 +99,7 @@ app.engine('handlebars', exphbs.engine({
     or: (a, b) => a || b,
     // Add the eq helper
     eq: (a, b) => a === b,
+    includes: (array, value) => Array.isArray(array) && array.includes(value),
     json: (context) => JSON.stringify(context),
     gt: (a, b) => a > b,  // Greater than
     lt: (a, b) => a < b,   // Less than
@@ -234,6 +233,7 @@ app.use('/', viewRoutes);        // View Routes
 app.use('/checkout', checkoutRoutes); // Checkout Routes
 app.use('/cart', cartRoutes);    // Cart Routes
 app.use('/wishlist', wishlistRoutes);
+app.use('/', productDiscountRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

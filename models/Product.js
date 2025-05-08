@@ -13,6 +13,7 @@ const productSchema = new mongoose.Schema({
   discount_start: { type: Date, default: null },
   discount_end: { type: Date, default: null },
   discount_reason: { type: String, default: '' },
+  discounted_price:{type:Number,default:null},
 
   stock: Number,
   low_stock_threshold: { type: Number, default: 5 },
