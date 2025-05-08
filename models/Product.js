@@ -6,15 +6,14 @@ const productSchema = new mongoose.Schema({
   description: String,
   price: { type: Number, required: true },
   original_price: Number,
-  discount: {
-    type: {
-      type: String, // e.g., percentage, flat
-      value: Number, // e.g., 10 (10% off)
-      start_date: Date,
-      end_date: Date
-    },
-    default: {}
-  },
+
+  
+  discount_type: { type: String, enum: ['percentage', 'flat'], default: null },
+  discount_value: { type: Number, default: null },
+  discount_start: { type: Date, default: null },
+  discount_end: { type: Date, default: null },
+  discount_reason: { type: String, default: '' },
+
   stock: Number,
   low_stock_threshold: { type: Number, default: 5 },
   image_url: String,
@@ -22,11 +21,17 @@ const productSchema = new mongoose.Schema({
   alt_text: String,
   is_featured: { type: Boolean, default: false },
   status: { type: String, enum: ['active', 'inactive'], default: 'active' },
-  category_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }, // Assuming Category is another collection
-  allowed_countries: [String],
-  created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  category_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+  created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  lifecycle: {
+    manufacture_date: { type: Date },
+    expiry_date: { type: Date }
+  },
+
+  season: { type: String }
 }, { timestamps: true });
 
+// Static methods
 productSchema.statics.findProductById = async function (id) {
   return await this.findById(id).populate('category_id').exec();
 };
@@ -39,16 +44,26 @@ productSchema.statics.findProductsByCategory = async function (categoryId) {
   return await this.find({ category_id: categoryId, status: 'active' }).exec();
 };
 
-// Add this to your Product.js schema
+// Connect reviews collection
 productSchema.virtual('reviews', {
   ref: 'Review',
   localField: '_id',
   foreignField: 'product_id'
 });
 
-// Enable virtuals in toJSON
+// Virtual to detect products nearing expiry
+productSchema.virtual('isNearingExpiry').get(function () {
+  if (this.lifecycle && this.lifecycle.expiry_date) {
+    const today = new Date();
+    const sixMonthsFromToday = new Date();
+    sixMonthsFromToday.setMonth(today.getMonth() + 6);
+    return this.lifecycle.expiry_date <= sixMonthsFromToday;
+  }
+  return false;
+});
+
+// Enable virtuals in outputs
 productSchema.set('toJSON', { virtuals: true });
 productSchema.set('toObject', { virtuals: true });
-
 
 module.exports = mongoose.model('Product', productSchema);
