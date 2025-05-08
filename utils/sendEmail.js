@@ -65,148 +65,75 @@ const sendEmail = async ({
 
   try {
     const receiptHtml = `
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Order Confirmation</title>
-    <style>
-      body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-      .header { text-align: center; margin-bottom: 20px; }
-      .header h1 { margin: 0; }
-      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-      th, td { padding: 10px; border-bottom: 1px solid #ccc; text-align: left; }
-      th { background: #f5f5f5; }
-      .total { font-weight: bold; }
-      .footer { margin-top: 30px; text-align: center; font-size: 0.9em; color: #888; }
-    </style>
-  </head>
-  <body>
-    <div class="header">
-      <h1>Order Confirmation</h1>
-      <p>Order ID: ${order._id}</p>
-      <p>Date: ${new Date(order.createdAt).toLocaleDateString()}</p>
-    </div>
-    <div class="customer-info">
-      <h3>Customer Information</h3>
-      <p><strong>Name:</strong> ${order.first_name} ${order.last_name}</p>
-      <p><strong>Email:</strong> ${order.email}</p>
-      <p><strong>Phone:</strong> ${order.phone || 'N/A'}</p>
-      <p><strong>Shipping Address:</strong> 
-        ${order.shipping_address?.line1 || ''}${order.shipping_address?.line2 ? ', ' + order.shipping_address.line2 : ''},
-        ${order.shipping_address?.city || ''},
-        ${order.shipping_address?.postal || ''},
-        ${order.shipping_address?.country || ''}
-      </p>
-    </div>
-    <h3>Order Summary</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Item</th>
-          <th>Price</th>
-          <th>Qty</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${items.map(item => `
-          <tr>
-            <td>${item.product_id?.name || 'Unknown'}</td>
-            <td>€${(item.unit_price || 0).toFixed(2)}</td>
-            <td>${item.quantity || 1}</td>
-            <td>€${(item.total_price || 0).toFixed(2)}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-      <tfoot>
-        <tr class="total">
-          <td colspan="3">Total</td>
-          <td>€${(order.total || 0).toFixed(2)}</td>
-        </tr>
-      </tfoot>
-    </table>
-    <div class="payment-info">
-      <h3>Payment Details</h3>
-      <p><strong>Payment Method:</strong> ${paymentMethod === 'stripe' ? 'Credit Card' : 'Cash on Delivery'}</p>
-      <p><strong>Payment Status:</strong> ${order.payment_status === 'paid' ? 'Paid' : 'Pending'}</p>
-      ${paymentMethod === 'stripe' ? `<p><strong>Transaction ID:</strong> STRIPE-${order._id.toString().slice(-6)}</p>` : ''}
-    </div>
-    <div class="footer">
-      <p>Thank you for your purchase!</p>
-    </div>
-  </body>
-  </html>
-`;
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Order Confirmation</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { margin: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ccc; text-align: left; }
+        th { background: #f5f5f5; }
+        .total { font-weight: bold; }
+        .footer { margin-top: 30px; text-align: center; font-size: 0.9em; color: #888; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>Order Confirmation</h1>
+        <p>Order ID: ${order._id}</p>
+        <p>Date: ${new Date(order.createdAt).toLocaleDateString()}</p>
+      </div>
+      <div class="customer-info">
+        <h3>Customer Information</h3>
+        <p><strong>Name:</strong> ${order.first_name} ${order.last_name}</p>
+        <p><strong>Email:</strong> ${order.email}</p>
+        <p><strong>Phone:</strong> ${order.phone || 'N/A'}</p>
+        <p><strong>Shipping Address:</strong><br>${order.shipping_address.line1}<br>${order.shipping_address.line2 ? order.shipping_address.line2 + '<br>' : ''}${order.shipping_address.city}, ${order.shipping_address.postal}<br>${order.shipping_address.country}</p>
 
-    const htmlContent = `
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Order Confirmation</title>
-    <style>
-      body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-      .header { text-align: center; margin-bottom: 20px; }
-      .header h1 { margin: 0; }
-      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-      th, td { padding: 10px; border-bottom: 1px solid #ccc; text-align: left; }
-      th { background: #f5f5f5; }
-      .total { font-weight: bold; }
-      .footer { margin-top: 30px; text-align: center; font-size: 0.9em; color: #888; }
-    </style>
-  </head>
-  <body>
-    <div class="header">
-      <h1>Order Confirmation</h1>
-      <p>Order ID: ${order._id}</p>
-      <p>Date: ${new Date(order.createdAt).toLocaleDateString()}</p>
-    </div>
-    <div class="customer-info">
-      <h3>Customer Information</h3>
-      <p><strong>Name:</strong> ${order.first_name} ${order.last_name}</p>
-      <p><strong>Email:</strong> ${order.email}</p>
-      <p><strong>Phone:</strong> ${order.phone || 'N/A'}</p>
-    </div>
-    <h3>Order Summary</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Item</th>
-          <th>Price</th>
-          <th>Qty</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${items.map(item => `
+      </div>
+      <h3>Order Summary</h3>
+      <table>
+        <thead>
           <tr>
-            <td>${item.product_id?.name || 'Unknown'}</td>
-            <td>€${(item.unit_price || 0).toFixed(2)}</td>
-            <td>${item.quantity || 1}</td>
-            <td>€${(item.total_price || 0).toFixed(2)}</td>
+            <th>Item</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Total</th>
           </tr>
-        `).join('')}
-      </tbody>
-      <tfoot>
-        <tr class="total">
-          <td colspan="3">Total</td>
-          <td>€${(order.total || 0).toFixed(2)}</td>
-        </tr>
-      </tfoot>
-    </table>
-    <div class="payment-info">
-      <h3>Payment Details</h3>
-      <p><strong>Payment Method:</strong> ${paymentMethod === 'stripe' ? 'Credit Card' : 'Cash on Delivery'}</p>
-      <p><strong>Payment Status:</strong> ${order.payment_status === 'paid' ? 'Paid' : 'Pending'}</p>
-      ${paymentMethod === 'stripe' ? `<p><strong>Transaction ID:</strong> STRIPE-${order._id.toString().slice(-6)}</p>` : ''}
-    </div>
-    <div class="footer">
-      <p>Thank you for your purchase!</p>
-    </div>
-  </body>
-  </html>
-`;
+        </thead>
+        <tbody>
+          ${items.map(item => `
+            <tr>
+              <td>${item.product_id?.name || 'Unknown'}</td>
+              <td>€${(item.unit_price || 0).toFixed(2)}</td>
+              <td>${item.quantity || 1}</td>
+              <td>€${(item.total_price || 0).toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+        <tfoot>
+          <tr class="total">
+            <td colspan="3">Total</td>
+            <td>€${(order.total || 0).toFixed(2)}</td>
+          </tr>
+        </tfoot>
+      </table>
+      <div class="payment-info">
+        <h3>Payment Details</h3>
+        <p><strong>Payment Method:</strong> ${paymentMethod === 'stripe' ? 'Credit Card' : 'Cash on Delivery'}</p>
+        <p><strong>Payment Status:</strong> ${order.payment_status === 'paid' ? 'Paid' : 'Pending'}</p>
+        ${paymentMethod === 'stripe' ? `<p><strong>Transaction ID:</strong> STRIPE-${order._id.toString().slice(-6)}</p>` : ''}
+      </div>
+      <div class="footer">
+        <p>Thank you for your purchase!</p>
+      </div>
+    </body>
+    </html>
+  `;
 
     const pdfPath = path.join(tempDir, `receipt-${order._id}.pdf`);
     await generatePdf(receiptHtml, pdfPath);

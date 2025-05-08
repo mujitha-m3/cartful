@@ -60,19 +60,39 @@ exports.saveCheckoutDetails = (req, res) => {
       first_name,
       last_name,
       phone,
-      shipping_address,
-      billing_address,
+      shipping_line1,
+      shipping_line2,
+      shipping_city,
+      shipping_postal,
+      shipping_country,
+      billing_line1,
+      billing_line2,
+      billing_city,
+      billing_postal,
+      billing_country,
       shipping_method,
     } = req.body;
 
-    // Save checkout details to session
+    // Save checkout details to session with properly structured addresses
     req.session.checkoutDetails = {
       email,
       first_name,
       last_name,
       phone,
-      shipping_address,
-      billing_address,
+      shipping_address: {
+        line1: shipping_line1,
+        line2: shipping_line2 || '',
+        city: shipping_city,
+        postal: shipping_postal,
+        country: shipping_country || 'Finland'
+      },
+      billing_address: {
+        line1: billing_line1,
+        line2: billing_line2 || '',
+        city: billing_city,
+        postal: billing_postal,
+        country: billing_country || 'Finland'
+      },
       shipping_method,
     };
 
@@ -96,7 +116,7 @@ exports.confirmOrder = async (req, res) => {
     shippingMethod, paymentMethod
   } = req.body;
 
-  const cartItems = await getCartItems(req.user._id); // helper or your DB logic
+  const cartItems = await getCartItems(req.user._id);
 
   const shippingFees = {
     Posti: 4.90,
@@ -136,48 +156,6 @@ exports.confirmOrder = async (req, res) => {
   });
 };
 
-// Handle checkout confirmation
-exports.confirmCheckout = async (req, res) => {
-  try {
-    if (!req.user || req.user.isGuest) {
-      req.flash('error_msg', 'Please log in to proceed with checkout.');
-      return res.redirect('/login');
-    }
-
-    const { firstName, lastName, phone, shippingStreet, shippingPostal, shippingCity, shippingMethod, paymentMethod } = req.body;
-
-    // Validate required fields
-    if (!firstName || !lastName || !phone || !shippingStreet || !shippingPostal || !shippingCity || !shippingMethod || !paymentMethod) {
-      req.flash('error_msg', 'Please fill in all required fields.');
-      return res.redirect('/checkout');
-    }
-
-    // Simulate order creation (replace with actual logic)
-    const order = {
-      id: Math.floor(Math.random() * 1000000),
-      firstName,
-      lastName,
-      phone,
-      shippingAddress: `${shippingStreet}, ${shippingCity}, ${shippingPostal}`,
-      shippingMethod,
-      paymentMethod,
-      total: req.session.cartTotalPrice || 0,
-    };
-
-    // Clear cart session (optional)
-    req.session.cart = {};
-    req.session.cartItemCount = 0;
-    req.session.cartTotalPrice = 0;
-
-    // Render confirmation page
-    res.render('checkout-confirm', { order });
-  } catch (error) {
-    console.error('Error confirming checkout:', error);
-    req.flash('error_msg', 'An error occurred during checkout. Please try again.');
-    res.redirect('/checkout');
-  }
-};
-
 // Handle COD orders only
 exports.createOrder = async (req, res) => {
   if (!req.user || req.user.isGuest) {
@@ -192,10 +170,21 @@ exports.createOrder = async (req, res) => {
     }
 
     const checkoutDetails = req.session.checkoutDetails;
-    if (!checkoutDetails) {
+    const checkoutSession = req.session.checkout;
+    
+    if (!checkoutDetails || !checkoutSession) {
       req.flash('error_msg', 'Checkout details are missing. Please try again.');
       return res.redirect('/checkout');
     }
+
+    // Merge shipping address from both sources
+    const shippingAddress = {
+      line1: checkoutSession.shippingStreet || checkoutDetails.shipping_address.line1,
+      line2: checkoutDetails.shipping_address.line2 || '',
+      city: checkoutSession.shippingCity || checkoutDetails.shipping_address.city,
+      postal: checkoutSession.shippingPostal || checkoutDetails.shipping_address.postal,
+      country: checkoutDetails.shipping_address.country || 'Finland'
+    };
 
     const cart = await Cart.findOne({ user_id: req.user._id });
     const items = await CartItem.find({ cart_id: cart._id }).populate('product_id');
@@ -205,14 +194,14 @@ exports.createOrder = async (req, res) => {
       user_id: req.user._id,
       total,
       payment_method: 'cod',
-      shipping_method: checkoutDetails.shipping_method,
-      shipping_address: checkoutDetails.shipping_address,
+      shipping_method: checkoutSession.shippingMethod || checkoutDetails.shipping_method,
+      shipping_address: shippingAddress,
       billing_address: checkoutDetails.billing_address,
       placed_by: req.user._id,
       email: checkoutDetails.email,
-      phone: checkoutDetails.phone || 'Not provided',
-      first_name: checkoutDetails.first_name,
-      last_name: checkoutDetails.last_name,
+      phone: checkoutSession.phone || checkoutDetails.phone || 'Not provided',
+      first_name: checkoutSession.firstName || checkoutDetails.first_name,
+      last_name: checkoutSession.lastName || checkoutDetails.last_name,
       payment_status: 'unpaid',
       order_status: 'Confirmed'
     };
@@ -245,6 +234,7 @@ exports.createOrder = async (req, res) => {
     // Empty cart
     await CartItem.deleteMany({ cart_id: cart._id });
     req.session.checkoutDetails = null;
+    req.session.checkout = null;
 
     // Send confirmation email
     await sendEmail({
@@ -260,48 +250,26 @@ exports.createOrder = async (req, res) => {
 
         <h4>Shipping Address:</h4>
         <p>
-          ${checkoutDetails.shipping_address.line1}<br>
-          ${checkoutDetails.shipping_address.line2 ? checkoutDetails.shipping_address.line2 + '<br>' : ''}
-          ${checkoutDetails.shipping_address.city}<br>
-          ${checkoutDetails.shipping_address.postal}<br>
-          ${checkoutDetails.shipping_address.country}
+          ${shippingAddress.line1}<br>
+          ${shippingAddress.line2 ? shippingAddress.line2 + '<br>' : ''}
+          ${shippingAddress.city}<br>
+          ${shippingAddress.postal}<br>
+          ${shippingAddress.country}
         </p>
         
         <p>We are preparing your items and will ship them soon!</p>
         <p>Please find your receipt attached.</p>
         <br><p>Cartful Team</p>
       `,
-      order,
+      order: {
+        ...order.toObject(),
+        shipping_address: shippingAddress
+      },
       items,
       user: req.user,
       paymentMethod: 'cod',
     });
 
-    // Generate PDF Receipt
-    const doc = new PDFDocument();
-    const filePath = `./receipts/order_${order._id}.pdf`;
-
-    doc.pipe(fs.createWriteStream(filePath));
-    doc.fontSize(16).text(`Order Receipt #${order._id}`);
-    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`);
-    doc.text(`Phone: ${order.phone || 'Not provided'}`);
-    doc.text(`Payment Method: Cash On Delivery`);
-    doc.text(`Total Amount: €${order.total.toFixed(2)}`);
-
-    // Shipping Address
-    doc.text(`Shipping Address:`);
-    doc.text(`${checkoutDetails.shipping_address.line1}`);
-    if (checkoutDetails.shipping_address.line2) {
-      doc.text(`${checkoutDetails.shipping_address.line2}`);
-    }
-    doc.text(`${checkoutDetails.shipping_address.city}`);
-    doc.text(`${checkoutDetails.shipping_address.postal}`);
-    doc.text(`${checkoutDetails.shipping_address.country}`);
-
-    doc.end();
-
-    // Store order ID in session and redirect to success page
-    req.session.stripe_order_id = order._id;
     res.redirect('/checkout/success');
   } catch (error) {
     console.error('Create order error:', error);
@@ -330,10 +298,21 @@ exports.createStripeSession = async (req, res) => {
     }
 
     const checkoutDetails = req.session.checkoutDetails;
-    if (!checkoutDetails) {
+    const checkoutSession = req.session.checkout;
+    
+    if (!checkoutDetails || !checkoutSession) {
       req.flash('error_msg', 'Checkout details are missing. Please try again.');
       return res.redirect('/checkout');
     }
+
+    // Merge shipping address from both sources
+    const shippingAddress = {
+      line1: checkoutSession.shippingStreet || checkoutDetails.shipping_address.line1,
+      line2: checkoutDetails.shipping_address.line2 || '',
+      city: checkoutSession.shippingCity || checkoutDetails.shipping_address.city,
+      postal: checkoutSession.shippingPostal || checkoutDetails.shipping_address.postal,
+      country: checkoutDetails.shipping_address.country || 'Finland'
+    };
 
     const cart = await Cart.findOne({ user_id: req.user._id });
     const items = await CartItem.find({ cart_id: cart._id }).populate('product_id');
@@ -343,14 +322,14 @@ exports.createStripeSession = async (req, res) => {
       user_id: req.user._id,
       total,
       payment_method: 'stripe',
-      shipping_method: checkoutDetails.shipping_method,
-      shipping_address: checkoutDetails.shipping_address,
+      shipping_method: checkoutSession.shippingMethod || checkoutDetails.shipping_method,
+      shipping_address: shippingAddress,
       billing_address: checkoutDetails.billing_address,
       placed_by: req.user._id,
       email: checkoutDetails.email,
-      phone: checkoutDetails.phone || 'Not provided',
-      first_name: checkoutDetails.first_name,
-      last_name: checkoutDetails.last_name,
+      phone: checkoutSession.phone || checkoutDetails.phone || 'Not provided',
+      first_name: checkoutSession.firstName || checkoutDetails.first_name,
+      last_name: checkoutSession.lastName || checkoutDetails.last_name,
       payment_status: 'pending',
       order_status: 'Pending'
     };
@@ -384,6 +363,13 @@ exports.createStripeSession = async (req, res) => {
       success_url: `${req.protocol}://${req.get('host')}/checkout/success`,
       cancel_url: `${req.protocol}://${req.get('host')}/checkout`,
       customer_email: checkoutDetails.email,
+      // shipping_address_collection: {
+//   allowed_countries: ['FI'],
+// },
+
+      metadata: {
+        order_id: order._id.toString()
+      }
     });
 
     return res.redirect(303, session.url);
@@ -429,6 +415,7 @@ exports.checkoutSuccess = async (req, res) => {
     await CartItem.deleteMany({ cart_id: cart._id });
 
     req.session.checkoutDetails = null;
+    req.session.checkout = null;
     req.session.stripe_order_id = null;
 
     // Send payment receipt email
@@ -456,34 +443,11 @@ exports.checkoutSuccess = async (req, res) => {
         <p>Please find your receipt attached.</p>
         <br><p>Cartful Team</p>
       `,
-      order,
+      order: order.toObject(),
       items,
       user: req.user,
       paymentMethod: 'stripe',
     });
-
-    // Generate PDF Receipt (same format as COD)
-    const doc = new PDFDocument();
-    const filePath = `./receipts/order_${order._id}.pdf`;
-
-    doc.pipe(fs.createWriteStream(filePath));
-    doc.fontSize(16).text(`Order Receipt #${order._id}`);
-    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`);
-    doc.text(`Phone: ${order.phone || 'Not provided'}`);
-    doc.text(`Payment Method: Credit Card (Stripe)`);
-    doc.text(`Total Amount: €${order.total.toFixed(2)}`);
-
-    // Shipping Address
-    doc.text(`Shipping Address:`);
-    doc.text(`${order.shipping_address.line1}`);
-    if (order.shipping_address.line2) {
-      doc.text(`${order.shipping_address.line2}`);
-    }
-    doc.text(`${order.shipping_address.city}`);
-    doc.text(`${order.shipping_address.postal}`);
-    doc.text(`${order.shipping_address.country}`);
-
-    doc.end();
 
     res.render('checkout-success', {
       orderId: order._id,
