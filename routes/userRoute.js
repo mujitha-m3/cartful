@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const { ensureAuthenticated } = require('../middleware/auth');
+const passport = require('passport');
 
 console.log('ensureAuthenticated type:', typeof ensureAuthenticated);
 console.log('updateProfile type:', typeof userController.updateProfile);
@@ -41,7 +42,33 @@ router.get('/login', (req, res) => {
 });
 
 // Login / Logout
-router.post('/api/loginUser', userController.loginUser);
+router.post('/api/loginUser', (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      req.flash('error_msg', info.message || 'Invalid credentials');
+      return res.redirect('/login');
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+
+      // Restore cart data after login if it exists
+      if (req.session.cartBackup) {
+        req.session.cart = req.session.cartBackup;
+        delete req.session.cartBackup;
+      }
+
+      // Redirect to the original page or default to home
+      const redirectUrl = req.session.redirectAfterLogin || '/';
+      delete req.session.redirectAfterLogin;
+      return res.redirect(redirectUrl);
+    });
+  })(req, res, next);
+});
 
 router.post('/api/logout', (req, res) => {
   console.log('router post /api/logout called');
