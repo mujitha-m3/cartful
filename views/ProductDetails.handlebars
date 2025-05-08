@@ -4,12 +4,25 @@
       <img src="{{product.image}}" alt="{{product.name}}" class="img-fluid rounded shadow-sm" loading="lazy" />
     </div>
     <div class="col-md-6">
-      <h1>{{product.name}}</h1>
-      <p class="text-muted">{{product.category}}</p>
-      <p class="lead">{{product.description}}</p>
-      <p class="fw-bold h4">{{product.price}} €</p>
+  <h1>{{product.name}}</h1>
+  <p class="text-muted">{{product.category}}</p>
+  <p class="lead">{{product.description}}</p>
+  
+  {{#if product.hasDiscount}}
+    <p class="fw-bold h4 text-danger">{{product.price}} €</p>
+    <p class="text-muted text-decoration-line-through small">{{product.original_price}} €</p>
+    {{#if product.discount_type}}
+      {{#if (eq product.discount_type "percentage")}}
+        <p class="text-danger mb-1">-{{product.discount_value}}% Off</p>
+      {{else if (eq product.discount_type "flat")}}
+        <p class="text-danger mb-1">-{{product.discount_value}} € Off</p>
+      {{/if}}
+    {{/if}}
+  {{else}}
+    <p class="fw-bold h4">{{product.price}} €</p>
+  {{/if}}
 
-      {{#if (gt product.stock 0)}}
+  {{#if (gt product.stock 0)}}
       <form method="POST" action="/cart/add" class="add-to-cart-form">
         <input type="hidden" name="product_id" value="{{product._id}}" />
         {{#if csrfToken}}
