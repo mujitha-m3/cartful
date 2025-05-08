@@ -239,6 +239,10 @@ app.use('/cart', cartRoutes);    // Cart Routes
 app.use('/wishlist', wishlistRoutes);
 app.use('/', productDiscountRoutes);
 
+// Admin order management routes
+const adminOrderRoutes = require('./routes/admin/adminOrderRoutes');
+app.use('/admin/orders', adminOrderRoutes);
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date() });

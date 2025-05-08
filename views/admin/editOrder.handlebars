@@ -1,0 +1,38 @@
+{{> header}}
+
+<main class="container py-4">
+  <h1>Edit Order #{{order._id}}</h1>
+
+  {{#if success_msg}}
+    <div class="alert alert-success">{{success_msg}}</div>
+  {{/if}}
+
+  <dl class="row mb-4">
+    <dt class="col-sm-3">Customer</dt>
+    <dd class="col-sm-9">{{order.first_name}} {{order.last_name}}</dd>
+
+    <dt class="col-sm-3">Total</dt>
+    <dd class="col-sm-9">{{formatPrice order.total}}</dd>
+
+    <dt class="col-sm-3">Placed On</dt>
+    <dd class="col-sm-9">{{formatDate order.createdAt}}</dd>
+  </dl>
+
+  <form action="/admin/orders/{{order._id}}" method="POST">
+    <div class="mb-3">
+      <label for="order_status" class="form-label">Order Status</label>
+      <select name="order_status" id="order_status" class="form-select">
+        <option value="Pending" {{#ifEquals order.order_status 'Pending'}}selected{{/ifEquals}}>Pending</option>
+        <option value="Confirmed" {{#ifEquals order.order_status 'Confirmed'}}selected{{/ifEquals}}>Confirmed</option>
+        <option value="Shipped" {{#ifEquals order.order_status 'Shipped'}}selected{{/ifEquals}}>Shipped</option>
+        <option value="Delivered" {{#ifEquals order.order_status 'Delivered'}}selected{{/ifEquals}}>Delivered</option>
+        <option value="Cancelled" {{#ifEquals order.order_status 'Cancelled'}}selected{{/ifEquals}}>Cancelled</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+    <a href="/admin/orders" class="btn btn-secondary">Back to List</a>
+  </form>
+</main>
+
+{{> footer}}
