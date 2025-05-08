@@ -94,7 +94,6 @@
               <th style="min-width: 100px;">Value</th>
               <th>Discount Start</th>
               <th>Discount End</th>
-              <th>Save</th>
               <th>Preview</th>
             </tr>
           </thead>
@@ -121,7 +120,6 @@
                 <td><input type="number" name="value_{{this._id}}" value="{{this.discountValue}}" class="form-control form-control-sm" /></td>
                 <td><input type="date" name="start_{{this._id}}" value="{{this.discountStart}}" class="form-control form-control-sm" /></td>
                 <td><input type="date" name="end_{{this._id}}" value="{{this.discountEnd}}" class="form-control form-control-sm" /></td>
-                <td><button class="btn btn-sm btn-success w-100">Save</button></td>
                 <td><a href="/admin/preview/{{this._id}}" target="_blank" class="btn btn-sm btn-outline-secondary w-100">🔍</a></td>
               </tr>
             {{/each}}
