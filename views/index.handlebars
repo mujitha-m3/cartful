@@ -14,6 +14,49 @@
   </div>
 </section>
 
+<!-- Discounted Products Section -->
+{{#if discountedProducts.length}}
+<section class="discounted-section py-5">
+  <div class="container">
+    <h2 class="text-center mb-4 text-danger">Hot Deals</h2>
+    <div class="swiper discounted-swiper">
+      <div class="swiper-wrapper">
+        {{#each discountedProducts}}
+        <div class="swiper-slide">
+          <div class="card product-card h-100">
+            {{#if this.image_url}}
+            <img src="{{this.image_url}}" class="card-img-top" alt="{{this.alt_text}}" style="height: 200px; object-fit: contain;">
+            {{else}}
+            <img src="/images/default-product.png" class="card-img-top" alt="Default product image" style="height: 200px; object-fit: contain;">
+            {{/if}}
+            <div class="card-body text-center">
+              <h3 class="card-title">{{this.name}}</h3>
+              <p class="card-text">
+                <span class="text-decoration-line-through text-muted me-2">€{{this.price}}</span>
+                <span class="fw-bold text-danger">€{{this.finalPrice}}</span>
+              </p>
+              <p class="card-text">{{this.description}}</p>
+              <form method="POST" action="/cart/add" class="add-to-cart-form">
+                <input type="hidden" name="product_id" value="{{this._id}}" />
+                <input type="number" name="quantity" value="1" min="1" required class="quantity-input" style="width: 196px;" />
+                <div class="d-flex">
+                <button type="submit" class="btn btn-primary add-to-cart-button">Add to Cart</button>
+                <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button">View Details</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+  </div>
+</section>
+{{/if}}
+
 <!-- Categories Section -->
 <section class="categories-section py-5">
   <div class="container">
@@ -169,4 +212,22 @@
       992: { slidesPerView: 3 }
     }
   });
+
+new Swiper('.discounted-swiper', {
+  slidesPerView: 1,
+  spaceBetween: 20,
+  loop: true,
+  navigation: {
+    nextEl: '.discounted-section .swiper-button-next',
+    prevEl: '.discounted-section .swiper-button-prev',
+  },
+  pagination: {
+    el: '.discounted-section .swiper-pagination',
+    clickable: true,
+  },
+  breakpoints: {
+    768: { slidesPerView: 2 },
+    992: { slidesPerView: 3 }
+  }
+});
 </script>

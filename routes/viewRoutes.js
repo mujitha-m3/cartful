@@ -3,31 +3,79 @@ const router = express.Router();
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 
-// Home page: show all products and categories
+// Utility to calculate the final discounted price
+const calculateDiscountPrice = (price, discount) => {
+  if (discount.type === 'percentage') {
+    return price - (price * discount.value / 100);
+  } else if (discount.type === 'fixed') {
+    return price - discount.value;
+  }
+  return price;
+};
+
+// Static method on Product model assumed as per your initial instruction
+Product.schema.statics.findDiscountedProducts = async function () {
+  return await this.find({
+    discount_type: { $exists: true, $ne: null },
+    discount_value: { $gt: 0 },
+    status: 'active'
+  })
+  .limit(10)
+  .populate('category_id')
+  .exec();
+};
+
+// Fetch discounted products
+const getDiscountedProducts = async () => {
+  try {
+    const products = await Product.findDiscountedProducts();
+    return products.map(product => ({
+      ...product._doc,
+      finalPrice: calculateDiscountPrice(product.price, {
+        type: product.discount_type,
+        value: product.discount_value
+      }),
+      hasDiscount: true
+    }));
+  } catch (err) {
+    console.error('Error fetching discounted products:', err);
+    return [];
+  }
+};
+
+// Home page: show discounted, featured, and all categories
 router.get('/', async (req, res) => {
   try {
-    // Fetch both products and categories in parallel
-    const [products, categories] = await Promise.all([
-      Product.find({}),
-      Category.find({ 
+    const [categories, featuredProducts, discountedProducts] = await Promise.all([
+      Category.find({
         is_active: true,
-        parent_category_id: null 
-      }).sort({ name: 1 }).limit(10)
+        parent_category_id: null
+      }).sort({ name: 1 }).limit(10),
+
+      Product.find({ is_featured: true, status: 'active' }).limit(8),
+
+      getDiscountedProducts()
     ]);
 
     res.render('index', {
-      products,
+      title: 'Home',
+      products: featuredProducts,
+      discountedProducts,
       categories,
       success_msg: req.flash('success_msg'),
       error_msg: req.flash('error_msg')
     });
+
   } catch (err) {
     console.error('Error loading home page:', err);
     req.flash('error_msg', 'Error loading home page');
-    // Render with empty arrays if there's an error
-    res.render('index', { 
-      products: [], 
+
+    res.render('index', {
+      title: 'Home',
+      products: [],
+      discountedProducts: [],
       categories: [],
+      success_msg: req.flash('success_msg'),
       error_msg: req.flash('error_msg')
     });
   }

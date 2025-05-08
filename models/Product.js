@@ -63,6 +63,15 @@ productSchema.virtual('isNearingExpiry').get(function () {
   return false;
 });
 
+// Add this to Product.js after the other static methods
+productSchema.statics.findDiscountedProducts = async function () {
+  return await this.find({ 
+    discount_type: { $exists: true, $ne: null },
+    discount_value: { $gt: 0 },
+    status: 'active'
+  }).limit(10).populate('category_id').exec();
+};
+
 // Enable virtuals in outputs
 productSchema.set('toJSON', { virtuals: true });
 productSchema.set('toObject', { virtuals: true });
