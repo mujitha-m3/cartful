@@ -55,18 +55,38 @@
   </section>
 
   <!-- ✅ Confirm Button -->
+  {{#if (eq paymentMethod "cod")}}
+  <form action="/checkout/place-order" method="POST">
+    <input type="hidden" name="firstName" value="{{firstName}}">
+    <input type="hidden" name="lastName" value="{{lastName}}">
+    <input type="hidden" name="phone" value="{{phone}}">
+    <input type="hidden" name="shippingStreet" value="{{address.street}}">
+    <input type="hidden" name="shippingPostal" value="{{address.postal}}">
+    <input type="hidden" name="shippingCity" value="{{address.city}}">
+    <input type="hidden" name="shippingMethod" value="{{shippingMethod}}">
+    <input type="hidden" name="payment_method" value="{{paymentMethod}}">
+    <input type="hidden" name="subtotal" value="{{subtotal}}">
+    <input type="hidden" name="shippingFee" value="{{shippingFee}}">
+    <input type="hidden" name="total" value="{{total}}">
+    <button type="submit" class="btn btn-success mt-3">✅ Confirm and Place Order</button>
+  </form>
+  {{else}}
+  <form action="/checkout/stripe" method="POST">
+    <input type="hidden" name="firstName" value="{{firstName}}">
+    <input type="hidden" name="lastName" value="{{lastName}}">
+    <input type="hidden" name="phone" value="{{phone}}">
+    <input type="hidden" name="shippingStreet" value="{{address.street}}">
+    <input type="hidden" name="shippingPostal" value="{{address.postal}}">
+    <input type="hidden" name="shippingCity" value="{{address.city}}">
+    <input type="hidden" name="shippingMethod" value="{{shippingMethod}}">
+    <input type="hidden" name="payment_method" value="{{paymentMethod}}">
+    <input type="hidden" name="subtotal" value="{{subtotal}}">
+    <input type="hidden" name="shippingFee" value="{{shippingFee}}">
+    <input type="hidden" name="total" value="{{total}}">
+    <button type="submit" class="btn btn-primary mt-3">💳 Pay with Card (Stripe)</button>
+  </form>
+  {{/if}}
   <nav class="mt-4" aria-label="Order actions">
-    {{#if (eq paymentMethod "cod")}}
-    <form action="/checkout/place-order" method="POST">
-      <input type="hidden" name="confirm" value="true">
-      <button type="submit" class="btn btn-success mt-3">✅ Confirm and Place Order</button>
-    </form>
-    {{else}}
-    <form action="/checkout/stripe" method="POST">
-            <button type="submit" class="btn btn-primary mt-3">💳 Pay with Card (Stripe)</button>
-    </form>
-    {{/if}}
-
     <a href="/cart" class="btn btn-outline-danger mt-3 ms-2" role="button">
       Back to Cart
     </a>
