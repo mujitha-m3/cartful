@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 
+
+
 // Home page: show all products
 router.get('/', async (req, res) => {
   try {
@@ -16,5 +18,7 @@ router.get('/', async (req, res) => {
     res.render('index', { products: [] });
   }
 });
+
+
 
 module.exports = router;
