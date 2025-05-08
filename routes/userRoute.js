@@ -113,6 +113,8 @@ router.get('/profile', (req, res) => {
   res.render('profile', { user: req.user });
 });
 
+router.put('/users/email/:email', userController.updateUserByEmail);
+
 module.exports = router;
 
 

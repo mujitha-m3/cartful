@@ -29,6 +29,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const userController = require('./controllers/userController');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const productDiscountRoutes = require('./routes/productDiscountRoutes');
 
 // Initialize Express
 const app = express();
@@ -69,6 +70,10 @@ app.use((req, res, next) => {
   res.locals.session = req.session;
   next();
 });
+
+
+app.use('/', productDiscountRoutes);
+
 
 // Config for Handlebars
 app.engine('handlebars', exphbs.engine({

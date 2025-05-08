@@ -1,0 +1,167 @@
+{{!-- productDiscount.handlebars --}}
+
+{{> header }}
+
+<main class="container-fluid px-5 py-4">
+  <h1 class="mb-5 text-center">Manage Product Discounts</h1>
+
+  <!-- Batch Discount Form -->
+  <section class="mb-5 p-4 border rounded bg-light">
+    <h2 class="h5 mb-4">Apply Discount to Multiple Products</h2>
+    <form id="batchUpdateDiscountForm" method="GET" action="/admin/discounts/search" class="row g-3">
+      <input type="hidden" name="category" value="{{selectedCategory}}" />
+
+      <div class="col-md-2">
+        <label for="discountType" class="form-label">Discount Type</label>
+        <select id="discountType" name="discountType" class="form-select" required>
+          <option value="percentage">Percentage (%)</option>
+          <option value="flat">Flat Amount (€)</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label for="discountValue" class="form-label">Value</label>
+        <input type="number" name="discountValue" id="discountValue" class="form-control" required />
+      </div>
+
+      <div class="col-md-2">
+        <label for="startDate" class="form-label">Start Date</label>
+        <input type="date" name="startDate" id="startDate" class="form-control" required />
+      </div>
+
+      <div class="col-md-2">
+        <label for="endDate" class="form-label">End Date</label>
+        <input type="date" name="endDate" id="endDate" class="form-control" required />
+      </div>
+
+      <div class="col-md-2">
+        <label for="applyTo" class="form-label">Apply To</label>
+        <select id="applyTo" name="applyTo" class="form-select">
+          <option value="all">All Products</option>
+          <option value="category">Selected Category</option>
+          <option value="selected">Selected Only</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label for="reason" class="form-label">Reason</label>
+        <input type="text" id="reason" name="reason" class="form-control" />
+      </div>
+
+      <div class="col-12 text-end">
+        <button type="submit" class="btn btn-primary">Apply Discount</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Filter/Search Panel -->
+  <section class="mb-4">
+    <form class="row g-3">
+      <div class="col-md-4">
+        <label for="categoryFilter" class="form-label">Filter by Category</label>
+        <select id="categoryFilter" name="category" class="form-select">
+          <option value="">-- All Categories --</option>
+          {{#each categories}}
+            <option value="{{this._id}}" {{#ifEquals ../selectedCategory this._id}}selected{{/ifEquals}}>{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label for="searchName" class="form-label">Search by Name</label>
+        <input type="text" id="searchName" name="search" class="form-control" placeholder="Enter product name...">
+      </div>
+
+      <div class="col-md-2 align-self-end">
+        <button type="submit" class="btn btn-outline-secondary w-100">Search</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Discount Table -->
+  <section>
+    <div class="table-responsive">
+      <form method="POST" action="/products/discounts">
+        <table class="table table-bordered text-center align-middle">
+          <thead class="table-light">
+            <tr>
+              <th><input type="checkbox" id="selectAll" /></th>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Discounted Price</th>
+              <th style="min-width: 160px;">Reason</th>
+              <th style="min-width: 120px;">Type</th>
+              <th style="min-width: 100px;">Value</th>
+              <th>Discount Start</th>
+              <th>Discount End</th>
+              <th>Save</th>
+              <th>Preview</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each products}}
+              <tr>
+                <td><input type="checkbox" name="selectedProducts" value="{{this._id}}" /></td>
+                <td class="text-start">{{this.name}}</td>
+                <td>€{{formatPrice this.price}}</td>
+                <td>
+                  {{#if this.discountValue}}
+                    <span class="text-success fw-bold">€{{this.discountedPrice}}</span>
+                  {{else}}--{{/if}}
+                </td>
+                <td>
+                  <input type="text" name="reason_{{this._id}}" value="{{this.reason}}" class="form-control form-control-sm" placeholder="Reason..." />
+                </td>
+                <td>
+                  <select name="type_{{this._id}}" class="form-select form-select-sm">
+                    <option value="percentage" {{#ifEquals this.discountType 'percentage'}}selected{{/ifEquals}}>Percentage (%)</option>
+                    <option value="flat" {{#ifEquals this.discountType 'flat'}}selected{{/ifEquals}}>Flat (€)</option>
+                  </select>
+                </td>
+                <td><input type="number" name="value_{{this._id}}" value="{{this.discountValue}}" class="form-control form-control-sm" /></td>
+                <td><input type="date" name="start_{{this._id}}" value="{{this.discountStart}}" class="form-control form-control-sm" /></td>
+                <td><input type="date" name="end_{{this._id}}" value="{{this.discountEnd}}" class="form-control form-control-sm" /></td>
+                <td><button class="btn btn-sm btn-success w-100">Save</button></td>
+                <td><a href="/admin/preview/{{this._id}}" target="_blank" class="btn btn-sm btn-outline-secondary w-100">🔍</a></td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+
+        <!-- Save All Button -->
+        <div class="text-end mt-3">
+          <button type="submit" class="btn btn-success">💾 Save Selected Products</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('batchUpdateDiscountForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+      const applyTo = document.getElementById('applyTo').value;
+      if (applyTo === 'selected') {
+        e.preventDefault();
+        const selected = Array.from(document.querySelectorAll('input[name="selectedProducts"]:checked'))
+          .map(cb => cb.value);
+
+        const params = new URLSearchParams(new FormData(form));
+        selected.forEach(id => params.append('selectedProducts', id));
+
+        window.location.href = form.action + '?' + params.toString();
+      }
+    });
+
+    const selectAll = document.getElementById('selectAll');
+    selectAll?.addEventListener('change', () => {
+      const checkboxes = document.querySelectorAll('input[name="selectedProducts"]');
+      checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    });
+  });
+</script>
+
+{{> footer }}

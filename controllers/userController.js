@@ -541,6 +541,28 @@ const getUserDetailsForCheckout = async (userId) => {
   }
 };
 
+const updateUserByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const updateFields = req.body;
+
+    const user = await User.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.json({ message: 'User updated successfully.', user });
+  } catch (err) {
+    console.error('Update user error:', err);
+    res.status(500).json({ message: 'Server error updating user.' });
+  }
+};
+
 
 
   module.exports = {
@@ -568,7 +590,8 @@ const getUserDetailsForCheckout = async (userId) => {
     renderProfilePage,
     getUserDetailsForCheckout,
     updateProfile,
-    updatePassword
+    updatePassword,
+    updateUserByEmail
 
 };
 
