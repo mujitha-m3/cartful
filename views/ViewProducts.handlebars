@@ -77,17 +77,14 @@
         <div class="card-body d-flex flex-column pt-0">
           <p class="card-text flex-grow-1">{{this.description}}</p>
 
-          {{#if this.discount_type}}
+          {{#if this.discounted_price}}
+            <p class="fw-bold mb-1">{{this.discounted_price}} €</p>
+            <p class="text-muted text-decoration-line-through small">{{this.price}} €</p>
             {{#if (eq this.discount_type "percentage")}}
               <p class="text-danger mb-1">-{{this.discount_value}}% Off</p>
-            {{else if (eq this.discount_type "fixed")}}
+            {{else if (eq this.discount_type "flat")}}
               <p class="text-danger mb-1">-{{this.discount_value}} € Off</p>
             {{/if}}
-          {{/if}}
-
-          {{#if this.original_price}}
-            <p class="fw-bold mb-1">{{this.finalPrice}} €</p>
-            <p class="text-muted text-decoration-line-through small">{{this.original_price}} €</p>
           {{else}}
             <p class="fw-bold mb-1">{{this.price}} €</p>
           {{/if}}

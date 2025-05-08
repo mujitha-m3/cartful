@@ -86,6 +86,24 @@ const viewProducts = async (req, res) => {
   }
 };
 
+// Add this near the top with other controller functions
+const getDiscountedProducts = async () => {
+  try {
+    const products = await Product.findDiscountedProducts();
+    return products.map(product => ({
+      ...product._doc,
+      finalPrice: calculateDiscountPrice(product.price, {
+        type: product.discount_type,
+        value: product.discount_value
+      }),
+      hasDiscount: true
+    }));
+  } catch (err) {
+    console.error('Error fetching discounted products:', err);
+    return [];
+  }
+};
+
 // Modify the viewProductDetails function to include reviews
 const viewProductDetails = async (req, res) => {
   try {
