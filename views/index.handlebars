@@ -1,3 +1,10 @@
+<!-- In <head> -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+<!-- Before </body> -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+
 <!-- Hero Section -->
 <section class="hero-section text-center py-5">
   <div class="container">
@@ -11,70 +18,60 @@
 <section class="categories-section py-5">
   <div class="container">
     <h2 class="text-center mb-4">Browse Categories</h2>
-    <div class="row">
-      {{#each categories}}
-      <div class="col-md-4 mb-4">
-        <div class="card category-card h-100">
-          <div class="card-body text-center">
-            <h3 class="card-title">{{this.name}}</h3>
-            <p class="card-text">Explore top items in {{this.name}} category</p>
-            <a href="/categories/{{this._id}}" class="btn btn-outline-primary">View Products</a>
+    <div class="swiper categories-swiper">
+      <div class="swiper-wrapper">
+        {{#each categories}}
+        <div class="swiper-slide">
+          <div class="card category-card h-100">
+            <div class="card-body text-center">
+              <h3 class="card-title">{{this.name}}</h3>
+              <p class="card-text">Explore top items in {{this.name}} category</p>
+              <a href="/products/viewproducts?category={{this._id}}" class="btn btn-outline-primary">View Products</a>
+            </div>
           </div>
         </div>
-      </div>
-      {{/each}}
+        {{/each}}
 
-      {{^categories}}
-      <div class="col-md-4 mb-4">
-        <div class="card category-card h-100">
-          <div class="card-body text-center">
-            <h3 class="card-title">Electronics</h3>
-            <p class="card-text">Explore top items in Electronics category</p>
-            <a href="/categories/sample-id" class="btn btn-outline-primary">View Products</a>
+        {{^categories}}
+        <!-- Default categories (same layout, repeated) -->
+        <div class="swiper-slide">
+          <div class="card category-card h-100">
+            <div class="card-body text-center">
+              <h3 class="card-title">Electronics</h3>
+              <p class="card-text">Explore top items in Electronics category</p>
+              <a href="/categories/sample-id" class="btn btn-outline-primary">View Products</a>
+            </div>
           </div>
         </div>
+        <!-- Add Fashion & Home & Kitchen similarly -->
+        {{/categories}}
       </div>
-      <div class="col-md-4 mb-4">
-        <div class="card category-card h-100">
-          <div class="card-body text-center">
-            <h3 class="card-title">Fashion</h3>
-            <p class="card-text">Explore top items in Fashion category</p>
-            <a href="/categories/sample-id" class="btn btn-outline-primary">View Products</a>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 mb-4">
-        <div class="card category-card h-100">
-          <div class="card-body text-center">
-            <h3 class="card-title">Home & Kitchen</h3>
-            <p class="card-text">Explore top items in Home & Kitchen category</p>
-            <a href="/categories/sample-id" class="btn btn-outline-primary">View Products</a>
-          </div>
-        </div>
-      </div>
-      {{/categories}}
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
     </div>
   </div>
 </section>
+
 
 <!-- Featured Products Section -->
 <section class="products-section py-5 bg-light">
   <div class="container">
     <h2 class="text-center mb-4">Featured Products</h2>
-    <div class="row">
-      {{#each products}}
-      <div class="col-md-4 mb-4">
-        <div class="card product-card h-100">
-          {{#if this.image_url}}
-          <img src="{{this.image_url}}" class="card-img-top" alt="{{this.alt_text}}" style="height: 200px; object-fit: contain;">
-          {{else}}
-          <img src="/images/default-product.png" class="card-img-top" alt="Default product image" style="height: 200px; object-fit: contain;">
-          {{/if}}
-          <div class="card-body text-center">
-            <h3 class="card-title">{{this.name}}</h3>
-            <p class="card-text">€{{this.price}}</p>
-            <p class="card-text">{{this.description}}</p>
-            <div class="product-actions">
+    <div class="swiper products-swiper">
+      <div class="swiper-wrapper">
+        {{#each products}}
+        <div class="swiper-slide">
+          <div class="card product-card h-100">
+            {{#if this.image_url}}
+            <img src="{{this.image_url}}" class="card-img-top" alt="{{this.alt_text}}" style="height: 200px; object-fit: contain;">
+            {{else}}
+            <img src="/images/default-product.png" class="card-img-top" alt="Default product image" style="height: 200px; object-fit: contain;">
+            {{/if}}
+            <div class="card-body text-center">
+              <h3 class="card-title">{{this.name}}</h3>
+              <p class="card-text">€{{this.price}}</p>
+              <p class="card-text">{{this.description}}</p>
               <form method="POST" action="/cart/add" class="add-to-cart-form">
                 <input type="hidden" name="product_id" value="{{this._id}}" />
                 <input type="number" name="quantity" value="1" min="1" required class="quantity-input" style="width: 196px;" />
@@ -86,11 +83,15 @@
             </div>
           </div>
         </div>
+        {{/each}}
       </div>
-      {{/each}}
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
     </div>
   </div>
 </section>
+
 
 
 
@@ -132,3 +133,40 @@
 </script>
 {{/if}}
 
+<script>
+  new Swiper('.categories-swiper', {
+    slidesPerView: 1,
+    spaceBetween: 20,
+    loop: true,
+    navigation: {
+      nextEl: '.categories-section .swiper-button-next',
+      prevEl: '.categories-section .swiper-button-prev',
+    },
+    pagination: {
+      el: '.categories-section .swiper-pagination',
+      clickable: true,
+    },
+    breakpoints: {
+      768: { slidesPerView: 2 },
+      992: { slidesPerView: 3 }
+    }
+  });
+
+  new Swiper('.products-swiper', {
+    slidesPerView: 1,
+    spaceBetween: 20,
+    loop: true,
+    navigation: {
+      nextEl: '.products-section .swiper-button-next',
+      prevEl: '.products-section .swiper-button-prev',
+    },
+    pagination: {
+      el: '.products-section .swiper-pagination',
+      clickable: true,
+    },
+    breakpoints: {
+      768: { slidesPerView: 2 },
+      992: { slidesPerView: 3 }
+    }
+  });
+</script>
