@@ -45,5 +45,15 @@ module.exports = {
   },
   eq: (a, b) => a === b,
   json: (context) => JSON.stringify(context),
-  inc: (v) => parseInt(v, 10) + 1
+  inc: (v) => parseInt(v, 10) + 1,
+  formatDateTime: function(date) {
+    return new Date(date).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  }
 };
