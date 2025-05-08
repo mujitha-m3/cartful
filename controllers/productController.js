@@ -121,7 +121,10 @@ const viewProductDetails = async (req, res) => {
       return res.redirect('/products/viewproducts');
     }
 
-    const finalPrice = calculateDiscountPrice(product.price, product.discount);
+    // Calculate final price - use discounted_price if it exists, otherwise calculate
+    const finalPrice = product.discounted_price 
+      ? product.discounted_price 
+      : calculateDiscountPrice(product.price, product.discount);
     
     // Calculate average rating
     let averageRating = 0;
@@ -137,11 +140,13 @@ const viewProductDetails = async (req, res) => {
       ...product._doc,
       price: finalPrice,
       original_price: product.price,
+      discounted_price: product.discounted_price,
       image: product.image_url,
       stock: product.stock,
       averageRating: averageRating.toFixed(1),
       reviews: product.reviews || [], // Ensure reviews array exists
-      reviewsCount: reviewsCount      // Add explicit reviews count
+      reviewsCount: reviewsCount,      // Add explicit reviews count
+      hasDiscount: product.discount?.value > 0 || product.discounted_price !== null
     };
 
     res.render('productDetails', {
@@ -155,6 +160,8 @@ const viewProductDetails = async (req, res) => {
     console.log('Product details loaded:', {
       id: product._id,
       name: product.name,
+      price: finalPrice,
+      original_price: product.price,
       reviewsCount: productForTemplate.reviews.length,
       averageRating: productForTemplate.averageRating
     });
