@@ -40,6 +40,10 @@ header {
   z-index: 1000;
 }
 
+.dropdown-toggle::after {
+  display: none !important;
+}
+
 .navbar {
   padding: 1rem 2rem;
   display: flex;
