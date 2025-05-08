@@ -1,0 +1,37 @@
+{{! views/orderHistory.handlebars }}
+{{> header}}
+
+<main class="container py-4">
+  <h1 class="mb-4">Order History</h1>
+
+  {{#if orders.length}}
+    {{#each orders}}
+      <div class="card mb-4">
+        <div class="card-header">
+          <strong>Order #{{inc @index}}</strong>
+          <small class="text-muted">{{formatDate this.createdAt}}</small>
+          <span class="badge bg-secondary float-end">{{this.order_status}}</span>
+        </div>
+        <div class="card-body">
+          <p><strong>Total:</strong> ${{calculateTotal this.items}}</p>
+          <p><strong>Payment:</strong> {{this.payment_method}} ({{this.payment_status}})</p>
+          <p><strong>Shipping:</strong> {{this.shipping_address.line1}}, {{this.shipping_address.city}}, {{this.shipping_address.country}}</p>
+          <h6>Items:</h6>
+          <ul>
+            {{#each this.items}}
+              <li>{{this.name}} &times; {{this.quantity}} — ${{this.total_price}}</li>
+            {{/each}}
+          </ul>
+        </div>
+      </div>
+    {{/each}}
+  {{else}}
+    <div class="alert alert-info">
+      You have not placed any orders yet.
+    </div>
+  {{/if}}
+
+  <a href="/profile" class="btn btn-outline-secondary">Back to Profile</a>
+</main>
+
+{{> footer}}

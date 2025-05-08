@@ -1,17 +1,17 @@
-  const User = require('../models/User');
-  const Country = require('../models/Country');
-  const crypto = require('crypto');
-  require('dotenv').config();
-  const sendVerificationEmail = require('./emailController');
-  const passport = require('passport');
-  const mongoose = require('mongoose');
+const User = require('../models/User');
+const Country = require('../models/Country');
+const crypto = require('crypto');
+require('dotenv').config();
+const sendVerificationEmail = require('./emailController');
+const passport = require('passport');
+const mongoose = require('mongoose');
 
-  const getVerificationCode = (email) => {
-    const randomCode = crypto.randomInt(1000, 9999).toString();
-    const emailPrefix = email.trim().substring(0, 3);
-    const verificationCode = randomCode + emailPrefix;
-    console.log(" from method getVerificationCode Generated code:", verificationCode); //log
-    return verificationCode;
+const getVerificationCode = (email) => {
+  const randomCode = crypto.randomInt(1000, 9999).toString();
+  const emailPrefix = email.trim().substring(0, 3);
+  const verificationCode = randomCode + emailPrefix;
+  console.log(" from method getVerificationCode Generated code:", verificationCode); //log
+  return verificationCode;
 };
 
 const registerNewUser = async (req, res) => {
@@ -56,111 +56,138 @@ const registerNewUser = async (req, res) => {
   }
 };
 
+// controllers/userController.js
+const Order = require('../models/Order');
+const OrderProduct = require('../models/OrderProduct');
+
+async function renderOrderHistory(req, res) {
+  const userId = req.user._id;
+  // get all orders, newest first
+  const orders = await Order.find({ user_id: userId })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  // attach line-items & compute totals
+  for (let ord of orders) {
+    const items = await OrderProduct
+      .find({ order_id: ord._id })
+      .populate('product_id', 'name')
+      .lean();
+    ord.items = items.map(i => ({
+      name: i.product_id.name,
+      quantity: i.quantity,
+      unit_price: i.unit_price,
+      total_price: i.total_price
+    }));
+  }  
+  res.render('orderHistory', { orders, user: req.user });
+}
+
+module.exports.renderOrderHistory = renderOrderHistory;
 
   // verifyEmailVerificationCode: redirects to createPassword view on success
-const verifyEmailVerificationCode = async (req, res) => {
-  const { email, verificationCode } = req.body;
-  console.log("verifyEmailVerificationCode Incoming:", { email, verificationCode });
+  const verifyEmailVerificationCode = async (req, res) => {
+    const { email, verificationCode } = req.body;
+    console.log("verifyEmailVerificationCode Incoming:", { email, verificationCode });
 
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      console.log("User not found:", { email });
-      return res.status(404).render('verifyEmail', { errorMessage: "User not registered or wrong email." });
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        console.log("User not found:", { email });
+        return res.status(404).render('verifyEmail', { errorMessage: "User not registered or wrong email." });
+      }
+
+      const systemVerificationCode = user.verificationGeneratedBySystem;
+      if (systemVerificationCode === verificationCode) {
+        console.log("Verification code match for:", email);
+        user.emailVerified = true;
+        user.isActive = true;
+        user.verificationGeneratedBySystem = null;
+        await user.save();
+
+        return res.render('createPassword', { email });
+      } else {
+        console.log("Verification code mismatch.");
+        return res.status(400).render('createPassword', { errorMessage: "Invalid verification code. Please try again." });
+      }
+    } catch (error) {
+      console.error("Error verifying email:", error);
+      res.status(500).render('createPassword', { errorMessage: "Server error during verification." });
     }
+  };
 
-    const systemVerificationCode = user.verificationGeneratedBySystem;
-    if (systemVerificationCode === verificationCode) {
-      console.log("Verification code match for:", email);
-      user.emailVerified = true;
-      user.isActive = true;
-      user.verificationGeneratedBySystem = null;
-      await user.save();
-
-      return res.render('createPassword', { email });
-    } else {
-      console.log("Verification code mismatch.");
-      return res.status(400).render('createPassword', { errorMessage: "Invalid verification code. Please try again." });
+  const renderRegisterPage = async (req, res) => {
+    try {
+      /*   const countries = await Country.find({ isActive: true }).sort({ name: 1 });
+        console.log("countries check:", countries); 
+        res.render('userRegister', { countries });// looding Coutries*/  // commented since not required anymore for iniintal user creation
+      res.render('userRegister');
+    } catch (error) {
+      console.error('Error loading registration page:', error);
+      res.status(500).send('Failed to load registration form.');
     }
-  } catch (error) {
-    console.error("Error verifying email:", error);
-    res.status(500).render('createPassword', { errorMessage: "Server error during verification." });
-  }
-};
-  
-const renderRegisterPage = async (req, res) => {
-  try {
- /*   const countries = await Country.find({ isActive: true }).sort({ name: 1 });
-   console.log("countries check:", countries); 
-   res.render('userRegister', { countries });// looding Coutries*/  // commented since not required anymore for iniintal user creation
-    res.render('userRegister');
-  } catch (error) {
-    console.error('Error loading registration page:', error);
-    res.status(500).send('Failed to load registration form.');
-  }
-};  // commented after having discused with team not requried for intial resitation
+  };  // commented after having discused with team not requried for intial resitation
 
 
   const renderVerificationPage = (req, res) => {
-   // const reqUserID =  req.query.userId;
-  //console.log("Rendering email verification form for userId:",reqUserID );
-  res.render('verifyEmail');
+    // const reqUserID =  req.query.userId;
+    //console.log("Rendering email verification form for userId:",reqUserID );
+    res.render('verifyEmail');
   };
-  
-const resendVerificationCode = async (req, res) => {
-  const { email, fullName } = req.body;
-  console.log("resendVerificationCode Request to resend code to:", { email }); 
 
-  try {
-      const user = await User.findOne({ email: email});
+  const resendVerificationCode = async (req, res) => {
+    const { email, fullName } = req.body;
+    console.log("resendVerificationCode Request to resend code to:", { email });
+
+    try {
+      const user = await User.findOne({ email: email });
       if (!user) {
-          console.log("resendVerificationCode User not found for email ", email, fullName);
-          return res.status(404).json({ message: "User not registered or full name/email mismatch." });
+        console.log("resendVerificationCode User not found for email ", email, fullName);
+        return res.status(404).json({ message: "User not registered or full name/email mismatch." });
       }
       const verificationCode = getVerificationCode(email);
       user.verificationGeneratedBySystem = verificationCode;
       console.log("resendVerificationCode given by the system ", verificationGeneratedBySystem);
       await user.save();
-      sendVerificationEmail(email, user.fullName, verificationCode,newUser._id);
-      console.log("resendVerificationCode New verification code sent to:", email); 
+      sendVerificationEmail(email, user.fullName, verificationCode, newUser._id);
+      console.log("resendVerificationCode New verification code sent to:", email);
       res.status(200).json({ message: "Verification code resent successfully." });
-  } 
-  catch (error) 
-  {
+    }
+    catch (error) {
       console.error("resendVerificationCode Error:", error);
       res.status(500).json({ message: "Error resending verification code." });
-  }
-};
-
-
-
-// Update User Profile
-const updateProfile = async (req, res) => {
-  const { firstname, lastname, phone } = req.body;
-  console.log("updateProfile for logged-in user:", req.user._id);
-
-  try {
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
     }
+  };
 
-    if (firstname) user.firstName = firstname;
-    if (lastname) user.lastName = lastname;
-    if (firstname || lastname) {
-      user.fullName = `${user.firstName} ${user.lastName}`;
+
+
+  // Update User Profile
+  const updateProfile = async (req, res) => {
+    const { firstname, lastname, phone } = req.body;
+    console.log("updateProfile for logged-in user:", req.user._id);
+
+    try {
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+
+      if (firstname) user.firstName = firstname;
+      if (lastname) user.lastName = lastname;
+      if (firstname || lastname) {
+        user.fullName = `${user.firstName} ${user.lastName}`;
+      }
+      if (phone) user.phone = phone;
+
+      await user.save();
+      req.flash('success_msg', 'Profile updated successfully.');
+      res.redirect('/account/settings');
+    } catch (error) {
+      console.error("updateProfile Error:", error);
+      req.flash('error_msg', 'Failed to update profile.');
+      res.redirect('/account/settings');
     }
-    if (phone) user.phone = phone;
-
-    await user.save();
-    req.flash('success_msg', 'Profile updated successfully.');
-    res.redirect('/account/settings');
-  } catch (error) {
-    console.error("updateProfile Error:", error);
-    req.flash('error_msg', 'Failed to update profile.');
-    res.redirect('/account/settings');
-  }
-};
+  };
 
   // Update Password
   const updatePassword = async (req, res) => {
@@ -205,363 +232,363 @@ const updateProfile = async (req, res) => {
     }
   };
 
-// Delete User
-const deleteUser = async (req, res) => {
-  const { id, email, fullName } = req.body;
-  console.log("deleteUser Deleting user based on:", { id, email, fullName });
+  // Delete User
+  const deleteUser = async (req, res) => {
+    const { id, email, fullName } = req.body;
+    console.log("deleteUser Deleting user based on:", { id, email, fullName });
 
-  let searchCriteria = null;
-  if (id) searchCriteria = { _id: id };
-  else if (email) searchCriteria = { email };
-  else if (fullName) searchCriteria = { fullName };
-  else {
+    let searchCriteria = null;
+    if (id) searchCriteria = { _id: id };
+    else if (email) searchCriteria = { email };
+    else if (fullName) searchCriteria = { fullName };
+    else {
       return res.status(400).json({ message: 'Provide id, email, or fullName to delete.' });
-  }
+    }
 
-  try {
+    try {
       const user = await User.findOne(searchCriteria);
       if (!user) {
-          return res.status(404).json({ message: 'User not found.' });
+        return res.status(404).json({ message: 'User not found.' });
       }
 
       await User.deleteOne(searchCriteria);
       console.log("deleteUser User deleted.");
       res.status(200).json({ message: 'User deleted successfully!' });
 
-  } catch (error) {
+    } catch (error) {
       console.error("deleteUser Error:", error);
       res.status(500).json({ message: 'Failed to delete user.' });
-  }
-};
+    }
+  };
 
-const deleteAllUserbyEmail = async (req, res) => {
-  const { email } = req.body;
+  const deleteAllUserbyEmail = async (req, res) => {
+    const { email } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ message: 'Provide email to delete.' });
-  }
-
-  try {
-    const result = await User.deleteMany({ email });
-
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ message: 'No users found to delete.' });
+    if (!email) {
+      return res.status(400).json({ message: 'Provide email to delete.' });
     }
 
-    res.status(200).json({ message: `${result.deletedCount} user(s) deleted successfully.` });
-  } catch (error) {
-    console.error("deleteAllUserbyEmail Error:", error);
-    res.status(500).json({ message: 'canot to delete users.' });
-  }
-};
+    try {
+      const result = await User.deleteMany({ email });
 
-//loginUser methods
-
-const userLogin = async (req, res) =>{
-  res.render('login');
-};
-
-const loginUser = (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
-    if (err) {
-      console.error(' Error:', err);
-      return res.status(500).json({ message: 'Server error during login.' });
-    }
-
-    if (!user) {
-      console.log('Login API Login failed:', info.message);
-      return res.status(401).json({ message: info.message || 'Login failed.' });
-    }
-
-  
-    req.logIn(user, (err) => {
-      if (err) {
-        console.error('Login API Login error:', err);
-        return res.status(500).json({ message: 'Login failed. Please try again.' });
+      if (result.deletedCount === 0) {
+        return res.status(404).json({ message: 'No users found to delete.' });
       }
 
-      console.log('Login API Login successful for:', user.email);
-      //return res.status(200).json({ message: 'Login successful!', userId: user._id });
-      req.flash('success_msg', 'Login successful!');
-      return res.redirect('/');
-    });
-  })(req, res, next);
-};
-
-
-const requireLogin = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  req.flash('error_msg', 'Please log in to continue');
-  return res.redirect('/login');
-};
-
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find();
-    console.log("getAllUsers Found users:", users.length);
-    res.status(200).json(users);
-  } catch (error) {
-    console.error("getAllUsers Error:", error);
-    res.status(500).json({ message: "Failed to fetch users." });
-  }
-};
-//specific user by ID ---
-const getUserById = async (req, res) => {
-  const { id } = req.params;
-  console.log("getUserById Finding user with ID:", id);
-
-  try {
-    const user = await User.findById(id);
-    if (!user) {
-      console.log("getUserById User not found:", id);
-      return res.status(404).json({ message: "User not found." });
+      res.status(200).json({ message: `${result.deletedCount} user(s) deleted successfully.` });
+    } catch (error) {
+      console.error("deleteAllUserbyEmail Error:", error);
+      res.status(500).json({ message: 'canot to delete users.' });
     }
-    res.status(200).json(user);
-  } catch (error) {
-    console.error("getUserById Error:", error);
-    res.status(500).json({ message: "Failed to fetch user." });
-  }
-};
+  };
 
-const findUserByEmail = async (req, res) => {
-  const { email } = req.params;
-  console.log("findUserByEmail Searching for user with email:", email);
+  //loginUser methods
 
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      console.log("findUserByEmail User not found:", email);
-      return res.status(404).json({ message: "User not found." });
-    }
-    res.status(200).json(user);
-  } catch (error) {
-    console.error("get UserByEmail Error:", error);
-    res.status(500).json({ message: "Failed to fetch user." });
-  }
-};
+  const userLogin = async (req, res) => {
+    res.render('login');
+  };
 
-const findAllUsersByEmail = async (req, res) => {
-  const { email } = req.params;
-  console.log("findUsersByEmail Searching for users with email:", email);
-
-  try {
-    const users = await User.find({ email });
-    if (!users || users.length === 0) {
-      console.log("findUsersByEmail No users found:", email);
-      return res.status(404).json({ message: "No users found." });
-    }
-    res.status(200).json(users);
-  } catch (error) {
-    console.error("get UsersByEmail Error:", error);
-    res.status(500).json({ message: "Failed to fetch users." });
-    
-  }
-};
-
-
-const findUserByEmailforPassportHelp = async (email) => {
-  try {
-    const user = await User.findOne({ email });
-    return user;
-  } catch (err) {
-    console.error('erro from the  method findUserByEmailInternal] Error:', err);
-    throw err;
-  }
-};
-
-
-
-// Find user by id this ia helper methods 
-const findUserByIdForPassportHelper = async (id) => {
-  try {
-    const user = await User.findById(id);
-    return user;
-  } catch (err) {
-    console.error('Error from findUserByIdInternal  Error:', err);
-    throw err;
-  }
-};
-const logout = (req, res) => {
-  console.log("logout Logging out user"); 
-  req.logout((err) => {
+  const loginUser = (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
       if (err) {
-          console.error('Logout error:', err);
+        console.error(' Error:', err);
+        return res.status(500).json({ message: 'Server error during login.' });
+      }
+
+      if (!user) {
+        console.log('Login API Login failed:', info.message);
+        return res.status(401).json({ message: info.message || 'Login failed.' });
+      }
+
+
+      req.logIn(user, (err) => {
+        if (err) {
+          console.error('Login API Login error:', err);
+          return res.status(500).json({ message: 'Login failed. Please try again.' });
+        }
+
+        console.log('Login API Login successful for:', user.email);
+        //return res.status(200).json({ message: 'Login successful!', userId: user._id });
+        req.flash('success_msg', 'Login successful!');
+        return res.redirect('/');
+      });
+    })(req, res, next);
+  };
+
+
+  const requireLogin = (req, res, next) => {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    req.flash('error_msg', 'Please log in to continue');
+    return res.redirect('/login');
+  };
+
+  const getAllUsers = async (req, res) => {
+    try {
+      const users = await User.find();
+      console.log("getAllUsers Found users:", users.length);
+      res.status(200).json(users);
+    } catch (error) {
+      console.error("getAllUsers Error:", error);
+      res.status(500).json({ message: "Failed to fetch users." });
+    }
+  };
+  //specific user by ID ---
+  const getUserById = async (req, res) => {
+    const { id } = req.params;
+    console.log("getUserById Finding user with ID:", id);
+
+    try {
+      const user = await User.findById(id);
+      if (!user) {
+        console.log("getUserById User not found:", id);
+        return res.status(404).json({ message: "User not found." });
+      }
+      res.status(200).json(user);
+    } catch (error) {
+      console.error("getUserById Error:", error);
+      res.status(500).json({ message: "Failed to fetch user." });
+    }
+  };
+
+  const findUserByEmail = async (req, res) => {
+    const { email } = req.params;
+    console.log("findUserByEmail Searching for user with email:", email);
+
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        console.log("findUserByEmail User not found:", email);
+        return res.status(404).json({ message: "User not found." });
+      }
+      res.status(200).json(user);
+    } catch (error) {
+      console.error("get UserByEmail Error:", error);
+      res.status(500).json({ message: "Failed to fetch user." });
+    }
+  };
+
+  const findAllUsersByEmail = async (req, res) => {
+    const { email } = req.params;
+    console.log("findUsersByEmail Searching for users with email:", email);
+
+    try {
+      const users = await User.find({ email });
+      if (!users || users.length === 0) {
+        console.log("findUsersByEmail No users found:", email);
+        return res.status(404).json({ message: "No users found." });
+      }
+      res.status(200).json(users);
+    } catch (error) {
+      console.error("get UsersByEmail Error:", error);
+      res.status(500).json({ message: "Failed to fetch users." });
+
+    }
+  };
+
+
+  const findUserByEmailforPassportHelp = async (email) => {
+    try {
+      const user = await User.findOne({ email });
+      return user;
+    } catch (err) {
+      console.error('erro from the  method findUserByEmailInternal] Error:', err);
+      throw err;
+    }
+  };
+
+
+
+  // Find user by id this ia helper methods 
+  const findUserByIdForPassportHelper = async (id) => {
+    try {
+      const user = await User.findById(id);
+      return user;
+    } catch (err) {
+      console.error('Error from findUserByIdInternal  Error:', err);
+      throw err;
+    }
+  };
+  const logout = (req, res) => {
+    console.log("logout Logging out user");
+    req.logout((err) => {
+      if (err) {
+        console.error('Logout error:', err);
       }
       res.redirect('/');  // Redirect to homepage or login page
-  });
-};
-
-// createPassword
-const createPassword = async (req, res) => {
-  const { email, password, confirmPassword } = req.body;
-
-  try {
-    if (password !== confirmPassword) {
-      return res.status(400).render('createPassword', {
-        errorMessage: "Passwords do not match.",
-        email
-      });
-    }
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).render('createPassword', { errorMessage: "User not found." });
-    }
-
-    user.password = password; 
-    await user.save();
-    console.log('Password created successfully for:', user.email);
-    req.flash('success_msg', 'Your password was created. You can now log in.');
-    return res.redirect('/login');
-
-  } catch (error) {
-    console.error('Error creating password:', error);
-    res.status(500).render('createPassword', { errorMessage: "Failed to set password." });
-  }
-
-  
-};
-
-const renderForgotPasswordForm = async (req, res) =>{
-  res.render('forgotPassword');
-};
-
-
-const forgotPasswordSendCode = async (req, res) => {
-  const { email } = req.body;
-  console.log("Email received:", email);
-
-  try {
-    const user = await User.findOne({ email: email.toLowerCase() });
-    console.log("Search Query Executed");
-
-    if (user && user.isActive) {
-      const verificationCode = getVerificationCode(email);
-      user.verificationGeneratedBySystem = verificationCode;
-      await user.save();
-      console.log("Verification code saved to user");
-
-      const fullName = user.fullName;
-      console.log("Send Verification Email Method Called");
-      await sendVerificationEmail(email, fullName, verificationCode, user._id);
-
-      return res.status(200).render('forgotPassword', {
-        successMessage: "Verification Code sent to your email.",
-      });
-    } else {
-      console.log("Invalid or inactive user");
-      return res.status(400).render('forgotPassword', {
-        errorMessage: "Please use a valid registered email address.",
-      });
-    }
-  } catch (err) {
-    console.error("forgotPasswordSendCode error:", err);
-    return res.status(500).render('forgotPassword', {
-      errorMessage: "An error occurred. Please try again later.",
     });
-  }
-};
+  };
 
-const createGoogleUser = async (profile) => {
-  try {
-    const { displayName, emails, photos } = profile;
-    const email = emails[0].value;
+  // createPassword
+  const createPassword = async (req, res) => {
+    const { email, password, confirmPassword } = req.body;
 
-    const newUser = new User({
-      fullName: displayName,
-      email: email,
-      profileImage: photos[0].value,
-      isActive: true,
-      emailVerified: true
-    });
-
-    await newUser.save();
-    console.log('createGoogleUser: New user created via Google:', email);
-    return newUser;
-
-  } catch (err) {
-    console.error('createGoogleUser Error:', err);
-    throw err;
-  }
-};
-
-const renderProfilePage = async (req, res) => {
-  try {
-    const user = req.user;
-
-    // Step 1: Find the wishlist for this user
-    const wishlist = await Wishlist.findOne({ user_id: user._id });
-
-    // Step 2: Count wishlist items
-    let wishlistCount = 0;
-    if (wishlist) {
-      wishlistCount = await WishlistItem.countDocuments({ wishlist_id: wishlist._id });
-    }
-
-    res.render('profile', {
-      user,
-      wishlistCount
-    });
-  } catch (err) {
-    console.error('renderProfilePage Error:', err);
-    res.status(500).send('Error loading profile');
-  }
-};
-
-const getUserDetailsForCheckout = async (userId) => {
-  try {
-    const user = await User.findById(userId);
-    if (!user) return null;
-
-    return {
-      first_name: user.firstName || '',
-      last_name: user.lastName || '',
-      email: user.email || '',
-      phone: user.phone || '',
-      shipping_address: {
-        line1: user.addressLine1 || '',
-        line2: user.addressLine2 || '',
-        city: user.city || '',
-        postal: user.postalCode || '',
-        country: user.country || ''
-      },
-      billing_address: {
-        line1: user.addressLine1 || '',
-        line2: user.addressLine2 || '',
-        city: user.city || '',
-        postal: user.postalCode || '',
-        country: user.country || ''
+    try {
+      if (password !== confirmPassword) {
+        return res.status(400).render('createPassword', {
+          errorMessage: "Passwords do not match.",
+          email
+        });
       }
-    };
-  } catch (err) {
-    console.error('getUserDetailsForCheckout Error:', err);
-    return null;
-  }
-};
 
-const updateUserByEmail = async (req, res) => {
-  try {
-    const { email } = req.params;
-    const updateFields = req.body;
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).render('createPassword', { errorMessage: "User not found." });
+      }
 
-    const user = await User.findOneAndUpdate(
-      { email: email.toLowerCase() },
-      { $set: updateFields },
-      { new: true, runValidators: true }
-    );
+      user.password = password;
+      await user.save();
+      console.log('Password created successfully for:', user.email);
+      req.flash('success_msg', 'Your password was created. You can now log in.');
+      return res.redirect('/login');
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+    } catch (error) {
+      console.error('Error creating password:', error);
+      res.status(500).render('createPassword', { errorMessage: "Failed to set password." });
     }
 
-    res.json({ message: 'User updated successfully.', user });
-  } catch (err) {
-    console.error('Update user error:', err);
-    res.status(500).json({ message: 'Server error updating user.' });
-  }
-};
+
+  };
+
+  const renderForgotPasswordForm = async (req, res) => {
+    res.render('forgotPassword');
+  };
+
+
+  const forgotPasswordSendCode = async (req, res) => {
+    const { email } = req.body;
+    console.log("Email received:", email);
+
+    try {
+      const user = await User.findOne({ email: email.toLowerCase() });
+      console.log("Search Query Executed");
+
+      if (user && user.isActive) {
+        const verificationCode = getVerificationCode(email);
+        user.verificationGeneratedBySystem = verificationCode;
+        await user.save();
+        console.log("Verification code saved to user");
+
+        const fullName = user.fullName;
+        console.log("Send Verification Email Method Called");
+        await sendVerificationEmail(email, fullName, verificationCode, user._id);
+
+        return res.status(200).render('forgotPassword', {
+          successMessage: "Verification Code sent to your email.",
+        });
+      } else {
+        console.log("Invalid or inactive user");
+        return res.status(400).render('forgotPassword', {
+          errorMessage: "Please use a valid registered email address.",
+        });
+      }
+    } catch (err) {
+      console.error("forgotPasswordSendCode error:", err);
+      return res.status(500).render('forgotPassword', {
+        errorMessage: "An error occurred. Please try again later.",
+      });
+    }
+  };
+
+  const createGoogleUser = async (profile) => {
+    try {
+      const { displayName, emails, photos } = profile;
+      const email = emails[0].value;
+
+      const newUser = new User({
+        fullName: displayName,
+        email: email,
+        profileImage: photos[0].value,
+        isActive: true,
+        emailVerified: true
+      });
+
+      await newUser.save();
+      console.log('createGoogleUser: New user created via Google:', email);
+      return newUser;
+
+    } catch (err) {
+      console.error('createGoogleUser Error:', err);
+      throw err;
+    }
+  };
+
+  const renderProfilePage = async (req, res) => {
+    try {
+      const user = req.user;
+
+      // Step 1: Find the wishlist for this user
+      const wishlist = await Wishlist.findOne({ user_id: user._id });
+
+      // Step 2: Count wishlist items
+      let wishlistCount = 0;
+      if (wishlist) {
+        wishlistCount = await WishlistItem.countDocuments({ wishlist_id: wishlist._id });
+      }
+
+      res.render('profile', {
+        user,
+        wishlistCount
+      });
+    } catch (err) {
+      console.error('renderProfilePage Error:', err);
+      res.status(500).send('Error loading profile');
+    }
+  };
+
+  const getUserDetailsForCheckout = async (userId) => {
+    try {
+      const user = await User.findById(userId);
+      if (!user) return null;
+
+      return {
+        first_name: user.firstName || '',
+        last_name: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        shipping_address: {
+          line1: user.addressLine1 || '',
+          line2: user.addressLine2 || '',
+          city: user.city || '',
+          postal: user.postalCode || '',
+          country: user.country || ''
+        },
+        billing_address: {
+          line1: user.addressLine1 || '',
+          line2: user.addressLine2 || '',
+          city: user.city || '',
+          postal: user.postalCode || '',
+          country: user.country || ''
+        }
+      };
+    } catch (err) {
+      console.error('getUserDetailsForCheckout Error:', err);
+      return null;
+    }
+  };
+
+  const updateUserByEmail = async (req, res) => {
+    try {
+      const { email } = req.params;
+      const updateFields = req.body;
+
+      const user = await User.findOneAndUpdate(
+        { email: email.toLowerCase() },
+        { $set: updateFields },
+        { new: true, runValidators: true }
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+
+      res.json({ message: 'User updated successfully.', user });
+    } catch (err) {
+      console.error('Update user error:', err);
+      res.status(500).json({ message: 'Server error updating user.' });
+    }
+  };
 
 
 
@@ -591,9 +618,8 @@ const updateUserByEmail = async (req, res) => {
     getUserDetailsForCheckout,
     updateProfile,
     updatePassword,
-    updateUserByEmail
+    updateUserByEmail,
+    renderOrderHistory
+  };
 
-};
 
-
-  

@@ -82,9 +82,9 @@ router.post('/logout', (req, res) => {
 
 router.get('/forgotPassword', userController.renderForgotPasswordForm);
 //router.post('/api/forgotPasswordSendCode',userController.forgotPasswordSendCode);
-router.post('/api/forgotPasswordSendCode',(req,res)=>{
+router.post('/api/forgotPasswordSendCode', (req, res) => {
   console.log('router forgot Password /api/forgotPasswordSendCode method called');
-  userController.forgotPasswordSendCode(req,res);
+  userController.forgotPasswordSendCode(req, res);
 });
 // Profile Management
 router.patch('/api/users/profile', ensureAuthenticated, userController.updateProfile);
@@ -99,6 +99,10 @@ router.get('/api/users/email/:email', (req, res) => {
   userController.findUserByEmail(req, res);
 });
 
+
+
+// show order‐history
+router.get('/orders-history', ensureAuthenticated, userController.renderOrderHistory);
 
 // Find All Users with Same Email
 router.get('/api/allUsers/email/:email', (req, res) => {
