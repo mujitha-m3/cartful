@@ -29,11 +29,9 @@ module.exports = {
     return str ? str.charAt(0).toUpperCase() : '';
   },
   
-  // You can move other helpers here too
   gt: (a, b) => a > b,
   lt: (a, b) => a < b,
   
-  // Keep any existing helpers you want to maintain
   ifEquals: (arg1, arg2, options) => (arg1 == arg2 ? options.fn(this) : options.inverse(this)),
   formatPrice: (price) => (price ? `€${price.toFixed(2)}` : '€0.00'),
   hasChildren: (category) => category && category.children && category.children.length > 0,
@@ -46,5 +44,6 @@ module.exports = {
     return total.toFixed(2);
   },
   eq: (a, b) => a === b,
-  json: (context) => JSON.stringify(context)
+  json: (context) => JSON.stringify(context),
+  inc: (v) => parseInt(v, 10) + 1
 };
