@@ -18,6 +18,7 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const methodOverride = require('method-override');
 const MongoStore = require('connect-mongo'); // Connect-mongo for session store
+const hbsHelpers = require('./helpers/handlebarsHelpers');
 
 // Import routes
 const googleAuthRoutes = require('./routes/authClientGoogleRoute');  
@@ -83,6 +84,9 @@ app.engine('handlebars', exphbs.engine({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
   defaultLayout: 'main',
   helpers: {
+    ...hbsHelpers,
+    // explicit inc helper in case hbsHelpers isn't loaded early
+    inc: (v) => parseInt(v, 10) + 1,
     formatDate: (date) => date ? new Date(date).toLocaleDateString() : 'N/A',
     ifEquals: (arg1, arg2, options) => (arg1 == arg2 ? options.fn(this) : options.inverse(this)),
     formatPrice: (price) => (price ? `€${price.toFixed(2)}` : '€0.00'),
