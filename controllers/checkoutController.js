@@ -7,11 +7,16 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { sendEmail } = require('../utils/sendEmail');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
-const userController  = require('./userController')
+const userController = require('./userController');
 
 // Show checkout page
 exports.checkoutPage = async (req, res) => {
   try {
+    if (!req.user || req.user.isGuest) {
+      req.flash('error_msg', 'Please log in to proceed with checkout.');
+      return res.redirect('/login');
+    }
+
     // Get the user's cart
     const cart = await Cart.findOne({ user_id: req.user._id });
     if (!cart) return res.redirect('/cart');
@@ -25,8 +30,8 @@ exports.checkoutPage = async (req, res) => {
       if (userPrefill) {
         req.session.checkoutDetails = userPrefill;
       }
-    }  // Added  to load the user data
-    // Render the checkout page with the required details
+    }
+
     res.render('checkout', {
       cartItems: items,
       total: total.toFixed(2),
@@ -45,26 +50,26 @@ exports.checkoutPage = async (req, res) => {
 
 // Save customer order details into session
 exports.saveCheckoutDetails = (req, res) => {
+  if (!req.user || req.user.isGuest) {
+    req.flash('error_msg', 'Please log in to proceed with checkout.');
+    return res.redirect('/login');
+  }
   try {
-    const { email, first_name, last_name, phone, shipping_address, billing_address, shipping_method } = req.body;
-
-    // Validate email
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      req.flash('error_msg', 'Please enter a valid email address');
-      return res.redirect('/checkout?tab=details');
-    }
-
-    // Validate names
-    if (!first_name || !last_name) {
-      req.flash('error_msg', 'Please enter both first and last name');
-      return res.redirect('/checkout?tab=details');
-    }
+    const {
+      email,
+      first_name,
+      last_name,
+      phone,
+      shipping_address,
+      billing_address,
+      shipping_method,
+    } = req.body;
 
     // Save checkout details to session
     req.session.checkoutDetails = {
       email,
-      first_name,  
-      last_name,    
+      first_name,
+      last_name,
       phone,
       shipping_address,
       billing_address,
@@ -80,18 +85,114 @@ exports.saveCheckoutDetails = (req, res) => {
   }
 };
 
+exports.confirmOrder = async (req, res) => {
+  if (!req.user || req.user.isGuest) {
+    req.flash('error_msg', 'Please log in to proceed with checkout.');
+    return res.redirect('/login');
+  }
+  const {
+    firstName, lastName, phone,
+    shippingStreet, shippingPostal, shippingCity,
+    shippingMethod, paymentMethod
+  } = req.body;
+
+  const cartItems = await getCartItems(req.user._id); // helper or your DB logic
+
+  const shippingFees = {
+    Posti: 4.90,
+    Matkahuolto: 5.90,
+    Pickup: 0
+  };
+
+  const shippingFee = shippingFees[shippingMethod] || 0;
+  let subtotal = 0;
+  cartItems.forEach(item => {
+    subtotal += item.quantity * item.product.price;
+  });
+
+  const total = subtotal + shippingFee;
+
+  // Save to session for later
+  req.session.checkout = {
+    firstName, lastName, phone,
+    shippingStreet, shippingPostal, shippingCity,
+    shippingMethod, paymentMethod,
+    shippingFee, subtotal, total
+  };
+
+  res.render('checkout-confirm', {
+    firstName, lastName, phone,
+    address: {
+      street: shippingStreet,
+      postal: shippingPostal,
+      city: shippingCity
+    },
+    shippingMethod,
+    paymentMethod,
+    shippingFee: shippingFee.toFixed(2),
+    subtotal: subtotal.toFixed(2),
+    total: total.toFixed(2),
+    cart: cartItems
+  });
+};
+
+// Handle checkout confirmation
+exports.confirmCheckout = async (req, res) => {
+  try {
+    if (!req.user || req.user.isGuest) {
+      req.flash('error_msg', 'Please log in to proceed with checkout.');
+      return res.redirect('/login');
+    }
+
+    const { firstName, lastName, phone, shippingStreet, shippingPostal, shippingCity, shippingMethod, paymentMethod } = req.body;
+
+    // Validate required fields
+    if (!firstName || !lastName || !phone || !shippingStreet || !shippingPostal || !shippingCity || !shippingMethod || !paymentMethod) {
+      req.flash('error_msg', 'Please fill in all required fields.');
+      return res.redirect('/checkout');
+    }
+
+    // Simulate order creation (replace with actual logic)
+    const order = {
+      id: Math.floor(Math.random() * 1000000),
+      firstName,
+      lastName,
+      phone,
+      shippingAddress: `${shippingStreet}, ${shippingCity}, ${shippingPostal}`,
+      shippingMethod,
+      paymentMethod,
+      total: req.session.cartTotalPrice || 0,
+    };
+
+    // Clear cart session (optional)
+    req.session.cart = {};
+    req.session.cartItemCount = 0;
+    req.session.cartTotalPrice = 0;
+
+    // Render confirmation page
+    res.render('checkout-confirm', { order });
+  } catch (error) {
+    console.error('Error confirming checkout:', error);
+    req.flash('error_msg', 'An error occurred during checkout. Please try again.');
+    res.redirect('/checkout');
+  }
+};
+
 // Place order (Stripe or COD)
 exports.createOrder = async (req, res) => {
+  if (!req.user || req.user.isGuest) {
+    req.flash('error_msg', 'Please log in to proceed with checkout.');
+    return res.redirect('/login');
+  }
   try {
     const { payment_method } = req.body;
     const checkoutDetails = req.session.checkoutDetails;
 
     if (!checkoutDetails) {
-      req.flash('error_msg', 'Please save order details first.');
+      req.flash('error_msg', 'Checkout details are missing. Please try again.');
       return res.redirect('/checkout');
     }
 
-    // Get the cart and items
     const cart = await Cart.findOne({ user_id: req.user._id });
     const items = await CartItem.find({ cart_id: cart._id }).populate('product_id');
     const total = items.reduce((sum, item) => sum + item.total_price, 0);
@@ -255,6 +356,11 @@ exports.createOrder = async (req, res) => {
 // After Stripe payment success
 exports.checkoutSuccess = async (req, res) => {
   try {
+    if (!req.user || req.user.isGuest) {
+      req.flash('error_msg', 'Please log in to proceed with checkout.');
+      return res.redirect('/login');
+    }
+
     const orderId = req.session.stripe_order_id;
     if (!orderId) return res.redirect('/');
 
@@ -315,3 +421,20 @@ exports.checkoutSuccess = async (req, res) => {
     res.redirect('/');
   }
 };
+
+async function getCartItems(userId) {
+  try {
+    const cart = await Cart.findOne({ user_id: userId });
+    if (!cart) return [];
+
+    const items = await CartItem.find({ cart_id: cart._id }).populate('product_id');
+    return items.map(item => ({
+      product: item.product_id,
+      quantity: item.quantity,
+      total_price: item.total_price
+    }));
+  } catch (error) {
+    console.error('Error fetching cart items:', error);
+    return [];
+  }
+}
