@@ -178,16 +178,20 @@ exports.confirmCheckout = async (req, res) => {
   }
 };
 
-// Place order (Stripe or COD)
+// Handle COD orders only
 exports.createOrder = async (req, res) => {
   if (!req.user || req.user.isGuest) {
     req.flash('error_msg', 'Please log in to proceed with checkout.');
     return res.redirect('/login');
   }
   try {
-    const { payment_method } = req.body;
-    const checkoutDetails = req.session.checkoutDetails;
+    const payment_method = req.body.payment_method || req.body.paymentMethod;
+    if (payment_method !== 'cod') {
+      req.flash('error_msg', 'Invalid payment method');
+      return res.redirect('/checkout');
+    }
 
+    const checkoutDetails = req.session.checkoutDetails;
     if (!checkoutDetails) {
       req.flash('error_msg', 'Checkout details are missing. Please try again.');
       return res.redirect('/checkout');
@@ -197,11 +201,10 @@ exports.createOrder = async (req, res) => {
     const items = await CartItem.find({ cart_id: cart._id }).populate('product_id');
     const total = items.reduce((sum, item) => sum + item.total_price, 0);
 
-    // Common order data
     const orderData = {
       user_id: req.user._id,
       total,
-      payment_method,
+      payment_method: 'cod',
       shipping_method: checkoutDetails.shipping_method,
       shipping_address: checkoutDetails.shipping_address,
       billing_address: checkoutDetails.billing_address,
@@ -210,55 +213,11 @@ exports.createOrder = async (req, res) => {
       phone: checkoutDetails.phone || 'Not provided',
       first_name: checkoutDetails.first_name,
       last_name: checkoutDetails.last_name,
+      payment_status: 'unpaid',
+      order_status: 'Confirmed'
     };
 
-    // Stripe flow
-    if (payment_method === 'stripe') {
-      const order = await Order.create({
-        ...orderData,
-        payment_status: 'pending',
-        order_status: 'Pending',
-      });
-
-      // Create order products
-      for (let item of items) {
-        await OrderProduct.create({
-          order_id: order._id,
-          product_id: item.product_id._id,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          total_price: item.total_price,
-        });
-      }
-
-      req.session.stripe_order_id = order._id;
-
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: items.map(item => ({
-          price_data: {
-            currency: 'eur',
-            product_data: { name: item.product_id.name },
-            unit_amount: Math.round(item.unit_price * 100),
-          },
-          quantity: item.quantity,
-        })),
-        mode: 'payment',
-        success_url: `${req.protocol}://${req.get('host')}/checkout/success`,
-        cancel_url: `${req.protocol}://${req.get('host')}/checkout`,
-        customer_email: checkoutDetails.email,
-      });
-
-      return res.redirect(session.url);
-    }
-
-    // COD Flow
-    const order = await Order.create({
-      ...orderData,
-      payment_status: 'unpaid',
-      order_status: 'Confirmed',
-      payment_method: 'cod',
-    });
+    const order = await Order.create(orderData);
 
     // Create order products for COD
     for (let item of items) {
@@ -271,7 +230,7 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    // Create payment for COD
+    // Create payment record for COD
     await Payment.create({
       order_id: order._id,
       transaction_id: `COD-${order._id.toString().slice(-6)}`,
@@ -286,9 +245,6 @@ exports.createOrder = async (req, res) => {
     // Empty cart
     await CartItem.deleteMany({ cart_id: cart._id });
     req.session.checkoutDetails = null;
-
-    const formattedDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : new Date().toLocaleDateString();
-    const phoneDisplay = order.phone || 'Not provided';
 
     // Send confirmation email
     await sendEmail({
@@ -326,7 +282,6 @@ exports.createOrder = async (req, res) => {
     const filePath = `./receipts/order_${order._id}.pdf`;
 
     doc.pipe(fs.createWriteStream(filePath));
-
     doc.fontSize(16).text(`Order Receipt #${order._id}`);
     doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`);
     doc.text(`Phone: ${order.phone || 'Not provided'}`);
@@ -345,10 +300,96 @@ exports.createOrder = async (req, res) => {
 
     doc.end();
 
+    // Store order ID in session and redirect to success page
+    req.session.stripe_order_id = order._id;
     res.redirect('/checkout/success');
   } catch (error) {
     console.error('Create order error:', error);
     req.flash('error_msg', 'Error processing your order');
+    res.redirect('/checkout');
+  }
+};
+
+// Handle Stripe payments
+exports.createStripeSession = async (req, res) => {
+  if (!req.user || req.user.isGuest) {
+    req.flash('error_msg', 'Please log in to proceed with checkout.');
+    return res.redirect('/login');
+  }
+  try {
+    const payment_method = req.body.payment_method || req.body.paymentMethod;
+    if (payment_method !== 'stripe') {
+      req.flash('error_msg', 'Invalid payment method');
+      return res.redirect('/checkout');
+    }
+
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('Stripe secret key is not configured');
+      req.flash('error_msg', 'Payment configuration error');
+      return res.redirect('/checkout');
+    }
+
+    const checkoutDetails = req.session.checkoutDetails;
+    if (!checkoutDetails) {
+      req.flash('error_msg', 'Checkout details are missing. Please try again.');
+      return res.redirect('/checkout');
+    }
+
+    const cart = await Cart.findOne({ user_id: req.user._id });
+    const items = await CartItem.find({ cart_id: cart._id }).populate('product_id');
+    const total = items.reduce((sum, item) => sum + item.total_price, 0);
+
+    const orderData = {
+      user_id: req.user._id,
+      total,
+      payment_method: 'stripe',
+      shipping_method: checkoutDetails.shipping_method,
+      shipping_address: checkoutDetails.shipping_address,
+      billing_address: checkoutDetails.billing_address,
+      placed_by: req.user._id,
+      email: checkoutDetails.email,
+      phone: checkoutDetails.phone || 'Not provided',
+      first_name: checkoutDetails.first_name,
+      last_name: checkoutDetails.last_name,
+      payment_status: 'pending',
+      order_status: 'Pending'
+    };
+
+    const order = await Order.create(orderData);
+
+    // Create order products
+    for (let item of items) {
+      await OrderProduct.create({
+        order_id: order._id,
+        product_id: item.product_id._id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        total_price: item.total_price,
+      });
+    }
+
+    req.session.stripe_order_id = order._id;
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: items.map(item => ({
+        price_data: {
+          currency: 'eur',
+          product_data: { name: item.product_id.name },
+          unit_amount: Math.round(item.unit_price * 100),
+        },
+        quantity: item.quantity,
+      })),
+      mode: 'payment',
+      success_url: `${req.protocol}://${req.get('host')}/checkout/success`,
+      cancel_url: `${req.protocol}://${req.get('host')}/checkout`,
+      customer_email: checkoutDetails.email,
+    });
+
+    return res.redirect(303, session.url);
+  } catch (error) {
+    console.error('Stripe session creation error:', error);
+    req.flash('error_msg', 'Error processing your payment');
     res.redirect('/checkout');
   }
 };
@@ -393,22 +434,56 @@ exports.checkoutSuccess = async (req, res) => {
     // Send payment receipt email
     await sendEmail({
       recipient: order.email,
-      subject: 'Payment Receipt - Cartful',
+      subject: 'Order Confirmation - Cartful',
       htmlContent: `
         <h2>Hi ${order.first_name} ${order.last_name}!</h2>
-        <p>We received your payment for order <b>#${order._id}</b>.</p>
+        <p>Thank you for your order <b>#${order._id}</b>!</p>
         <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
         <p><strong>Phone:</strong> ${order.phone || 'Not provided'}</p>
-        <p><strong>Total Paid:</strong> €${order.total.toFixed(2)}</p>
-        <p>We are now preparing your shipment. </p>
-        <p>Please find your payment receipt attached.</p>
-        <br><p> Cartful Team</p>
+        <p><strong>Payment Method:</strong> Credit Card (Stripe)</p>
+        <p><strong>Total Amount:</strong> €${order.total.toFixed(2)}</p>
+
+        <h4>Shipping Address:</h4>
+        <p>
+          ${order.shipping_address.line1}<br>
+          ${order.shipping_address.line2 ? order.shipping_address.line2 + '<br>' : ''}
+          ${order.shipping_address.city}<br>
+          ${order.shipping_address.postal}<br>
+          ${order.shipping_address.country}
+        </p>
+        
+        <p>We are preparing your items and will ship them soon!</p>
+        <p>Please find your receipt attached.</p>
+        <br><p>Cartful Team</p>
       `,
       order,
       items,
       user: req.user,
       paymentMethod: 'stripe',
     });
+
+    // Generate PDF Receipt (same format as COD)
+    const doc = new PDFDocument();
+    const filePath = `./receipts/order_${order._id}.pdf`;
+
+    doc.pipe(fs.createWriteStream(filePath));
+    doc.fontSize(16).text(`Order Receipt #${order._id}`);
+    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`);
+    doc.text(`Phone: ${order.phone || 'Not provided'}`);
+    doc.text(`Payment Method: Credit Card (Stripe)`);
+    doc.text(`Total Amount: €${order.total.toFixed(2)}`);
+
+    // Shipping Address
+    doc.text(`Shipping Address:`);
+    doc.text(`${order.shipping_address.line1}`);
+    if (order.shipping_address.line2) {
+      doc.text(`${order.shipping_address.line2}`);
+    }
+    doc.text(`${order.shipping_address.city}`);
+    doc.text(`${order.shipping_address.postal}`);
+    doc.text(`${order.shipping_address.country}`);
+
+    doc.end();
 
     res.render('checkout-success', {
       orderId: order._id,

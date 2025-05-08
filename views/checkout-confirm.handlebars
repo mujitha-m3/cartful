@@ -58,11 +58,12 @@
   <nav class="mt-4" aria-label="Order actions">
     {{#if (eq paymentMethod "cod")}}
     <form action="/checkout/place-order" method="POST">
-      <input type="hidden" name="confirm" value="true">
+      <input type="hidden" name="payment_method" value="cod">
       <button type="submit" class="btn btn-success mt-3">✅ Confirm and Place Order</button>
     </form>
     {{else}}
     <form action="/checkout/stripe" method="POST">
+      <input type="hidden" name="payment_method" value="stripe">
       <button type="submit" class="btn btn-primary mt-3">💳 Pay with Card (Stripe)</button>
     </form>
     {{/if}}

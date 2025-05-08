@@ -1,11 +1,13 @@
-const { confirmOrder, confirmCheckout } = require('../controllers/checkoutController');
 const express = require('express');
 const router = express.Router();
 const {
   checkoutPage,
   createOrder,
   checkoutSuccess,
-  saveCheckoutDetails
+  saveCheckoutDetails,
+  confirmOrder,
+  confirmCheckout,
+  createStripeSession
 } = require('../controllers/checkoutController');
 const { ensureAuthenticated } = require('../middleware/auth');
 
@@ -18,8 +20,11 @@ router.get('/', checkoutPage);
 // Save details temporarily before payment
 router.post('/save-details', saveCheckoutDetails);
 
-// Finalize order (only allowed after payment confirmed)
-router.post('/', createOrder);
+// Handle COD payments
+router.post('/place-order', createOrder);
+
+// Handle Stripe payments
+router.post('/stripe', createStripeSession);
 
 // Show success page after payment
 router.get('/success', checkoutSuccess);
