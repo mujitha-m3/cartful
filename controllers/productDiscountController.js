@@ -228,8 +228,11 @@ const saveMultipleDiscounts = async (req, res) => {
       const productIds = Array.isArray(selectedProductIds) ? selectedProductIds : [selectedProductIds];
   
       if (!productIds || productIds.length === 0) {
+        console.log("No products selected.");
         return res.status(400).send("No updates received.");
       }
+  
+      console.log("Selected product IDs:", productIds);
   
       for (const id of productIds) {
         const type = req.body[`type_${id}`];
@@ -238,27 +241,51 @@ const saveMultipleDiscounts = async (req, res) => {
         const end_date = req.body[`end_${id}`];
         const reason = req.body[`reason_${id}`];
   
-        if (!type || !value || !start_date || !end_date) continue;
+        console.log(`\n--- Processing Product ID: ${id} ---`);
+        console.log(`Discount Type      : ${type}`);
+        console.log(`Discount Value     : ${value}`);
+        console.log(`Discount Start Date: ${start_date}`);
+        console.log(`Discount End Date  : ${end_date}`);
+        console.log(`Discount Reason    : ${reason}`);
   
         const product = await Product.findById(id);
-        if (!product) continue;
+        if (!product) {
+          console.warn(`Product not found: ${id}`);
+          continue;
+        }
   
+        const parsedValue = parseFloat(value);
+        const discounted = parseFloat(
+          calculateDiscountedPrice(product.price, { type, value: parsedValue })
+        );
+  
+        // Always overwrite with new values
         product.discount_type = type;
-        product.discount_value = parseFloat(value);
+        product.discount_value = parsedValue;
         product.discount_start = new Date(start_date);
         product.discount_end = new Date(end_date);
         product.discount_reason = reason || '';
   
+        // Store original price if not yet saved
+        if (!product.original_price) {
+          product.original_price = product.price;
+        }
+  
+        // Update discounted price
+        product.discounted_price = discounted;
+  
+        console.log(`Final Discounted Price: €${product.discounted_price}`);
+  
         await product.save();
+        console.log(`Product ${product.name} (${product._id}) updated.\n`);
       }
   
+      console.log("All selected products updated successfully.");
+      req.flash('success_msg', 'Selected discounts saved successfully!');
       res.redirect("/admin/discounts/search");
   
     } catch (err) {
-      console.error("saveMultipleDiscounts Error:", {
-        message: err.message,
-        stack: err.stack
-      });
+      console.error("saveMultipleDiscounts Error:", err.message);
       res.status(500).render("error", {
         error: {
           message: "Error saving multiple discounts",
@@ -267,6 +294,7 @@ const saveMultipleDiscounts = async (req, res) => {
       });
     }
   };
+  
   
 module.exports = {
   showDiscountPage,
