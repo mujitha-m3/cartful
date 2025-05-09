@@ -24,4 +24,13 @@ function ensureAuthenticated(req, res, next) {
   return next();
 }
 
-module.exports = { ensureAuthenticated };
+// Middleware to ensure route is accessible only by customers
+function ensureCustomer(req, res, next) {
+  if (!req.isAuthenticated() || !req.user.roles || !req.user.roles.includes('user')) {
+    req.flash('error_msg', 'Please log in as a customer to view this page.');
+    return res.redirect('/login');
+  }
+  return next();
+}
+
+module.exports = { ensureAuthenticated, ensureCustomer };

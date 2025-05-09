@@ -20,7 +20,10 @@ exports.renderEditCategoryForm = async (req, res) => {
       category,
       parentCategories,
       success_msg: req.flash('success_msg'),
-      error_msg: req.flash('error_msg')
+      error_msg: req.flash('error_msg'),
+      statusOptions: [
+        { name: 'is_active', label: 'Active Category', checked: category.is_active }
+      ]
     });
   } catch (err) {
     console.error('Error loading edit form:', err);
@@ -67,7 +70,10 @@ exports.renderAddCategoryForm = (req, res) => {
     .then(parentCategories => {
       res.render('addCategory', {
         title: 'Add Category',
-        parentCategories
+        parentCategories,
+        statusOptions: [
+          { name: 'is_active', label: 'Active Category', checked: true }
+        ]
       });
     })
     .catch(err => {
