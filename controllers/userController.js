@@ -61,26 +61,51 @@ const Order = require('../models/Order');
 const OrderProduct = require('../models/OrderProduct');
 
 async function renderOrderHistory(req, res) {
-  const userId = req.user._id;
-  // get all orders, newest first
-  const orders = await Order.find({ user_id: userId })
-    .sort({ createdAt: -1 })
-    .lean();
-
-  // attach line-items & compute totals
-  for (let ord of orders) {
-    const items = await OrderProduct
-      .find({ order_id: ord._id })
-      .populate('product_id', 'name')
+  try {
+    const userId = req.user._id;
+    
+    // Get all orders, newest first
+    const orders = await Order.find({ user_id: userId })
+      .sort({ createdAt: -1 })
       .lean();
-    ord.items = items.map(i => ({
-      name: i.product_id.name,
-      quantity: i.quantity,
-      unit_price: i.unit_price,
-      total_price: i.total_price
-    }));
-  }  
-  res.render('orderHistory', { orders, user: req.user });
+
+    // Attach line-items with safety checks
+    for (let ord of orders) {
+      const items = await OrderProduct
+        .find({ order_id: ord._id })
+        .populate('product_id', 'name')
+        .lean();
+      
+      ord.items = items.map(i => ({
+        name: i.product_id?.name || 'Product not available',
+        quantity: i.quantity || 0,
+        unit_price: i.unit_price || 0,
+        total_price: i.total_price || 0
+      }));
+
+      // Ensure all required fields exist
+      ord.order_status = ord.order_status || 'Processing';
+      ord.payment_method = ord.payment_method || 'Unknown';
+      ord.payment_status = ord.payment_status || 'Pending';
+      ord.shipping_address = ord.shipping_address || {
+        line1: 'Address not specified',
+        city: '',
+        country: ''
+      };
+    }
+
+    res.render('orderHistory', { 
+      orders, 
+      user: req.user 
+    });
+
+  } catch (error) {
+    console.error('Error rendering order history:', error);
+    res.status(500).render('error', { 
+      message: 'Failed to load order history',
+      error: error.message 
+    });
+  }
 }
 
 module.exports.renderOrderHistory = renderOrderHistory;
