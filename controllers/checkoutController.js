@@ -270,6 +270,9 @@ exports.createOrder = async (req, res) => {
       paymentMethod: 'cod',
     });
 
+    // Store COD order id for success redirect
+    req.session.cod_order_id = order._id;
+
     res.redirect('/checkout/success');
   } catch (error) {
     console.error('Create order error:', error);
@@ -363,9 +366,6 @@ exports.createStripeSession = async (req, res) => {
       success_url: `${req.protocol}://${req.get('host')}/checkout/success`,
       cancel_url: `${req.protocol}://${req.get('host')}/checkout`,
       customer_email: checkoutDetails.email,
-      // shipping_address_collection: {
-//   allowed_countries: ['FI'],
-// },
 
       metadata: {
         order_id: order._id.toString()
@@ -388,12 +388,30 @@ exports.checkoutSuccess = async (req, res) => {
       return res.redirect('/login');
     }
 
-    const orderId = req.session.stripe_order_id;
+    // Determine order id for Stripe or COD
+    const stripeOrder = req.session.stripe_order_id;
+    const codOrder = req.session.cod_order_id;
+    const orderId = stripeOrder || codOrder;
     if (!orderId) return res.redirect('/');
 
     const order = await Order.findById(orderId);
     if (!order) return res.redirect('/');
 
+    // Handle COD success (order already created and payment pending)
+    if (codOrder && !stripeOrder) {
+      // Clear COD session and checkout data
+      req.session.cod_order_id = null;
+      req.session.checkoutDetails = null;
+      req.session.checkout = null;
+
+      return res.render('checkout-success', {
+        orderId: order._id,
+        total: order.total.toFixed(2),
+        success_msg: 'Your order has been placed! Please pay on delivery.'
+      });
+    }
+
+    // Stripe success flow
     order.payment_status = 'paid';
     order.order_status = 'Confirmed';
     await order.save();

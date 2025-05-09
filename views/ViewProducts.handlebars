@@ -78,15 +78,15 @@
           <p class="card-text flex-grow-1">{{this.description}}</p>
 
           {{#if this.discounted_price}}
-            <p class="fw-bold mb-1">{{this.discounted_price}} €</p>
-            <p class="text-muted text-decoration-line-through small">{{this.price}} €</p>
+            <p class="discounted-price">{{this.discounted_price}} €</p>
+            <p class="original-price">{{this.price}} €</p>
             {{#if (eq this.discount_type "percentage")}}
               <p class="text-danger mb-1">-{{this.discount_value}}% Off</p>
             {{else if (eq this.discount_type "flat")}}
               <p class="text-danger mb-1">-{{this.discount_value}} € Off</p>
             {{/if}}
           {{else}}
-            <p class="fw-bold mb-1">{{this.price}} €</p>
+            <p class="discounted-price">{{this.price}} €</p>
           {{/if}}
 
           <form method="POST" action="/cart/add" class="add-to-cart-form">

@@ -32,6 +32,8 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const userController = require('./controllers/userController');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const productDiscountRoutes = require('./routes/productDiscountRoutes');
+const adminOrderRoutes = require('./routes/admin/adminOrderRoutes');
+const adminProductRoutes = require('./routes/admin/adminProductRoutes');
 
 // Initialize Express
 const app = express();
@@ -238,10 +240,8 @@ app.use('/checkout', checkoutRoutes); // Checkout Routes
 app.use('/cart', cartRoutes);    // Cart Routes
 app.use('/wishlist', wishlistRoutes);
 app.use('/', productDiscountRoutes);
-
-// Admin order management routes
-const adminOrderRoutes = require('./routes/admin/adminOrderRoutes');
 app.use('/admin/orders', adminOrderRoutes);
+app.use('/admin/products', adminProductRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

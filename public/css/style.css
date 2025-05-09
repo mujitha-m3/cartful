@@ -316,7 +316,7 @@ header {
 }
 
 input[name="quantity"] {
-  width: 100%;
+  width: 60px;
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
