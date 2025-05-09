@@ -126,8 +126,24 @@ exports.confirmOrder = async (req, res) => {
 
   const shippingFee = shippingFees[shippingMethod] || 0;
   let subtotal = 0;
-  cartItems.forEach(item => {
-    subtotal += item.quantity * item.product.price;
+  // Prepare cart items with both original and discounted prices
+  const cartItemsWithDiscount = cartItems.map(item => {
+    const originalPrice = item.product.price;
+    let discountedPrice = originalPrice;
+    // Check if discounted_price is valid and less than original
+    if (
+      item.product.discounted_price &&
+      typeof item.product.discounted_price === 'number' &&
+      item.product.discounted_price < originalPrice
+    ) {
+      discountedPrice = item.product.discounted_price;
+    }
+    subtotal += item.quantity * discountedPrice;
+    return {
+      ...item,
+      originalPrice,
+      discountedPrice
+    };
   });
 
   const total = subtotal + shippingFee;
@@ -152,7 +168,7 @@ exports.confirmOrder = async (req, res) => {
     shippingFee: shippingFee.toFixed(2),
     subtotal: subtotal.toFixed(2),
     total: total.toFixed(2),
-    cart: cartItems
+    cart: cartItemsWithDiscount
   });
 };
 

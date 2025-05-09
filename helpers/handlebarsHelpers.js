@@ -43,6 +43,19 @@ module.exports = {
     }
     return total.toFixed(2);
   },
+  calculateDiscountedTotal: (items) => {
+    if (!items) return '0.00';
+    let total = 0;
+    for (let item of items) {
+      let price = item.unit_price || item.price || 0;
+      let quantity = item.quantity || 1;
+      let discount = item.discount || 0;
+      let subtotal = price * quantity;
+      let discounted = discount ? subtotal * (1 - discount / 100) : subtotal;
+      total += discounted;
+    }
+    return total.toFixed(2);
+  },
   eq: (a, b) => a === b,
   json: (context) => JSON.stringify(context),
   inc: (v) => parseInt(v, 10) + 1,
@@ -55,5 +68,11 @@ module.exports = {
       minute: '2-digit',
       second: '2-digit'
     });
+  },
+  multiply: (a, b) => {
+    const numA = typeof a === 'string' ? parseFloat(a) : a;
+    const numB = typeof b === 'string' ? parseFloat(b) : b;
+    if (isNaN(numA) || isNaN(numB)) return '0.00';
+    return (numA * numB).toFixed(2);
   }
 };

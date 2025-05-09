@@ -87,6 +87,13 @@ app.engine('handlebars', exphbs.engine({
   defaultLayout: 'main',
   helpers: {
     ...hbsHelpers,
+    // Custom helpers
+
+    calculateDiscountedSubtotal: (unitPrice, quantity, discount) => {
+      const original = unitPrice * quantity;
+      const discounted = discount ? original * (1 - discount / 100) : original;
+      return discounted.toFixed(2);
+    },
     // explicit inc helper in case hbsHelpers isn't loaded early
     inc: (v) => parseInt(v, 10) + 1,
     formatDate: (date) => date ? new Date(date).toLocaleDateString() : 'N/A',

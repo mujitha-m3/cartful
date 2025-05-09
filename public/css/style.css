@@ -494,7 +494,16 @@ footer p {
   width: 10px;
 }
 
+.original-price {
+  color: var(--danger-color);
+  text-decoration: line-through;
+  margin-right: 0.5rem;
+}
 
+.discounted-price {
+  color: var(--text-color);
+  font-weight: bold;
+}
 
 .d-flex {
   display: flex;
@@ -689,7 +698,6 @@ footer p {
 
 .fade-out {
   animation: fadeOut 0.3s ease-in forwards;
-}
 
 
 .toast {
@@ -1119,4 +1127,5 @@ aside.success-message {
 .btn-outline-primary:hover {
   background-color: #007bff;
   color: white;
+}
 }
