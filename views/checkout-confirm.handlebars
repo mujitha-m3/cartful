@@ -2,61 +2,82 @@
   <h1 class="mb-4">Order Confirmation</h1>
 
   <!-- 👤 Customer Info Section -->
-  <section aria-labelledby="customer-heading">
-    <h2 id="customer-heading" class="h5">Customer Information</h2>
-    <dl class="row">
-      <dt class="col-sm-3">Name</dt>
-      <dd class="col-sm-9">{{firstName}} {{lastName}}</dd>
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <h2 id="customer-heading" class="h5 mb-0">👤 Customer Information</h2>
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3 fw-semibold">Name</dt>
+        <dd class="col-sm-9">{{firstName}} {{lastName}}</dd>
 
-      <dt class="col-sm-3">Phone</dt>
-      <dd class="col-sm-9">{{phone}}</dd>
+        <dt class="col-sm-3 fw-semibold">Phone</dt>
+        <dd class="col-sm-9">{{phone}}</dd>
 
-      <dt class="col-sm-3">Address</dt>
-      <dd class="col-sm-9">{{address.street}}, {{address.postal}} {{address.city}}</dd>
+        <dt class="col-sm-3 fw-semibold">Address</dt>
+        <dd class="col-sm-9">{{address.street}}, {{address.postal}} {{address.city}}</dd>
 
-      <dt class="col-sm-3">Shipping Method</dt>
-      <dd class="col-sm-9">{{shippingMethod}} ({{shippingFee}} €)</dd>
+        <dt class="col-sm-3 fw-semibold">Shipping</dt>
+        <dd class="col-sm-9">{{shippingMethod}} — <span class="fw-bold">{{shippingFee}} €</span></dd>
 
-      <dt class="col-sm-3">Payment Method</dt>
-      <dd class="col-sm-9">{{paymentMethod}}</dd>
-    </dl>
-  </section>
+        <dt class="col-sm-3 fw-semibold">Payment</dt>
+        <dd class="col-sm-9">{{paymentMethod}}</dd>
+      </dl>
+    </div>
+  </div>
 
   <!-- 🛒 Order Summary -->
-  <section aria-labelledby="summary-heading" class="mt-4">
-    <h2 id="summary-heading" class="h5">Order Summary</h2>
-
-    <div class="table-responsive" role="region" aria-labelledby="summary-heading">
-      <table class="table table-bordered align-middle">
-        <thead class="table-light">
-          <tr>
-            <th scope="col">Item</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Price</th>
-            <th scope="col">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each cart}}
-          <tr>
-            <td>{{this.product.name}}</td>
-            <td>{{this.quantity}}</td>
-            <td>{{this.product.price}} €</td>
-            <td>{{multiply this.product.price this.quantity}} €</td>
-          </tr>
-          {{/each}}
-        </tbody>
-      </table>
+  <div class="card">
+    <div class="card-header bg-light">
+      <h2 id="summary-heading" class="h5 mb-0">🛒 Order Summary</h2>
     </div>
-
-    <p><strong>Subtotal:</strong> {{subtotal}} €</p>
-    <p><strong>Shipping:</strong> {{shippingFee}} €</p>
-    <h4><strong>Total:</strong> {{total}} €</h4>
-  </section>
+    <div class="card-body p-0">
+      <div class="table-responsive" role="region" aria-labelledby="summary-heading">
+        <table class="table table-bordered align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Qty</th>
+              <th scope="col">Price</th>
+              <th scope="col">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each cart}}
+            <tr>
+              <td>{{this.product.name}}</td>
+              <td>{{this.quantity}}</td>
+              {{#if this.product.discounted_price}}
+                <td>
+                  <span class="discounted-price">{{this.product.discounted_price}} €</span>
+                  <span class="original-price">{{this.product.price}} €</span>
+                  {{#if (eq this.product.discount_type "percentage")}}
+                    <p class="text-danger mb-1">-{{this.product.discount_value}}% Off</p>
+                  {{else if (eq this.product.discount_type "flat")}}
+                    <p class="text-danger mb-1">-{{this.product.discount_value}} € Off</p>
+                  {{/if}}
+                </td>
+                <td>{{multiply this.product.discounted_price this.quantity}} €</td>
+              {{else}}
+                <td class="discounted-price">{{this.product.price}} €</td>
+                <td>{{multiply this.product.price this.quantity}} €</td>
+              {{/if}}
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card-footer text-end">
+      <p class="mb-1"><span class="fw-semibold">Subtotal:</span> {{subtotal}} €</p>
+      <p class="mb-1"><span class="fw-semibold">Shipping:</span> {{shippingFee}} €</p>
+      <h4 class="fw-bold mb-0">Total: {{total}} €</h4>
+    </div>
+  </div>
 
   <!-- ✅ Confirm Button -->
   {{#if (eq paymentMethod "cod")}}
-  <form action="/checkout/place-order" method="POST">
+  <form action="/checkout/place-order" method="POST" class="mt-4 text-center">
     <input type="hidden" name="firstName" value="{{firstName}}">
     <input type="hidden" name="lastName" value="{{lastName}}">
     <input type="hidden" name="phone" value="{{phone}}">
@@ -68,10 +89,10 @@
     <input type="hidden" name="subtotal" value="{{subtotal}}">
     <input type="hidden" name="shippingFee" value="{{shippingFee}}">
     <input type="hidden" name="total" value="{{total}}">
-    <button type="submit" class="btn btn-success mt-3">✅ Confirm and Place Order</button>
+    <button type="submit" class="btn btn-lg btn-success mt-3 px-4">✅ Confirm Order</button>
   </form>
   {{else}}
-  <form action="/checkout/stripe" method="POST">
+  <form action="/checkout/stripe" method="POST" class="mt-4 text-center">
     <input type="hidden" name="firstName" value="{{firstName}}">
     <input type="hidden" name="lastName" value="{{lastName}}">
     <input type="hidden" name="phone" value="{{phone}}">
@@ -83,12 +104,10 @@
     <input type="hidden" name="subtotal" value="{{subtotal}}">
     <input type="hidden" name="shippingFee" value="{{shippingFee}}">
     <input type="hidden" name="total" value="{{total}}">
-    <button type="submit" class="btn btn-primary mt-3">💳 Pay with Card (Stripe)</button>
+    <button type="submit" class="btn btn-lg btn-primary mt-3 px-4">💳 Pay with Card</button>
   </form>
   {{/if}}
-  <nav class="mt-4" aria-label="Order actions">
-    <a href="/cart" class="btn btn-outline-danger mt-3 ms-2" role="button">
-      Back to Cart
-    </a>
-  </nav>
+  <div class="text-center mt-3">
+    <a href="/cart" class="btn btn-outline-danger">← Back to Cart</a>
+  </div>
 </main>

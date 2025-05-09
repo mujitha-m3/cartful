@@ -36,7 +36,22 @@ exports.addToCart = async (req, res) => {
     }
 
     const qty = parseInt(quantity) || 1;
-    const unit_price = product.price;
+    // determine unit price and discount
+    let unit_price = product.price;
+    let discount_applied = 0;
+    const now = new Date();
+    if (product.discount_type && product.discount_value
+        && (!product.discount_start || product.discount_start <= now)
+        && (!product.discount_end || product.discount_end >= now)) {
+      if (product.discounted_price != null) {
+        unit_price = product.discounted_price;
+      } else if (product.discount_type === 'percentage') {
+        unit_price = product.price * (1 - product.discount_value / 100);
+      } else if (product.discount_type === 'flat') {
+        unit_price = product.price - product.discount_value;
+      }
+      discount_applied = product.price - unit_price;
+    }
     const total_price = unit_price * qty;
 
     let cart = await Cart.findOne({ user_id: req.user._id });
@@ -47,6 +62,8 @@ exports.addToCart = async (req, res) => {
     let item = await CartItem.findOne({ cart_id: cart._id, product_id });
     if (item) {
       item.quantity += qty;
+      item.unit_price = unit_price;
+      item.discount_applied = discount_applied;
       item.total_price = item.quantity * unit_price;
     } else {
       item = new CartItem({
@@ -54,6 +71,7 @@ exports.addToCart = async (req, res) => {
         product_id,
         quantity: qty,
         unit_price,
+        discount_applied,
         total_price
       });
     }
@@ -64,15 +82,19 @@ exports.addToCart = async (req, res) => {
     if (!req.session.cart) req.session.cart = {};
     if (req.session.cart[product_id]) {
       req.session.cart[product_id].quantity += qty;
+      // update price and discount for existing entry
+      req.session.cart[product_id].product.price = unit_price;
+      req.session.cart[product_id].discount_applied = discount_applied;
     } else {
       req.session.cart[product_id] = {
         product: {
           _id: product._id,
           name: product.name,
-          price: product.price,
+          price: unit_price,
           image: product.image
         },
-        quantity: qty
+        quantity: qty,
+        discount_applied
       };
     }
 

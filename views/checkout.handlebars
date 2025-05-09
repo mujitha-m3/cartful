@@ -109,28 +109,44 @@
       <div class="tab-pane fade" id="shipping" role="tabpanel" aria-labelledby="shipping-tab" tabindex="0">
         <h5>Select Shipping Method</h5>
 
-        <div class="row row-cols-1 row-cols-md-3 g-3" role="radiogroup">
+        <div class="row row-cols-1 row-cols-md-3 g-4" role="radiogroup">
           <div class="col">
-            <label class="card p-3 border shadow-sm position-relative">
-              <input type="radio" name="shippingMethod" value="Posti" class="form-check-input position-absolute top-0 end-0 m-2" required>
-              <h6 class="card-title">Posti</h6>
-              <p>2–4 business days – €4.90</p>
+            <label class="card shipping-option p-3 border shadow-sm position-relative">
+              <input type="radio" name="shippingMethod" value="Posti" class="form-check-input position-absolute top-0 end-0 m-3" required>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-truck fs-2 me-3 text-primary"></i>
+                <div>
+                  <h6 class="card-title mb-1">Posti</h6>
+                  <p class="mb-0 small text-muted">2–4 business days</p>
+                  <span class="fw-bold">€4.90</span>
+                </div>
+              </div>
             </label>
           </div>
-
           <div class="col">
-            <label class="card p-3 border shadow-sm position-relative">
-              <input type="radio" name="shippingMethod" value="Matkahuolto" class="form-check-input position-absolute top-0 end-0 m-2" required>
-              <h6 class="card-title">Matkahuolto</h6>
-              <p>3–5 business days – €5.90</p>
+            <label class="card shipping-option p-3 border shadow-sm position-relative">
+              <input type="radio" name="shippingMethod" value="Matkahuolto" class="form-check-input position-absolute top-0 end-0 m-3" required>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-box-seam fs-2 me-3 text-primary"></i>
+                <div>
+                  <h6 class="card-title mb-1">Matkahuolto</h6>
+                  <p class="mb-0 small text-muted">3–5 business days</p>
+                  <span class="fw-bold">€5.90</span>
+                </div>
+              </div>
             </label>
           </div>
-
           <div class="col">
-            <label class="card p-3 border shadow-sm position-relative">
-              <input type="radio" name="shippingMethod" value="Pickup" class="form-check-input position-absolute top-0 end-0 m-2" required>
-              <h6 class="card-title">In-store Pickup</h6>
-              <p>Ready next day – Free</p>
+            <label class="card shipping-option p-3 border shadow-sm position-relative">
+              <input type="radio" name="shippingMethod" value="Pickup" class="form-check-input position-absolute top-0 end-0 m-3" required>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-shop fs-2 me-3 text-primary"></i>
+                <div>
+                  <h6 class="card-title mb-1">In-store Pickup</h6>
+                  <p class="mb-0 small text-muted">Ready next day</p>
+                  <span class="fw-bold text-success">Free</span>
+                </div>
+              </div>
             </label>
           </div>
         </div>
@@ -145,14 +161,31 @@
       <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab" tabindex="0">
         <h5>Select Payment Method</h5>
 
-        <div class="form-check mb-2">
-          <input type="radio" name="paymentMethod" id="stripe" value="stripe" class="form-check-input" required>
-          <label for="stripe" class="form-check-label">Credit/Debit Card (via Stripe)</label>
-        </div>
-
-        <div class="form-check">
-          <input type="radio" name="paymentMethod" id="cod" value="cod" class="form-check-input">
-          <label for="cod" class="form-check-label">Cash on Delivery</label>
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+          <div class="col">
+            <label class="card payment-option p-3 border shadow-sm position-relative">
+              <input type="radio" name="paymentMethod" id="stripe" value="stripe" class="form-check-input position-absolute top-0 end-0 m-3" required>
+              <div class="d-flex align-items-center">
+                <img src="/images/stripe-logo.png" alt="Stripe" class="me-3" style="width:50px;">
+                <div>
+                  <h6 class="card-title mb-1">Credit/Debit Card</h6>
+                  <p class="mb-0 text-muted">Powered by Stripe</p>
+                </div>
+              </div>
+            </label>
+          </div>
+          <div class="col">
+            <label class="card payment-option p-3 border shadow-sm position-relative">
+              <input type="radio" name="paymentMethod" id="cod" value="cod" class="form-check-input position-absolute top-0 end-0 m-3" required>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-cash-stack fs-2 me-3"></i>
+                <div>
+                  <h6 class="card-title mb-1">Cash on Delivery</h6>
+                  <p class="mb-0 text-muted">Pay when you receive your order</p>
+                </div>
+              </div>
+            </label>
+          </div>
         </div>
 
         <div class="mt-4">

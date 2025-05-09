@@ -6,6 +6,7 @@ const { addToCart, removeFromCart, updateCartItem, viewCart } = require('../cont
 router.get('/', viewCart);
 router.post('/add', addToCart);
 router.post('/update/:id', updateCartItem);
+router.post('/remove/:id', removeFromCart);
 router.get('/remove/:id', removeFromCart);
 
 module.exports = router;

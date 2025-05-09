@@ -70,16 +70,18 @@
         <input type="text" id="restricted_countries" name="restricted_countries" placeholder="US,CA,GB (comma separated)">
       </div>
 
-      <!-- Updated checkbox group to properly align -->
+      <!-- Updated checkbox group to dynamically render -->
       <div class="input-group checkbox-group">
         <div class="label-container">
           <label>Status</label>
         </div>
-        <label class="checkbox-label">
-          <input type="checkbox" name="is_active" checked>
-          <span class="checkbox-custom"></span>
-          <span>Active Category</span>
-        </label>
+        {{#each statusOptions}}
+          <label class="checkbox-label">
+            <input type="checkbox" name="{{name}}" {{#if checked}}checked{{/if}}>
+            <span class="checkbox-custom"></span>
+            <span>{{label}}</span>
+          </label>
+        {{/each}}
       </div>
     </div>
 
