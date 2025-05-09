@@ -44,7 +44,9 @@
     <div class="cart-summary">
       <div class="summary-row">
         <span>Subtotal</span>
-        <span>€{{calculateTotal cartItems}}</span>
+        <span>
+          {{#if (eq (calculateTotal cartItems) 0)}}0{{else}}€{{calculateTotal cartItems}}{{/if}}
+        </span>
       </div>
       <div class="cart-actions">
         <a href="/" class="continue-shopping">Continue Shopping</a>
