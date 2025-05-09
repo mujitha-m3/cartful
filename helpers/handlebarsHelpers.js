@@ -45,6 +45,7 @@ module.exports = {
     }
     return total.toFixed(2);
   },
+
   
   // NEW HELPER: Calculates subtotal after discounts
   calculateDiscountedSubtotal: function(cart) {
@@ -68,5 +69,11 @@ module.exports = {
       minute: '2-digit',
       second: '2-digit'
     });
+  },
+  multiply: (a, b) => {
+    const numA = typeof a === 'string' ? parseFloat(a) : a;
+    const numB = typeof b === 'string' ? parseFloat(b) : b;
+    if (isNaN(numA) || isNaN(numB)) return '0.00';
+    return (numA * numB).toFixed(2);
   }
 };
