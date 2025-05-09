@@ -35,8 +35,6 @@ module.exports = {
   ifEquals: (arg1, arg2, options) => (arg1 == arg2 ? options.fn(this) : options.inverse(this)),
   formatPrice: (price) => (price ? `€${price.toFixed(2)}` : '€0.00'),
   hasChildren: (category) => category && category.children && category.children.length > 0,
-  
-  // Cart-related helpers
   calculateTotal: (items) => {
     if (!items) return '0.00';
     let total = 0;
@@ -45,18 +43,28 @@ module.exports = {
     }
     return total.toFixed(2);
   },
-
-  
-  // NEW HELPER: Calculates subtotal after discounts
-  calculateDiscountedSubtotal: function(cart) {
-    if (!cart) return 0;
-    return cart.reduce((sum, item) => {
-      const price = item.product.discounted_price || item.product.price;
-      return sum + (price * item.quantity);
-    }, 0);
+  calculateDiscountedTotal: (items) => {
+    if (!items) return '0.00';
+    let total = 0;
+    for (let item of items) {
+      let price = item.unit_price || item.price || 0;
+      let quantity = item.quantity || 1;
+      let subtotal = price * quantity;
+      let discountType = item.discount_type || item.discountType || null;
+      let discountValue = item.discount_value || item.discountValue || item.discount || 0;
+      let discounted = subtotal;
+      if (discountType && discountValue) {
+        if (discountType === 'percentage') {
+          discounted = subtotal * (1 - discountValue / 100);
+        } else if (discountType === 'flat') {
+          discounted = subtotal - discountValue;
+        }
+      }
+      if (discounted < 0) discounted = 0;
+      total += discounted;
+    }
+    return total.toFixed(2);
   },
-  
-  // Other helpers
   eq: (a, b) => a === b,
   json: (context) => JSON.stringify(context),
   inc: (v) => parseInt(v, 10) + 1,
