@@ -47,21 +47,21 @@
             <tr>
               <td>{{this.product.name}}</td>
               <td>{{this.quantity}}</td>
-              {{#if this.product.discounted_price}}
-                <td>
-                  <span class="discounted-price">{{this.product.discounted_price}} €</span>
-                  <span class="original-price">{{this.product.price}} €</span>
-                  {{#if (eq this.product.discount_type "percentage")}}
-                    <p class="text-danger mb-1">-{{this.product.discount_value}}% Off</p>
-                  {{else if (eq this.product.discount_type "flat")}}
-                    <p class="text-danger mb-1">-{{this.product.discount_value}} € Off</p>
-                  {{/if}}
-                </td>
-                <td>{{multiply this.product.discounted_price this.quantity}} €</td>
-              {{else}}
-                <td class="discounted-price">{{this.product.price}} €</td>
-                <td>{{multiply this.product.price this.quantity}} €</td>
-              {{/if}}
+              <td>
+                {{#if (lt this.discountedPrice this.originalPrice)}}
+                  <span class="text-muted text-decoration-line-through">{{this.originalPrice}} €</span>
+                  <span class="fw-bold text-success ms-1">{{this.discountedPrice}} €</span>
+                {{else}}
+                  {{this.originalPrice}} €
+                {{/if}}
+              </td>
+              <td>
+                {{#if (lt this.discountedPrice this.originalPrice)}}
+                  {{multiply this.discountedPrice this.quantity}} €
+                {{else}}
+                  {{multiply this.originalPrice this.quantity}} €
+                {{/if}}
+              </td>
             </tr>
             {{/each}}
           </tbody>
@@ -69,13 +69,13 @@
       </div>
     </div>
     <div class="card-footer text-end">
-  <p class="mb-1"><span class="fw-semibold">Subtotal:</span> {{calculateDiscountedSubtotal cart}} €</p>
+  <p class="mb-1"><span class="fw-semibold">Subtotal:</span> {{#if (eq subtotal 0)}}0{{else}}{{subtotal}} €{{/if}}</p>
   <p class="mb-1"><span class="fw-semibold">Shipping:</span> {{shippingFee}} €</p>
   <h4 class="fw-bold mb-0">Total: {{total}} €</h4>
 </div>
   </div>
 
-  <!-- ✅ Confirm Button -->
+  <!-- Confirm Button -->
   {{#if (eq paymentMethod "cod")}}
   <form action="/checkout/place-order" method="POST" class="mt-4 text-center">
     <input type="hidden" name="firstName" value="{{firstName}}">
