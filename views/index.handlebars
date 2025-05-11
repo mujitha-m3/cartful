@@ -1,6 +1,34 @@
 <!-- In <head> -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
+<style>
+  /* Ensure sufficient contrast for newsletter text */
+  .newsletter-section p {
+    color: #333; /* Darker text color for better contrast */
+  }
+
+  /* Ensure sufficient contrast for the Subscribe button */
+  .newsletter-form button {
+    background-color: #0056b3; /* Darker blue for better contrast */
+    color: #fff; /* White text */
+  }
+
+  .newsletter-form button:hover {
+    background-color: #004494; /* Slightly darker on hover */
+  }
+
+  /* Ensure pagination buttons meet minimum size and spacing requirements */
+  .swiper-pagination-bullet {
+    width: 24px;
+    height: 24px;
+    margin: 4px;
+  }
+
+  .swiper-pagination-bullet-active {
+    background-color: #0056b3; /* Highlight active bullet */
+  }
+</style>
+
 <!-- Before </body> -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
@@ -39,8 +67,8 @@
                 <input type="hidden" name="product_id" value="{{this._id}}" />
                 <input type="number" name="quantity" value="1" min="1" required class="quantity-input" style="width: 196px;" aria-label="Quantity">
                 <div class="d-flex">
-                <button type="submit" class="btn btn-primary add-to-cart-button" aria-label="Add to Cart">Add to Cart</button>
-                <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button" aria-label="View details of {{this.name}}">View Details</a>
+                <button type="submit" class="btn btn-primary add-to-cart-button" style="min-width: 44px; min-height: 44px; padding: 12px;" aria-label="Add to Cart">Add to Cart</button>
+                <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button" style="min-width: 44px; min-height: 44px; padding: 12px;" aria-label="View details of {{this.name}}">View Details</a>
                 </div>
               </form>
             </div>
@@ -117,8 +145,8 @@
                 <input type="hidden" name="product_id" value="{{this._id}}" />
                 <input type="number" name="quantity" value="1" min="1" required class="quantity-input" style="width: 196px;" aria-label="Quantity">
                 <div class="d-flex">
-                  <button type="submit" class="btn btn-primary add-to-cart-button" aria-label="Add to Cart">Add to Cart</button>
-                  <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button" aria-label="View details of {{this.name}}">View Details</a>
+                  <button type="submit" class="btn btn-primary add-to-cart-button" style="min-width: 44px; min-height: 44px; padding: 12px;" aria-label="Add to Cart">Add to Cart</button>
+                  <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button" style="min-width: 44px; min-height: 44px; padding: 12px;" aria-label="View details of {{this.name}}">View Details</a>
                 </div>
               </form>
             </div>
