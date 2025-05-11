@@ -1,22 +1,24 @@
-<h1>{{title}}</h1>
-<p>If you have any questions, feel free to contact us:</p>
-<ul>
-  <li>Email: support@cartful.com</li>
-  <li>Phone: +1 (555) 123-4567</li>
-</ul>
-<p>Or send us a message:</p>
-<form action="/contact" method="POST">
-  <div class="mb-3">
-    <label for="name" class="form-label">Name</label>
-    <input type="text" id="name" name="name" class="form-control" required>
-  </div>
-  <div class="mb-3">
-    <label for="email" class="form-label">Email</label>
-    <input type="email" id="email" name="email" class="form-control" required>
-  </div>
-  <div class="mb-3">
-    <label for="message" class="form-label">Message</label>
-    <textarea id="message" name="message" rows="5" class="form-control" required></textarea>
-  </div>
-  <button type="submit" class="btn btn-primary">Send Message</button>
-</form>
+<main role="main" aria-labelledby="contact-heading">
+  <h1 id="contact-heading">{{title}}</h1>
+  <p>If you have any questions, feel free to contact us:</p>
+  <ul>
+    <li>Email: <a href="mailto:support@cartful.com" aria-label="Send an email to support at Cartful">support@cartful.com</a></li>
+    <li>Phone: <a href="tel:+15551234567" aria-label="Call Cartful support at +1 555 123 4567">+1 (555) 123-4567</a></li>
+  </ul>
+  <p>Or send us a message:</p>
+  <form action="/contact" method="POST" aria-labelledby="contact-heading">
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input type="text" id="name" name="name" class="form-control" required aria-required="true">
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" id="email" name="email" class="form-control" required aria-required="true">
+    </div>
+    <div class="mb-3">
+      <label for="message" class="form-label">Message</label>
+      <textarea id="message" name="message" rows="5" class="form-control" required aria-required="true"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary" aria-label="Send your message">Send Message</button>
+  </form>
+</main>

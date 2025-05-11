@@ -1,8 +1,8 @@
 {{! views/orderHistory.handlebars }}
 {{> header}}
 
-<main class="container py-4">
-  <h1 class="mb-4">Order History</h1>
+<main class="container py-4" role="main" aria-labelledby="order-history-heading">
+  <h1 class="mb-4" id="order-history-heading">Order History</h1>
 
   {{#if orders.length}}
     {{#each orders}}
@@ -10,7 +10,7 @@
         <div class="card-header">
           <strong>Order #{{inc @index}}</strong>
           <small class="text-muted">{{formatDate this.createdAt}}</small>
-          <span class="badge bg-secondary float-end">{{this.order_status}}</span>
+          <span class="badge bg-secondary float-end" aria-label="Order status: {{this.order_status}}">{{this.order_status}}</span>
         </div>
         <div class="card-body">
           <p><strong>Total:</strong> ${{calculateTotal this.items}}</p>
@@ -26,12 +26,12 @@
       </div>
     {{/each}}
   {{else}}
-    <div class="alert alert-info">
+    <div class="alert alert-info" role="alert" aria-live="polite">
       You have not placed any orders yet.
     </div>
   {{/if}}
 
-  <a href="/profile" class="btn btn-outline-secondary">Back to Profile</a>
+  <a href="/profile" class="btn btn-outline-secondary" aria-label="Back to your profile">Back to Profile</a>
 </main>
 
 {{> footer}}

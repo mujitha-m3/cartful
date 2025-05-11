@@ -1,19 +1,21 @@
 <main aria-labelledby="login-title">
   <section class="login-section">
     {{#if success_msg}}
-      <aside class="alert alert-success" role="alert">
+      <aside class="alert alert-success" role="alert" aria-live="polite">
         {{success_msg}}
       </aside>
     {{/if}}
     {{#if error_msg}}
-      <aside class="alert alert-danger" role="alert">
+      <aside class="alert alert-danger" role="alert" aria-live="assertive">
         {{error_msg}}
       </aside>
     {{/if}}
 
+    <div id="login-status" aria-live="polite" class="visually-hidden"></div>
+
     <h1 id="login-title">Login</h1>
 
-    <form method="POST" action="/api/loginUser" aria-describedby="login-instructions">
+    <form method="POST" action="/api/loginUser" aria-describedby="login-instructions" aria-live="polite">
       <p id="login-instructions" class="visually-hidden">
         Please enter your email and password to log in.
       </p>
@@ -44,10 +46,6 @@
     <div class="login-options">
       <a href="/forgotPassword" class="link-small">Forgot password?</a>
       <div class="divider">or</div>
-
-      <!--<button class="social-btn google">
-        <span class="icon">G</span> Log in with Google
-      </button>-->
       <a href="/auth/google" class="social-btn google">
         <span class="icon">G</span> Log in with Google
       </a>

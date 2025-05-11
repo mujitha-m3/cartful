@@ -2,32 +2,32 @@
   <h1 id="settings-heading">Personal Info</h1>
 
   {{#if success_msg}}
-    <div class="alert alert-success" role="alert">{{success_msg}}</div>
+    <div class="alert alert-success" role="alert" aria-live="polite">{{success_msg}}</div>
   {{/if}}
   {{#if error_msg}}
-    <div class="alert alert-danger" role="alert">{{error_msg}}</div>
+    <div class="alert alert-danger" role="alert" aria-live="assertive">{{error_msg}}</div>
   {{/if}}
 
   <!--  Profile Update Form -->
   <form action="/api/users/profile?_method=PATCH" method="POST" aria-labelledby="settings-heading">
     <div class="mb-3">
       <label for="firstname" class="form-label">First Name</label>
-      <input type="text" id="firstname" name="firstname" class="form-control" value="{{user.firstName}}" required>
+      <input type="text" id="firstname" name="firstname" class="form-control" value="{{user.firstName}}" required aria-required="true">
     </div>
 
     <div class="mb-3">
       <label for="lastname" class="form-label">Last Name</label>
-      <input type="text" id="lastname" name="lastname" class="form-control" value="{{user.lastName}}" required>
+      <input type="text" id="lastname" name="lastname" class="form-control" value="{{user.lastName}}" required aria-required="true">
     </div>
 
     <div class="mb-3">
       <label for="email" class="form-label">Email</label>
-      <input type="email" class="form-control" value="{{user.email}}" disabled>
+      <input type="email" class="form-control" value="{{user.email}}" disabled aria-disabled="true">
     </div>
 
     <div class="mb-3">
       <label for="phone" class="form-label">Phone Number</label>
-      <input type="tel" id="phone" name="phone" class="form-control" value="{{user.phone}}" placeholder="+358 40 123 4567" required>
+      <input type="tel" id="phone" name="phone" class="form-control" value="{{user.phone}}" placeholder="+358 40 123 4567" required aria-required="true">
       <div id="phoneHelp" class="form-text">Include country code (e.g. +358)</div>
     </div>
 
@@ -37,26 +37,26 @@
   <hr class="my-5" />
 
   <!--  Password Change Form -->
-  <form action="/api/users/password/update?_method=PATCH" method="POST">
+  <form action="/api/users/password/update?_method=PATCH" method="POST" aria-labelledby="settings-heading">
     <h2 class="h5">Change Password</h2>
 
     <div class="mb-3">
       <label for="currentPassword" class="form-label">Current Password</label>
-      <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+      <input type="password" id="currentPassword" name="currentPassword" class="form-control" required aria-required="true">
     </div>
 
     <div class="mb-3">
       <label for="newPassword" class="form-label">New Password</label>
-      <input type="password" id="newPassword" name="newPassword" class="form-control" required>
+      <input type="password" id="newPassword" name="newPassword" class="form-control" required aria-required="true">
     </div>
 
     <div class="mb-3">
       <label for="confirmPassword" class="form-label">Confirm New Password</label>
-      <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+      <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required aria-required="true">
     </div>
 
     <button type="submit" class="btn btn-warning">Change Password</button>
   </form>
 
-  <a href="/profile" class="btn btn-outline-secondary mt-4">Back</a>
+  <a href="/profile" class="btn btn-outline-secondary mt-4" aria-label="Back to profile settings">Back</a>
 </main>
