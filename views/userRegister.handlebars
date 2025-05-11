@@ -3,42 +3,46 @@
 
   <!-- Show error or success messages -->
   {{#if errorMessage}}
-    <aside class="error-message">
+    <aside class="error-message" role="alert" aria-live="assertive">
       <h4>{{errorMessage}}</h4>
     </aside>
   {{/if}}
 
   {{#if successMessage}}
-    <aside class="success-message">
+    <aside class="success-message" role="alert" aria-live="polite">
       <h4>{{successMessage}}</h4>
     </aside>
   {{/if}}
 
+  <div id="register-status" aria-live="polite" class="visually-hidden"></div>
+
   <!-- Registration Form -->
-  <form method="POST" action="/api/customerRegister">
+  <form method="POST" action="/api/customerRegister" aria-live="polite">
 
     <!-- First Name -->
-    <fieldset>
+    <div>
       <label for="firstName">First Name*</label>
-      <input type="text" id="firstName" name="firstName" required>
-    </fieldset>
+      <input type="text" id="firstName" name="firstName" required aria-required="true">
+    </div>
 
     <!-- Last Name -->
-    <fieldset>
+    <div>
       <label for="lastName">Last Name*</label>
-      <input type="text" id="lastName" name="lastName" required>
-    </fieldset>
-
-    <!-- Full Name (automatically populated in backend) -->
-    <!--<input type="hidden" id="fullName" name="fullName"> -->
+      <input type="text" id="lastName" name="lastName" required aria-required="true">
+    </div>
 
     <!-- Email -->
-    <fieldset>
+    <div>
       <label for="email">Email*</label>
-      <input type="email" id="email" name="email" required>
-    </fieldset>
+      <input type="email" id="email" name="email" required aria-required="true">
+    </div>
 
     <!-- Submit Button -->
     <button type="submit" class="login-btn">Register</button>
   </form>
 </section>
+
+<script>
+  // Example: update #register-status text when registration is attempted (requires backend/frontend logic)
+  // document.getElementById('register-status').textContent = 'Registering...';
+</script>

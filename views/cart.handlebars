@@ -1,6 +1,11 @@
 <div class="cart-container">
   <h2 class="cart-title">Your Cart</h2>
 
+  {{#if message}}
+    <div class="cart-message" role="alert" aria-live="assertive">{{message}}</div>
+  {{/if}}
+  <div id="cart-status" aria-live="polite" class="visually-hidden"></div>
+  
   {{#if cartItems.length}}
     <table class="cart-table">
       <thead>
@@ -25,15 +30,15 @@
               {{/if}}
             </td>
             <td>
-              <form method="POST" action="/cart/update/{{this._id}}">
-                <input type="number" name="quantity" value="{{this.quantity}}" min="1" class="quantity-input" />
-                <button type="submit" class="update-btn">Update</button>
+              <form method="POST" action="/cart/update/{{this._id}}" aria-label="Update quantity for {{this.product_id.name}}">
+                <input type="number" name="quantity" value="{{this.quantity}}" min="1" class="quantity-input" aria-label="Quantity for {{this.product_id.name}}" />
+                <button type="submit" class="update-btn" aria-label="Update quantity for {{this.product_id.name}}">Update</button>
               </form>
             </td>
             <td class="price">€{{this.total_price}}</td>
             <td class="d-flex">
-              <form method="POST" action="/cart/remove/{{this._id}}">
-                <button type="submit" class="remove-item-btn">Remove</button>
+              <form method="POST" action="/cart/remove/{{this._id}}" aria-label="Remove {{this.product_id.name}} from cart">
+                <button type="submit" class="remove-item-btn" aria-label="Remove {{this.product_id.name}} from cart">Remove</button>
               </form>
             </td>
           </tr>
@@ -61,3 +66,14 @@
     </div>
   {{/if}}
 </div>
+
+<script>
+  if (window.location.hash === '#updated') {
+    const status = document.getElementById('cart-status');
+    if (status) {
+      status.textContent = 'Cart updated.';
+      status.classList.remove('visually-hidden');
+      setTimeout(() => status.classList.add('visually-hidden'), 3000);
+    }
+  }
+</script>

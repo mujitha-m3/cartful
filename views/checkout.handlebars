@@ -1,6 +1,13 @@
 <main>
   <h1 class="mb-4">Checkout</h1>
 
+  {{#if error}}
+    <div class="alert alert-danger" role="alert" aria-live="assertive">{{error}}</div>
+  {{/if}}
+  {{#if success}}
+    <div class="alert alert-success" role="alert" aria-live="polite">{{success}}</div>
+  {{/if}}
+
   <ul class="nav nav-tabs mb-3" id="checkoutTabs" role="tablist">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="order-tab" data-bs-toggle="tab" data-bs-target="#order" type="button" role="tab" aria-controls="order" aria-selected="true">
@@ -32,7 +39,7 @@
               id="firstName"
               name="firstName"
               class="form-control"
-              required
+              required aria-required="true"
               value="{{user.firstName}}"
               autocomplete="given-name"
             >
@@ -44,7 +51,7 @@
               id="lastName"
               name="lastName"
               class="form-control"
-              required
+              required aria-required="true"
               value="{{user.lastName}}"
               autocomplete="family-name"
             >
@@ -57,7 +64,7 @@
           id="phone"
           name="phone"
           class="form-control"
-          required
+          required aria-required="true"
           value="{{user.phone}}"
           autocomplete="tel"
         >
@@ -70,7 +77,7 @@
             id="shippingStreet"
             name="shippingStreet"
             class="form-control"
-            required
+            required aria-required="true"
             value="{{user.addressLine1}}"
             autocomplete="address-line1"
           >
@@ -83,7 +90,7 @@
               id="shippingPostal"
               name="shippingPostal"
               class="form-control"
-              required
+              required aria-required="true"
               value="{{user.postalCode}}"
               autocomplete="postal-code"
             >
@@ -95,7 +102,7 @@
               id="shippingCity"
               name="shippingCity"
               class="form-control"
-              required
+              required aria-required="true"
               value="{{user.city}}"
               autocomplete="address-level2"
             >
@@ -112,7 +119,7 @@
         <div class="row row-cols-1 row-cols-md-3 g-4" role="radiogroup">
           <div class="col">
             <label class="card shipping-option p-3 border shadow-sm position-relative">
-              <input type="radio" name="shippingMethod" value="Posti" class="form-check-input position-absolute top-0 end-0 m-3" required>
+              <input type="radio" name="shippingMethod" value="Posti" class="form-check-input position-absolute top-0 end-0 m-3" required aria-required="true">
               <div class="d-flex align-items-center">
                 <i class="bi bi-truck fs-2 me-3 text-primary"></i>
                 <div>
@@ -125,7 +132,7 @@
           </div>
           <div class="col">
             <label class="card shipping-option p-3 border shadow-sm position-relative">
-              <input type="radio" name="shippingMethod" value="Matkahuolto" class="form-check-input position-absolute top-0 end-0 m-3" required>
+              <input type="radio" name="shippingMethod" value="Matkahuolto" class="form-check-input position-absolute top-0 end-0 m-3" required aria-required="true">
               <div class="d-flex align-items-center">
                 <i class="bi bi-box-seam fs-2 me-3 text-primary"></i>
                 <div>
@@ -138,7 +145,7 @@
           </div>
           <div class="col">
             <label class="card shipping-option p-3 border shadow-sm position-relative">
-              <input type="radio" name="shippingMethod" value="Pickup" class="form-check-input position-absolute top-0 end-0 m-3" required>
+              <input type="radio" name="shippingMethod" value="Pickup" class="form-check-input position-absolute top-0 end-0 m-3" required aria-required="true">
               <div class="d-flex align-items-center">
                 <i class="bi bi-shop fs-2 me-3 text-primary"></i>
                 <div>
@@ -164,7 +171,7 @@
         <div class="row row-cols-1 row-cols-md-2 g-4">
           <div class="col">
             <label class="card payment-option p-3 border shadow-sm position-relative">
-              <input type="radio" name="paymentMethod" id="stripe" value="stripe" class="form-check-input position-absolute top-0 end-0 m-3" required>
+              <input type="radio" name="paymentMethod" id="stripe" value="stripe" class="form-check-input position-absolute top-0 end-0 m-3" required aria-required="true">
               <div class="d-flex align-items-center">
                 <img src="/images/stripe-logo.png" alt="Stripe" class="me-3" style="width:50px;">
                 <div>
@@ -176,7 +183,7 @@
           </div>
           <div class="col">
             <label class="card payment-option p-3 border shadow-sm position-relative">
-              <input type="radio" name="paymentMethod" id="cod" value="cod" class="form-check-input position-absolute top-0 end-0 m-3" required>
+              <input type="radio" name="paymentMethod" id="cod" value="cod" class="form-check-input position-absolute top-0 end-0 m-3" required aria-required="true">
               <div class="d-flex align-items-center">
                 <i class="bi bi-cash-stack fs-2 me-3"></i>
                 <div>

@@ -1,5 +1,5 @@
 <main>
-  <h1 class="mb-4">Order Confirmation</h1>
+  <h1 class="mb-4" id="order-confirmation-heading">Order Confirmation</h1>
 
   <!-- 👤 Customer Info Section -->
   <div class="card mb-4">
@@ -69,15 +69,15 @@
       </div>
     </div>
     <div class="card-footer text-end">
-  <p class="mb-1"><span class="fw-semibold">Subtotal:</span> {{#if (eq subtotal 0)}}0{{else}}{{subtotal}} €{{/if}}</p>
-  <p class="mb-1"><span class="fw-semibold">Shipping:</span> {{shippingFee}} €</p>
-  <h4 class="fw-bold mb-0">Total: {{total}} €</h4>
-</div>
+      <p class="mb-1"><span class="fw-semibold">Subtotal:</span> {{#if (eq subtotal 0)}}0{{else}}{{subtotal}} €{{/if}}</p>
+      <p class="mb-1"><span class="fw-semibold">Shipping:</span> {{shippingFee}} €</p>
+      <h4 class="fw-bold mb-0">Total: {{total}} €</h4>
+    </div>
   </div>
 
   <!-- Confirm Button -->
   {{#if (eq paymentMethod "cod")}}
-  <form action="/checkout/place-order" method="POST" class="mt-4 text-center">
+  <form action="/checkout/place-order" method="POST" class="mt-4 text-center" aria-labelledby="order-confirmation-heading">
     <input type="hidden" name="firstName" value="{{firstName}}">
     <input type="hidden" name="lastName" value="{{lastName}}">
     <input type="hidden" name="phone" value="{{phone}}">
@@ -89,10 +89,10 @@
     <input type="hidden" name="subtotal" value="{{subtotal}}">
     <input type="hidden" name="shippingFee" value="{{shippingFee}}">
     <input type="hidden" name="total" value="{{total}}">
-    <button type="submit" class="btn btn-lg btn-success mt-3 px-4">✅ Confirm Order</button>
+    <button type="submit" class="btn btn-lg btn-success mt-3 px-4" aria-label="Confirm your order with Cash on Delivery">✅ Confirm Order</button>
   </form>
   {{else}}
-  <form action="/checkout/stripe" method="POST" class="mt-4 text-center">
+  <form action="/checkout/stripe" method="POST" class="mt-4 text-center" aria-labelledby="order-confirmation-heading">
     <input type="hidden" name="firstName" value="{{firstName}}">
     <input type="hidden" name="lastName" value="{{lastName}}">
     <input type="hidden" name="phone" value="{{phone}}">
@@ -104,10 +104,10 @@
     <input type="hidden" name="subtotal" value="{{subtotal}}">
     <input type="hidden" name="shippingFee" value="{{shippingFee}}">
     <input type="hidden" name="total" value="{{total}}">
-    <button type="submit" class="btn btn-lg btn-primary mt-3 px-4">💳 Pay with Card</button>
+    <button type="submit" class="btn btn-lg btn-primary mt-3 px-4" aria-label="Pay with your card using Stripe">💳 Pay with Card</button>
   </form>
   {{/if}}
   <div class="text-center mt-3">
-    <a href="/cart" class="btn btn-outline-danger">← Back to Cart</a>
+    <a href="/cart" class="btn btn-outline-danger" aria-label="Go back to your cart">← Back to Cart</a>
   </div>
 </main>

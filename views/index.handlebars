@@ -4,21 +4,20 @@
 <!-- Before </body> -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-
 <!-- Hero Section -->
-<section class="hero-section text-center py-5">
+<section class="hero-section text-center py-5" role="region" aria-labelledby="hero-heading">
   <div class="container">
-    <h1 class="display-4">Welcome to Our Store</h1>
+    <h1 class="display-4" id="hero-heading">Welcome to Our Store</h1>
     <p class="lead mb-4">Discover amazing products at great prices</p>
-    <a href="/login" class="btn btn-primary btn-lg">SHOP NOW</a>
+    <a href="/login" class="btn btn-primary btn-lg" aria-label="Shop now and explore our products">SHOP NOW</a>
   </div>
 </section>
 
 <!-- Discounted Products Section -->
 {{#if discountedProducts.length}}
-<section class="discounted-section py-5">
+<section class="discounted-section py-5" role="region" aria-labelledby="hot-deals-heading">
   <div class="container">
-    <h2 class="text-center mb-4 text-danger">Hot Deals</h2>
+    <h2 class="text-center mb-4 text-danger" id="hot-deals-heading">Hot Deals</h2>
     <div class="swiper discounted-swiper">
       <div class="swiper-wrapper">
         {{#each discountedProducts}}
@@ -36,12 +35,12 @@
                 <span class="fw-bold text-danger">€{{this.finalPrice}}</span>
               </p>
               <p class="card-text">{{this.description}}</p>
-              <form method="POST" action="/cart/add" class="add-to-cart-form">
+              <form method="POST" action="/cart/add" class="add-to-cart-form" aria-label="Add {{this.name}} to your cart">
                 <input type="hidden" name="product_id" value="{{this._id}}" />
-                <input type="number" name="quantity" value="1" min="1" required class="quantity-input" style="width: 196px;" />
+                <input type="number" name="quantity" value="1" min="1" required class="quantity-input" style="width: 196px;" aria-label="Quantity">
                 <div class="d-flex">
-                <button type="submit" class="btn btn-primary add-to-cart-button">Add to Cart</button>
-                <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button">View Details</a>
+                <button type="submit" class="btn btn-primary add-to-cart-button" aria-label="Add to Cart">Add to Cart</button>
+                <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button" aria-label="View details of {{this.name}}">View Details</a>
                 </div>
               </form>
             </div>
@@ -58,9 +57,9 @@
 {{/if}}
 
 <!-- Categories Section -->
-<section class="categories-section py-5">
+<section class="categories-section py-5" role="region" aria-labelledby="categories-heading">
   <div class="container">
-    <h2 class="text-center mb-4">Browse Categories</h2>
+    <h2 class="text-center mb-4" id="categories-heading">Browse Categories</h2>
     <div class="swiper categories-swiper">
       <div class="swiper-wrapper">
         {{#each categories}}
@@ -69,7 +68,7 @@
             <div class="card-body text-center">
               <h3 class="card-title">{{this.name}}</h3>
               <p class="card-text">Explore top items in {{this.name}} category</p>
-              <a href="/products/viewproducts?category={{this._id}}" class="btn btn-outline-primary">View Products</a>
+              <a href="/products/viewproducts?category={{this._id}}" class="btn btn-outline-primary" aria-label="View products in {{this.name}} category">View Products</a>
             </div>
           </div>
         </div>
@@ -82,7 +81,7 @@
             <div class="card-body text-center">
               <h3 class="card-title">Electronics</h3>
               <p class="card-text">Explore top items in Electronics category</p>
-              <a href="/categories/sample-id" class="btn btn-outline-primary">View Products</a>
+              <a href="/categories/sample-id" class="btn btn-outline-primary" aria-label="View products in Electronics category">View Products</a>
             </div>
           </div>
         </div>
@@ -96,11 +95,10 @@
   </div>
 </section>
 
-
 <!-- Featured Products Section -->
-<section class="products-section py-5 bg-light">
+<section class="products-section py-5 bg-light" role="region" aria-labelledby="featured-products-heading">
   <div class="container">
-    <h2 class="text-center mb-4">Featured Products</h2>
+    <h2 class="text-center mb-4" id="featured-products-heading">Featured Products</h2>
     <div class="swiper products-swiper">
       <div class="swiper-wrapper">
         {{#each products}}
@@ -115,12 +113,12 @@
               <h3 class="card-title">{{this.name}}</h3>
               <p class="card-text">€{{this.price}}</p>
               <p class="card-text">{{this.description}}</p>
-              <form method="POST" action="/cart/add" class="add-to-cart-form">
+              <form method="POST" action="/cart/add" class="add-to-cart-form" aria-label="Add {{this.name}} to your cart">
                 <input type="hidden" name="product_id" value="{{this._id}}" />
-                <input type="number" name="quantity" value="1" min="1" required class="quantity-input" style="width: 196px;" />
+                <input type="number" name="quantity" value="1" min="1" required class="quantity-input" style="width: 196px;" aria-label="Quantity">
                 <div class="d-flex">
-                  <button type="submit" class="btn btn-primary add-to-cart-button">Add to Cart</button>
-                  <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button">View Details</a>
+                  <button type="submit" class="btn btn-primary add-to-cart-button" aria-label="Add to Cart">Add to Cart</button>
+                  <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button" aria-label="View details of {{this.name}}">View Details</a>
                 </div>
               </form>
             </div>
@@ -135,19 +133,15 @@
   </div>
 </section>
 
-
-
-
-
 <!-- Newsletter Section -->
-<section class="newsletter-section py-5">
+<section class="newsletter-section py-5" role="region" aria-labelledby="newsletter-heading">
   <div class="container text-center">
-    <h2 class="mb-3">Subscribe to Our Newsletter</h2>
+    <h2 class="mb-3" id="newsletter-heading">Subscribe to Our Newsletter</h2>
     <p class="mb-4">Stay updated with our latest products and offers</p>
-    <form class="newsletter-form d-flex justify-content-center" action="/newsletter/subscribe" method="POST">
+    <form class="newsletter-form d-flex justify-content-center" action="/newsletter/subscribe" method="POST" aria-label="Subscribe to our newsletter">
       <div class="input-group" style="max-width: 400px;">
-        <input type="email" name="email" class="form-control" placeholder="Your email address" required>
-        <button type="submit" class="btn btn-primary">Subscribe</button>
+        <input type="email" name="email" class="form-control" placeholder="Your email address" required aria-required="true" aria-label="Your email address">
+        <button type="submit" class="btn btn-primary" aria-label="Subscribe">Subscribe</button>
       </div>
     </form>
   </div>
