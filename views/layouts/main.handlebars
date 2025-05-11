@@ -43,6 +43,11 @@
     .dropdown-item:hover {
       transform: translateX(5px);
     }
+
+    .low-contrast-text {
+      color: #0056B3; /* Updated to meet contrast ratio of 7.04:1 */
+      background-color: #FFFFFF;
+    }
   </style>
 </head>
 
@@ -53,8 +58,9 @@
       <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="/">
           <img src="/images/logo.png" alt="Cartful home page" class="me-2" style="height: 50px;">
+        
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="visually-hidden" aria-live="polite">
@@ -72,7 +78,7 @@
           <ul class="navbar-nav me-auto">
             {{#if (includes user.roles "user")}}
             <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
+            <li class="nav-item"><a class="nav-link" href="/about" aria-label="Learn more about us">About Us</a></li>
             <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
             {{/if}}
             {{#if (includes user.roles "admin")}}
