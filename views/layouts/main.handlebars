@@ -9,7 +9,7 @@
 
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -17,7 +17,7 @@
     .dropdown-toggle::after {
       display: none !important;
     }
-    
+
     /* Dropdown animation styles */
     .dropdown-menu {
       display: block;
@@ -27,19 +27,19 @@
       transition: all 0.3s ease;
       pointer-events: none;
     }
-    
+
     .dropdown-menu.show {
       opacity: 1;
       visibility: visible;
       transform: translateY(0);
       pointer-events: auto;
     }
-    
+
     /* Smooth transition for dropdown items */
     .dropdown-item {
       transition: background-color 0.2s ease, transform 0.2s ease;
     }
-    
+
     .dropdown-item:hover {
       transform: translateX(5px);
     }
@@ -57,6 +57,17 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
+        <div class="visually-hidden" aria-live="polite">
+          Keyboard shortcuts are available:
+          - Press Ctrl + Alt + C to open the Cart page.
+          - Press Ctrl + Alt + P to open the Profile page.
+          - Press Ctrl + Alt + H to go to the Homepage.
+          - Press Ctrl + Alt + W to open the Wishlist page.
+          - Press Ctrl + Alt + O to open the Contact page.
+          - Press Ctrl + Alt + A to add the first item to the Cart.
+          - Press Ctrl + Alt + L to log out.
+          - Press Ctrl + Alt + G to open the Categories page.
+        </div>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
             {{#if (includes user.roles "user")}}
@@ -73,18 +84,21 @@
             {{#if (includes user.roles "user")}}
             <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
             {{/if}}
-            
+
           </ul>
 
           <ul class="navbar-nav">
             {{#if user}}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
                 <i class="fas fa-user"></i> {{user.fullName}}
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                 <li><a class="dropdown-item" href="/profile"><i class="fas fa-user-circle me-2"></i>Profile</a></li>
-                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
                 <li>
                   <form method="POST" action="/logout" class="d-inline">
                     <button type="submit" class="dropdown-item">
@@ -124,18 +138,6 @@
     {{{body}}}
   </main>
 
-  <div class="visually-hidden" aria-live="polite">
-    Keyboard shortcuts are available: 
-    - Press Ctrl + Alt + C to open the Cart page.
-    - Press Ctrl + Alt + P to open the Profile page.
-    - Press Ctrl + Alt + H to go to the Homepage.
-    - Press Ctrl + Alt + W to open the Wishlist page.
-    - Press Ctrl + Alt + O to open the Contact page.
-    - Press Ctrl + Alt + A to add the first item to the Cart.
-    - Press Ctrl + Alt + L to log out.
-    - Press Ctrl + Alt + G to open the Categories page.
-  </div>
-
   <footer role="contentinfo" class="text-center mt-5">
     <p>&copy; 2025 Cartful Inc. All rights reserved.</p>
   </footer>
@@ -146,17 +148,17 @@
   <script src="/js/shortcuts.js"></script>
   <script>
     // Enhanced dropdown interaction
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const dropdowns = document.querySelectorAll('.dropdown');
-      
+
       dropdowns.forEach(dropdown => {
         const toggle = dropdown.querySelector('.dropdown-toggle');
         const menu = dropdown.querySelector('.dropdown-menu');
-        
-        toggle.addEventListener('click', function(e) {
+
+        toggle.addEventListener('click', function (e) {
           e.preventDefault();
           const isShowing = menu.classList.contains('show');
-          
+
           if (!isShowing) {
             // Close any other open dropdowns
             document.querySelectorAll('.dropdown-menu.show').forEach(openMenu => {
@@ -165,7 +167,7 @@
               }
             });
           }
-          
+
           // Bootstrap will handle the toggle via data attributes
         });
       });
