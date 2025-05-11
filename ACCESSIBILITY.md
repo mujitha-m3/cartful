@@ -73,8 +73,8 @@ The NVDA screen reader was used to manually test the website's accessibility. Th
 - **Keyboard Navigation**: Some custom components, like dropdowns, required additional scripting to make them fully keyboard-accessible.
 
 ## Team Responsibilities
-- **Mujitha**: Implemented ARIA attributes and ensured semantic HTML usage across all pages.
-- **Kasun**: Focused on keyboard navigation and dynamic content updates.
+- **Kasun**: Implemented ARIA attributes and ensured semantic HTML usage across all pages.
+- **Mujitha**: Focused on keyboard navigation and dynamic content updates.
 - **Asitha**: Conducted manual testing with NVDA and addressed issues identified by evaluation tools.
 
 ## Recommendations for Future Work
