@@ -37,6 +37,26 @@ Forms include:
 - **Product Details Page**: The price, discount, and stock status are announced with appropriate ARIA attributes, ensuring users can understand the product's details without visual cues.
 - **Wishlist Page**: Buttons for adding/removing items from the wishlist include `aria-label` attributes to describe their actions.
 
+### 8. Keyboard Shortcuts
+To enhance accessibility, we have implemented the following keyboard shortcuts in the project:
+
+| Shortcut            | Action                          |
+|---------------------|---------------------------------|
+| `Ctrl + Alt + C`    | Open the Cart page             |
+| `Ctrl + Alt + P`    | Open the Profile page          |
+| `Ctrl + Alt + H`    | Go to the Homepage             |
+| `Ctrl + Alt + W`    | Open the Wishlist page         |
+| `Ctrl + Alt + O`    | Open the Contact page          |
+| `Ctrl + Alt + A`    | Add the first item to the Cart |
+| `Ctrl + Alt + L`    | Log out                        |
+| `Ctrl + Alt + G`    | Open the Categories page       |
+
+#### How to Use
+These shortcuts are designed to work across the website. Simply press the specified key combination to perform the corresponding action. For example, pressing `Ctrl + Alt + C` will take you directly to the Cart page.
+
+#### Screen Reader Compatibility
+To ensure that users relying on screen readers are aware of these shortcuts, we recommend adding a section in the website's Help or Accessibility page to document these shortcuts. Additionally, tooltips or announcements can be added dynamically to inform users about the shortcuts when they navigate to relevant sections.
+
 ## Evaluation Tools Used
 
 ### 1. Wave Browser Extension
