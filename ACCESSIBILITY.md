@@ -77,10 +77,6 @@ The NVDA screen reader was used to manually test the website's accessibility. Th
 - **Mujitha**: Focused on keyboard navigation and dynamic content updates.
 - **Asitha**: Conducted manual testing with NVDA and addressed issues identified by evaluation tools.
 
-## Recommendations for Future Work
-- Conduct user testing with individuals who rely on assistive technologies to gather real-world feedback.
-- Regularly update the project to comply with evolving accessibility standards.
-
 ## Notes in GitHub
 A section was added to the project's `README.md` file to highlight the accessibility considerations and features implemented. This serves as a reference for future developers and contributors.
 
