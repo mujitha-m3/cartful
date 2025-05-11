@@ -55,6 +55,8 @@ For more detailed information on accessibility considerations and guidelines fol
 - JavaScript, HTML, CSS – core frontend
 - Git + GitHub – version control
 - Trello – project management
+- Stripe payment gateway
+- Nordmailer
 
 
 -------------
