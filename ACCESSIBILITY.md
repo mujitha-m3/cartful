@@ -82,4 +82,4 @@ A section was added to the project's `README.md` file to highlight the accessibi
 
 ---
 
-This document serves as a comprehensive overview of the accessibility efforts undertaken in the Cartful project. By adhering to AA 2.1 compliance standards, we aim to provide an inclusive experience for all users.
+This document serves as a comprehensive overview of the accessibility efforts undertaken in the Cartful project. By adhering to WCAG 2.1 compliance standards, we aim to provide an inclusive experience for all users.
