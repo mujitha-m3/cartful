@@ -25,9 +25,12 @@ document.addEventListener('keydown', function(event) {
     window.location.href = '/contact';
   }
 
-  // Shortcut for opening the about page (Ctrl + Alt + A)
+  // Shortcut for adding an item to the cart (Ctrl + Alt + A)
   if (event.ctrlKey && event.altKey && event.key === 'a') {
-    window.location.href = '/about';
+    const firstAddToCartButton = document.querySelector('.add-to-cart-button');
+    if (firstAddToCartButton) {
+      firstAddToCartButton.click();
+    }
   }
 
   // Shortcut for logging out (Ctrl + Alt + L)
