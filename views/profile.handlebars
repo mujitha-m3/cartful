@@ -1,30 +1,30 @@
-<main class="account-dashboard">
-  <h1 class="welcome-title">Welcome, {{user.fullName}} 👋</h1>
+<main class="account-dashboard" role="main" aria-labelledby="welcome-title">
+  <h1 class="welcome-title" id="welcome-title">Welcome, {{user.fullName}} 👋</h1>
   <p class="sub-text">Manage your account settings:</p>
 
   <div class="card-grid">
     <div class="card">
       <h2>📱 Personal Info</h2>
       <p>Update your name, phone number, and password.</p>
-      <a href="/account/settings" class="btn btn-outline-primary">Go to Settings</a>
+      <a href="/account/settings" class="btn btn-outline-primary" aria-label="Go to Personal Info settings">Go to Settings</a>
     </div>
 
     <div class="card">
       <h2>🧾 Order History</h2>
       <p>View your past orders and their status.</p>
-      <a href="/orders-history" class="btn btn-outline-primary">View Orders</a>
+      <a href="/orders-history" class="btn btn-outline-primary" aria-label="View your Order History">View Orders</a>
     </div>
 
     <div class="card">
       <h2>💖 Wishlist</h2>
       <p>Check and manage your saved items.</p>
-      <a href="/wishlist" class="btn btn-outline-primary">Go to Wishlist</a>
+      <a href="/wishlist" class="btn btn-outline-primary" aria-label="Go to your Wishlist">Go to Wishlist</a>
     </div>
 
     <div class="card">
       <h2>📦 View All Products</h2>
       <p>Browse the full product catalog.</p>
-      <a href="/products/viewproducts" class="btn btn-outline-primary">View Products</a>
+      <a href="/products/viewproducts" class="btn btn-outline-primary" aria-label="View all Products">View Products</a>
     </div>
   </div>
 </main>
