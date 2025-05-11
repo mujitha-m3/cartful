@@ -97,8 +97,8 @@
             <form method="POST" action="/cart/add" class="add-to-cart-form" aria-label="Add {{this.name}} to cart">
               <input type="hidden" name="product_id" value="{{this._id}}" />
               <div class="d-flex">
-                <button type="submit" class="btn btn-primary add-to-cart-button" aria-label="Add {{this.name}} to cart">Add to Cart</button>
-                <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button" aria-label="View details of {{this.name}}">View Details</a>
+                <button type="submit" class="btn btn-primary add-to-cart-button" style="min-width: 44px; min-height: 44px; padding: 12px;" aria-label="Add {{this.name}} to cart">Add to Cart</button>
+                <a href="/products/view/{{this._id}}" class="btn btn-outline-primary view-button" style="min-width: 44px; min-height: 44px; padding: 12px;" aria-label="View details of {{this.name}}">View Details</a>
               </div>
             </form>
           </div>
